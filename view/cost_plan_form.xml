@@ -1,0 +1,29 @@
+<?xml version="1.0"?>
+<!-- The COPYRIGHT file at the top level of this repository contains the full
+     copyright notices and license terms. -->
+<form string="Product Cost Plan">
+    <label name="product"/>
+    <field name="product"/>
+    <label name="quantity"/>
+    <field name="quantity"/>
+    <label name="bom"/>
+    <field name="bom"/>
+    <newline/>
+    <notebook>
+        <page string="General" id="general">
+            <field name="products" colspan="4"/>
+            <label name="product_cost"/>
+            <field name="product_cost"/>
+        </page>
+        <page string="BOM Configuration" id="configuration">
+            <field name="boms" colspan="4"/>
+        </page>
+    </notebook>
+    <label name="total_cost"/>
+    <field name="total_cost"/>
+    <newline/>
+    <label name="state"/>
+    <field name="state"/>
+    <button name="compute"/>
+    <button name="reset"/>
+</form>

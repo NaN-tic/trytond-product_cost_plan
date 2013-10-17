@@ -1,0 +1,12 @@
+<?xml version="1.0"?>
+<!-- The COPYRIGHT file at the top level of this repository contains the full
+     copyright notices and license terms. -->
+<tree string="Product Cost Plan Product Line" editable="bottom">
+    <field name="plan"/>
+    <field name="product"/>
+    <field name="quantity"/>
+    <field name="product_cost_price"/>
+    <field name="cost_price"/>
+    <field name="last_purchase_price"/>
+    <field name="total"/>
+</tree>
