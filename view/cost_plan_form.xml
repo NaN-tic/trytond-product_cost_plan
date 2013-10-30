@@ -1,15 +1,14 @@
 <?xml version="1.0"?>
 <!-- The COPYRIGHT file at the top level of this repository contains the full
      copyright notices and license terms. -->
-<form string="Product Cost Plan">
+<form string="Product Cost Plan" col="6">
     <label name="product"/>
     <field name="product"/>
-    <label name="quantity"/>
-    <field name="quantity"/>
     <label name="bom"/>
     <field name="bom"/>
-    <newline/>
-    <notebook>
+    <label name="quantity"/>
+    <field name="quantity"/>
+    <notebook colspan="6">
         <page string="General" id="general">
             <field name="products" colspan="4"/>
             <label name="product_cost"/>
