@@ -12,7 +12,8 @@ class Plan(Workflow, ModelSQL, ModelView):
     product = fields.Many2One('product.product', 'Product', required=True)
     bom = fields.Many2One('production.bom', 'BOM', on_change_with=['product'],
         required=True)
-    boms = fields.One2Many('product.cost.plan.bom', 'plan', 'BOMs', states={
+    boms = fields.One2Many('product.cost.plan.bom_line', 'plan', 'BOMs',
+        states={
             'readonly': Eval('state') != 'draft',
             }, depends=['state'], on_change_with=['bom'])
     quantity = fields.Float('Quantity', required=True)
@@ -82,7 +83,7 @@ class Plan(Workflow, ModelSQL, ModelView):
 
 class PlanBOM(ModelSQL, ModelView):
     'Product Cost Plan BOM'
-    __name__ = 'product.cost.plan.bom'
+    __name__ = 'product.cost.plan.bom_line'
     plan = fields.Many2One('product.cost.plan', 'Plan', required=True)
     product = fields.Many2One('product.product', 'Product', required=True)
     bom = fields.Many2One('production.bom', 'BOM')
