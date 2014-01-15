@@ -1,7 +1,7 @@
 from decimal import Decimal
 from trytond.model import Workflow, ModelSQL, ModelView, fields
 from trytond.pool import Pool
-from trytond.pyson import Eval
+from trytond.pyson import Eval, Bool
 
 __all__ = ['Plan', 'PlanBOM', 'PlanProductLine']
 
@@ -214,8 +214,13 @@ class PlanProductLine(ModelSQL, ModelView):
         domain=[
             ('category', '=', Eval('uom_category')),
         ], depends=['uom_category'])
-    product_cost_price = fields.Numeric('Product Cost Price', required=True)
-    last_purchase_price = fields.Numeric('Last Purchase Price')
+    product_cost_price = fields.Numeric('Product Cost Price', required=True,
+        states={
+            'readonly': Bool(Eval('product', 0)),
+            }, depends=['product'])
+    last_purchase_price = fields.Numeric('Last Purchase Price', states={
+            'readonly': Bool(Eval('product', 0)),
+            }, depends=['product'])
     cost_price = fields.Numeric('Cost Price', required=True)
     total = fields.Function(fields.Numeric('Total Cost', on_change_with=[
                 'quantity', 'cost_price', 'uom', 'product']),
@@ -228,11 +233,11 @@ class PlanProductLine(ModelSQL, ModelView):
             if (not self.uom or self.uom not in uoms):
                 res['uom'] = self.product.default_uom.id
                 res['uom.rec_name'] = self.product.default_uom.rec_name
-                res['product_cost'] = self.product.cost_price
+                res['product_cost_price'] = self.product.cost_price
         else:
             res['uom'] = None
             res['uom.rec_name'] = ''
-            res['product_cost'] = None
+            res['product_cost_price'] = None
         return res
 
     def on_change_with_uom_category(self, name=None):
@@ -242,6 +247,8 @@ class PlanProductLine(ModelSQL, ModelView):
     def on_change_with_total(self, name=None):
         pool = Pool()
         Uom = pool.get('product.uom')
+        if not self.product:
+            return Decimal('0.0')
         quantity = Uom.compute_qty(self.uom, self.quantity,
             self.product.default_uom, round=False)
 
