@@ -20,7 +20,7 @@ class Plan(Workflow, ModelSQL, ModelView):
             }, depends=['state', 'product'],
         domain=[
             ('output_products', '=', Eval('product', 0)),
-            ],)
+            ])
     boms = fields.One2Many('product.cost.plan.bom_line', 'plan', 'BOMs',
         states={
             'readonly': Eval('state') != 'draft',
@@ -37,6 +37,8 @@ class Plan(Workflow, ModelSQL, ModelView):
     total_cost = fields.Function(fields.Numeric('Total Cost',
             on_change_with=['product_cost']),
         'on_change_with_total_cost')
+    unit_cost_price = fields.Function(fields.Numeric('Unit Cost Price'),
+        'get_unit_cost_price')
     state = fields.Selection([
             ('draft', 'Draft'),
             ('computed', 'Computed'),
@@ -112,6 +114,12 @@ class Plan(Workflow, ModelSQL, ModelView):
 
     def on_change_with_total_cost(self, name=None):
         return self.product_cost
+
+    def get_unit_cost_price(self, name):
+        total_cost = self.total_cost
+        if self.quantity and total_cost:
+            return total_cost / Decimal(str(self.quantity))
+        return Decimal('0.0')
 
     @classmethod
     @ModelView.button

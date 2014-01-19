@@ -20,6 +20,8 @@
     </notebook>
     <label name="total_cost"/>
     <field name="total_cost"/>
+    <label name="unit_cost_price"/>
+    <field name="unit_cost_price"/>
     <newline/>
     <group id="state" colspan="6">
         <label name="state"/>
