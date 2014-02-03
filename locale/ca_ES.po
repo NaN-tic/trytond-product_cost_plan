@@ -2,6 +2,10 @@
 msgid ""
 msgstr "Content-Type: text/plain; charset=utf-8\n"
 
+msgctxt "error:product.cost.plan.cost:"
+msgid "You can not delete cost \"%s\" because it's managed by system."
+msgstr "No podeu esborrar el cost \"%s\" perquè es gestionat pel sistema."
+
 msgctxt "field:product.cost.plan,bom:"
 msgid "BOM"
 msgstr "Llista de materials"
@@ -9,6 +13,10 @@ msgstr "Llista de materials"
 msgctxt "field:product.cost.plan,boms:"
 msgid "BOMs"
 msgstr "Llistes de materials"
+
+msgctxt "field:product.cost.plan,costs:"
+msgid "Costs"
+msgstr "Costos"
 
 msgctxt "field:product.cost.plan,create_date:"
 msgid "Create Date"
@@ -94,6 +102,74 @@ msgctxt "field:product.cost.plan.bom_line,write_uid:"
 msgid "Write User"
 msgstr "Usuari modificació"
 
+msgctxt "field:product.cost.plan.cost,cost:"
+msgid "Cost"
+msgstr "Cost"
+
+msgctxt "field:product.cost.plan.cost,create_date:"
+msgid "Create Date"
+msgstr "Data de creació"
+
+msgctxt "field:product.cost.plan.cost,create_uid:"
+msgid "Create User"
+msgstr "Usuari de creació"
+
+msgctxt "field:product.cost.plan.cost,id:"
+msgid "ID"
+msgstr "Identificador"
+
+msgctxt "field:product.cost.plan.cost,plan:"
+msgid "Plan"
+msgstr "Pla"
+
+msgctxt "field:product.cost.plan.cost,rec_name:"
+msgid "Name"
+msgstr "Nom"
+
+msgctxt "field:product.cost.plan.cost,system:"
+msgid "System Managed"
+msgstr "Gestionat pel sistema"
+
+msgctxt "field:product.cost.plan.cost,type:"
+msgid "Type"
+msgstr "Tipus"
+
+msgctxt "field:product.cost.plan.cost,write_date:"
+msgid "Write Date"
+msgstr "Data modificació"
+
+msgctxt "field:product.cost.plan.cost,write_uid:"
+msgid "Write User"
+msgstr "Usuari modificació"
+
+msgctxt "field:product.cost.plan.cost.type,create_date:"
+msgid "Create Date"
+msgstr "Data de creació"
+
+msgctxt "field:product.cost.plan.cost.type,create_uid:"
+msgid "Create User"
+msgstr "Usuari de creació"
+
+msgctxt "field:product.cost.plan.cost.type,id:"
+msgid "ID"
+msgstr "Identificador"
+
+msgctxt "field:product.cost.plan.cost.type,name:"
+msgid "Name"
+msgstr "Nom"
+
+msgctxt "field:product.cost.plan.cost.type,rec_name:"
+msgid "Name"
+msgstr "Nom"
+
+msgctxt "field:product.cost.plan.cost.type,write_date:"
+msgid "Write Date"
+msgstr "Data modificació"
+
+msgctxt "field:product.cost.plan.cost.type,write_uid:"
+msgid "Write User"
+msgstr "Usuari modificació"
+
 msgctxt "field:product.cost.plan.product_line,cost_price:"
 msgid "Cost Price"
 msgstr "Preu de cost"
@@ -162,6 +238,14 @@ msgctxt "model:ir.action,name:act_product_cost_plan_bom_line"
 msgid "Product Cost Plan BOM"
 msgstr "LdM Pla de costos de producte"
 
+msgctxt "model:ir.action,name:act_product_cost_plan_cost"
+msgid "Plan Costs"
+msgstr "Pla de costs"
+
+msgctxt "model:ir.action,name:act_product_cost_plan_cost_type"
+msgid "Plan Cost Type"
+msgstr "Tipus de pla de cost"
+
 msgctxt "model:ir.action,name:act_product_cost_plan_product_line"
 msgid "Product Cost Plan Product Line"
 msgstr "Línia de producte de Pla de costos de producte"
@@ -170,6 +254,10 @@ msgctxt "model:ir.ui.menu,name:menu_product_cost_plan"
 msgid "Product Cost Plan"
 msgstr "Pla de costos de producte"
 
+msgctxt "model:ir.ui.menu,name:menu_product_cost_plan_cost_type"
+msgid "Plan Cost Type"
+msgstr "Tipus de pla de cost"
+
 msgctxt "model:product.cost.plan,name:"
 msgid "Product Cost Plan"
 msgstr "Pla de costos de producte"
@@ -177,6 +265,18 @@ msgstr "Pla de costos de producte"
 msgctxt "model:product.cost.plan.bom_line,name:"
 msgid "Product Cost Plan BOM"
 msgstr "LdM Pla de costos de producte"
+
+msgctxt "model:product.cost.plan.cost,name:"
+msgid "Plan Cost"
+msgstr "Pla de costs"
+
+msgctxt "model:product.cost.plan.cost.type,name:"
+msgid "Plan Cost Type"
+msgstr "Tipus de pla de cost"
+
+msgctxt "model:product.cost.plan.cost.type,name:raw_materials"
+msgid "Raw materials"
+msgstr "Materies primes"
 
 msgctxt "model:product.cost.plan.product_line,name:"
 msgid "Product Cost Plan Product Line"
@@ -202,6 +302,14 @@ msgctxt "view:product.cost.plan.bom_line:"
 msgid "Product Cost Plan BOM"
 msgstr "LdM Pla de costos de producte"
 
+msgctxt "view:product.cost.plan.cost.type:"
+msgid "Plan Cost Type"
+msgstr "Tipus de pla de cost"
+
+msgctxt "view:product.cost.plan.cost:"
+msgid "Plan Cost"
+msgstr "Pla de costs"
+
 msgctxt "view:product.cost.plan.product_line:"
 msgid "Product Cost Plan Product Line"
 msgstr "Línia de producte de Pla de costos de producte"
@@ -213,6 +321,10 @@ msgstr "Configuració de llistes de materials"
 msgctxt "view:product.cost.plan:"
 msgid "Compute"
 msgstr "Calcula"
+
+msgctxt "view:product.cost.plan:"
+msgid "Costs"
+msgstr "Costos"
 
 msgctxt "view:product.cost.plan:"
 msgid "General"

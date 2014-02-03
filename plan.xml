@@ -141,6 +141,84 @@
             <field name="perm_create" eval="True"/>
             <field name="perm_delete" eval="True"/>
         </record>
+        <record model="ir.ui.view" id="product_cost_plan_cost_view_form">
+            <field name="model">product.cost.plan.cost</field>
+            <field name="type">form</field>
+            <field name="name">plan_cost_form</field>
+        </record>
+        <record model="ir.ui.view" id="product_cost_plan_cost_view_list">
+            <field name="model">product.cost.plan.cost</field>
+            <field name="type">tree</field>
+            <field name="name">plan_cost_list</field>
+        </record>
+        <record model="ir.action.act_window" id="act_product_cost_plan_cost">
+            <field name="name">Plan Costs</field>
+            <field name="res_model">product.cost.plan.cost</field>
+        </record>
+        <record model="ir.action.act_window.view" id="act_product_cost_plan_cost_view1">
+            <field name="sequence" eval="10"/>
+            <field name="view" ref="product_cost_plan_cost_view_list"/>
+            <field name="act_window" ref="act_product_cost_plan_cost"/>
+        </record>
+        <record model="ir.action.act_window.view" id="act_product_cost_plan_cost_view2">
+            <field name="sequence" eval="20"/>
+            <field name="view" ref="product_cost_plan_cost_view_form"/>
+            <field name="act_window" ref="act_product_cost_plan_cost"/>
+        </record>
+        <record model="ir.model.access" id="access_product_cost_plan_cost">
+            <field name="model" search="[('model', '=', 'product.cost.plan.cost')]"/>
+            <field name="perm_read" eval="True"/>
+            <field name="perm_write" eval="False"/>
+            <field name="perm_create" eval="False"/>
+            <field name="perm_delete" eval="False"/>
+        </record>
+        <record model="ir.model.access" id="access_product_cost_plan_cost_admin">
+            <field name="model" search="[('model', '=', 'product.cost.plan.cost')]"/>
+            <field name="group" ref="group_product_cost_plan_admin"/>
+            <field name="perm_read" eval="True"/>
+            <field name="perm_write" eval="True"/>
+            <field name="perm_create" eval="True"/>
+            <field name="perm_delete" eval="True"/>
+        </record>
+        <record model="ir.ui.view" id="product_cost_plan_cost_type_view_form">
+            <field name="model">product.cost.plan.cost.type</field>
+            <field name="type">form</field>
+            <field name="name">plan_cost_type_form</field>
+        </record>
+        <record model="ir.ui.view" id="product_cost_plan_cost_type_view_list">
+            <field name="model">product.cost.plan.cost.type</field>
+            <field name="type">tree</field>
+            <field name="name">plan_cost_type_list</field>
+        </record>
+        <record model="ir.action.act_window" id="act_product_cost_plan_cost_type">
+            <field name="name">Plan Cost Type</field>
+            <field name="res_model">product.cost.plan.cost.type</field>
+        </record>
+        <record model="ir.action.act_window.view" id="act_product_cost_plan_cost_type_view1">
+            <field name="sequence" eval="10"/>
+            <field name="view" ref="product_cost_plan_cost_type_view_list"/>
+            <field name="act_window" ref="act_product_cost_plan_cost_type"/>
+        </record>
+        <record model="ir.action.act_window.view" id="act_product_cost_plan_cost_type_view2">
+            <field name="sequence" eval="20"/>
+            <field name="view" ref="product_cost_plan_cost_type_view_form"/>
+            <field name="act_window" ref="act_product_cost_plan_cost_type"/>
+        </record>
+        <record model="ir.model.access" id="access_product_cost_plan_cost_type">
+            <field name="model" search="[('model', '=', 'product.cost.plan.cost.type')]"/>
+            <field name="perm_read" eval="True"/>
+            <field name="perm_write" eval="False"/>
+            <field name="perm_create" eval="False"/>
+            <field name="perm_delete" eval="False"/>
+        </record>
+        <record model="ir.model.access" id="access_product_cost_plan_cost_type_admin">
+            <field name="model" search="[('model', '=', 'product.cost.plan.cost.type')]"/>
+            <field name="group" ref="group_product_cost_plan_admin"/>
+            <field name="perm_read" eval="True"/>
+            <field name="perm_write" eval="True"/>
+            <field name="perm_create" eval="True"/>
+            <field name="perm_delete" eval="True"/>
+        </record>
 
         <record model="ir.model.button" id="plan_compute_button">
             <field name="name">compute</field>
@@ -164,6 +242,17 @@
         <record model="ir.ui.menu-res.group" id="menu_product_cost_plan_group_product_cost_plan_admin">
             <field name="menu" ref="menu_product_cost_plan"/>
             <field name="group" ref="group_product_cost_plan"/>
+        </record>
+
+        <!-- Menus -->
+        <menuitem action="act_product_cost_plan_cost_type"
+            id="menu_product_cost_plan_cost_type"
+            parent="product_cost_plan.menu_product_cost_plan"
+            sequence="1"
+            name="Plan Cost Type"/>
+
+        <record model="product.cost.plan.cost.type" id="raw_materials">
+            <field name="name">Raw materials</field>
         </record>
     </data>
 </tryton>

@@ -2,6 +2,11 @@
 msgid ""
 msgstr "Content-Type: text/plain; charset=utf-8\n"
 
+msgctxt "error:product.cost.plan.cost:"
+msgid "You can not delete cost \"%s\" because it's managed by system."
+msgstr ""
+"No se puede eliminar el coste \"%s\" porque es gestionado por el sistema. "
+
 msgctxt "field:product.cost.plan,bom:"
 msgid "BOM"
 msgstr "Lista de material"
@@ -9,6 +14,10 @@ msgstr "Lista de material"
 msgctxt "field:product.cost.plan,boms:"
 msgid "BOMs"
 msgstr "Listas de material"
+
+msgctxt "field:product.cost.plan,costs:"
+msgid "Costs"
+msgstr "Costes"
 
 msgctxt "field:product.cost.plan,create_date:"
 msgid "Create Date"
@@ -94,6 +103,74 @@ msgctxt "field:product.cost.plan.bom_line,write_uid:"
 msgid "Write User"
 msgstr "Usuario modificación"
 
+msgctxt "field:product.cost.plan.cost,cost:"
+msgid "Cost"
+msgstr "Coste"
+
+msgctxt "field:product.cost.plan.cost,create_date:"
+msgid "Create Date"
+msgstr "Fecha de creación"
+
+msgctxt "field:product.cost.plan.cost,create_uid:"
+msgid "Create User"
+msgstr "Usuario de creación"
+
+msgctxt "field:product.cost.plan.cost,id:"
+msgid "ID"
+msgstr "Identificador"
+
+msgctxt "field:product.cost.plan.cost,plan:"
+msgid "Plan"
+msgstr "Plan"
+
+msgctxt "field:product.cost.plan.cost,rec_name:"
+msgid "Name"
+msgstr "Nombre"
+
+msgctxt "field:product.cost.plan.cost,system:"
+msgid "System Managed"
+msgstr "Gestinado por el sistema"
+
+msgctxt "field:product.cost.plan.cost,type:"
+msgid "Type"
+msgstr "Tipo"
+
+msgctxt "field:product.cost.plan.cost,write_date:"
+msgid "Write Date"
+msgstr "Fecha modificación"
+
+msgctxt "field:product.cost.plan.cost,write_uid:"
+msgid "Write User"
+msgstr "Usuario modificación"
+
+msgctxt "field:product.cost.plan.cost.type,create_date:"
+msgid "Create Date"
+msgstr "Fecha de creación"
+
+msgctxt "field:product.cost.plan.cost.type,create_uid:"
+msgid "Create User"
+msgstr "Usuario de creación"
+
+msgctxt "field:product.cost.plan.cost.type,id:"
+msgid "ID"
+msgstr "Identificador"
+
+msgctxt "field:product.cost.plan.cost.type,name:"
+msgid "Name"
+msgstr "Nombre"
+
+msgctxt "field:product.cost.plan.cost.type,rec_name:"
+msgid "Name"
+msgstr "Nombre"
+
+msgctxt "field:product.cost.plan.cost.type,write_date:"
+msgid "Write Date"
+msgstr "Fecha modificación"
+
+msgctxt "field:product.cost.plan.cost.type,write_uid:"
+msgid "Write User"
+msgstr "Usuario modificación"
+
 msgctxt "field:product.cost.plan.product_line,cost_price:"
 msgid "Cost Price"
 msgstr "Precio de coste"
@@ -162,6 +239,14 @@ msgctxt "model:ir.action,name:act_product_cost_plan_bom_line"
 msgid "Product Cost Plan BOM"
 msgstr "LdM Plan de coste del producto"
 
+msgctxt "model:ir.action,name:act_product_cost_plan_cost"
+msgid "Plan Costs"
+msgstr "Plan de costes"
+
+msgctxt "model:ir.action,name:act_product_cost_plan_cost_type"
+msgid "Plan Cost Type"
+msgstr "Tipo de coste"
+
 msgctxt "model:ir.action,name:act_product_cost_plan_product_line"
 msgid "Product Cost Plan Product Line"
 msgstr "Linea de producto Plan de coste del producto"
@@ -170,6 +255,10 @@ msgctxt "model:ir.ui.menu,name:menu_product_cost_plan"
 msgid "Product Cost Plan"
 msgstr "Plan de coste del producto"
 
+msgctxt "model:ir.ui.menu,name:menu_product_cost_plan_cost_type"
+msgid "Plan Cost Type"
+msgstr "Tipo de coste"
+
 msgctxt "model:product.cost.plan,name:"
 msgid "Product Cost Plan"
 msgstr "Plan de coste del producto"
@@ -177,6 +266,18 @@ msgstr "Plan de coste del producto"
 msgctxt "model:product.cost.plan.bom_line,name:"
 msgid "Product Cost Plan BOM"
 msgstr "LdM Plan de coste del producto"
+
+msgctxt "model:product.cost.plan.cost,name:"
+msgid "Plan Cost"
+msgstr "Plan de costes"
+
+msgctxt "model:product.cost.plan.cost.type,name:"
+msgid "Plan Cost Type"
+msgstr "Tipo de coste"
+
+msgctxt "model:product.cost.plan.cost.type,name:raw_materials"
+msgid "Raw materials"
+msgstr "Materias primas"
 
 msgctxt "model:product.cost.plan.product_line,name:"
 msgid "Product Cost Plan Product Line"
@@ -202,6 +303,14 @@ msgctxt "view:product.cost.plan.bom_line:"
 msgid "Product Cost Plan BOM"
 msgstr "LdM Plan de coste del producto"
 
+msgctxt "view:product.cost.plan.cost.type:"
+msgid "Plan Cost Type"
+msgstr "Tipo de coste"
+
+msgctxt "view:product.cost.plan.cost:"
+msgid "Plan Cost"
+msgstr "Plan de costes"
+
 msgctxt "view:product.cost.plan.product_line:"
 msgid "Product Cost Plan Product Line"
 msgstr "Linea de producto Plan de coste del producto"
@@ -213,6 +322,10 @@ msgstr "Configuración lista de material"
 msgctxt "view:product.cost.plan:"
 msgid "Compute"
 msgstr "Calcular"
+
+msgctxt "view:product.cost.plan:"
+msgid "Costs"
+msgstr "Costes"
 
 msgctxt "view:product.cost.plan:"
 msgid "General"

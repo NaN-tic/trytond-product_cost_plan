@@ -213,7 +213,25 @@ Create a cost plan for product (without child boms)::
     ...     ], limit=1)
     >>> len(cB) == 0
     True
+    >>> cost, = plan.costs
+    >>> cost.rec_name == 'Raw materials'
+    True
+    >>> cost.cost == Decimal('175.0')
+    True
     >>> plan.total_cost == Decimal('175.0')
+    True
+
+Create a manual cost and test total cost is updated::
+
+    >>> CostType = Model.get('product.cost.plan.cost.type')
+    >>> Cost = Model.get('product.cost.plan.cost')
+    >>> costtype = CostType(name='Manual')
+    >>> costtype.save()
+    >>> cost = Cost()
+    >>> plan.costs.append(cost)
+    >>> cost.type=costtype
+    >>> cost.cost=Decimal('25.0')
+    >>> plan.total_cost == Decimal('200.0')
     True
 
 Create a cost plan for product (with child boms)::

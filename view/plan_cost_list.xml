@@ -1,0 +1,9 @@
+<?xml version="1.0"?>
+<!-- The COPYRIGHT file at the top level of this repository contains the full
+     copyright notices and license terms. -->
+<tree string="Plan Cost" editable="bottom">
+    <field name="plan"/>
+    <field name="type"/>
+    <field name="cost"/>
+    <field name="system"/>
+</tree>

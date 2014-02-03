@@ -9,4 +9,6 @@ def register():
         Plan,
         PlanBOM,
         PlanProductLine,
+        PlanCostType,
+        PlanCost,
         module='product_cost_plan', type_='model')

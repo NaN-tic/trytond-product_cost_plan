@@ -1,0 +1,12 @@
+<?xml version="1.0"?>
+<!-- The COPYRIGHT file at the top level of this repository contains the full
+     copyright notices and license terms. -->
+<form string="Plan Cost">
+    <label name="plan"/>
+    <field name="plan"/>
+    <newline/>
+    <label name="type"/>
+    <field name="type"/>
+    <label name="cost"/>
+    <field name="cost"/>
+</form>

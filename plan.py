@@ -2,8 +2,15 @@ from decimal import Decimal
 from trytond.model import Workflow, ModelSQL, ModelView, fields
 from trytond.pool import Pool
 from trytond.pyson import Eval, Bool
+from trytond.transaction import Transaction
 
-__all__ = ['Plan', 'PlanBOM', 'PlanProductLine']
+__all__ = ['PlanCostType', 'Plan', 'PlanBOM', 'PlanProductLine', 'PlanCost']
+
+
+class PlanCostType(ModelSQL, ModelView):
+    'Plan Cost Type'
+    __name__ = 'product.cost.plan.cost.type'
+    name = fields.Char('Name', required=True, translate=True)
 
 
 class Plan(Workflow, ModelSQL, ModelView):
@@ -31,11 +38,14 @@ class Plan(Workflow, ModelSQL, ModelView):
     products = fields.One2Many('product.cost.plan.product_line', 'plan',
         'Products', states={
             'readonly': Eval('state') == 'draft',
-            }, depends=['state'])
+            },
+        depends=['state'],
+        on_change=['costs'])
     product_cost = fields.Function(fields.Numeric('Product Cost',
             on_change_with=['products']), 'on_change_with_product_cost')
+    costs = fields.One2Many('product.cost.plan.cost', 'plan', 'Costs')
     total_cost = fields.Function(fields.Numeric('Total Cost',
-            on_change_with=['product_cost']),
+            on_change_with=['costs']),
         'on_change_with_total_cost')
     unit_cost_price = fields.Function(fields.Numeric('Unit Cost Price'),
         'get_unit_cost_price')
@@ -106,6 +116,31 @@ class Plan(Workflow, ModelSQL, ModelView):
                     })
         return boms
 
+    def update_cost_type(self, type_, value):
+        """
+        Updates the cost line for type_ with value of field
+        """
+        res = {}
+        to_update = []
+        for cost in self.costs:
+            if cost.type == type_ and cost.system:
+                to_update.append(cost.update_cost_values(value))
+                cost.cost = value
+        if to_update:
+            res['costs'] = {'update': to_update}
+            res['total_cost'] = self.on_change_with_total_cost()
+        return res
+
+    def on_change_products(self):
+        pool = Pool()
+        CostType = pool.get('product.cost.plan.cost.type')
+        ModelData = pool.get('ir.model.data')
+
+        type_ = CostType(ModelData.get_id('product_cost_plan',
+                'raw_materials'))
+        self.product_cost = sum(p.total for p in self.products)
+        return self.update_cost_type(type_, self.product_cost)
+
     def on_change_with_product_cost(self, name=None):
         cost = Decimal('0.0')
         for line in self.products:
@@ -113,7 +148,11 @@ class Plan(Workflow, ModelSQL, ModelView):
         return cost
 
     def on_change_with_total_cost(self, name=None):
-        return self.product_cost
+        cost = Decimal('0.0')
+        for line in self.costs:
+            if line.cost:
+                cost += line.cost
+        return cost
 
     def get_unit_cost_price(self, name):
         total_cost = self.total_cost
@@ -127,13 +166,22 @@ class Plan(Workflow, ModelSQL, ModelView):
     def reset(cls, plans):
         pool = Pool()
         ProductLines = pool.get('product.cost.plan.product_line')
+        CostLines = pool.get('product.cost.plan.cost')
 
+        types = [x[0]for x in cls.get_cost_types()]
         to_delete = []
+        costs_to_delete = []
         for plan in plans:
             to_delete.extend(plan.products)
+            for line in plan.costs:
+                if line.type in types:
+                    costs_to_delete.append(line)
 
         if to_delete:
             ProductLines.delete(to_delete)
+        if costs_to_delete:
+            with Transaction().set_context(reset_costs=True):
+                CostLines.delete(costs_to_delete)
 
     @classmethod
     @ModelView.button
@@ -141,6 +189,7 @@ class Plan(Workflow, ModelSQL, ModelView):
     def compute(cls, plans):
         pool = Pool()
         ProductLines = pool.get('product.cost.plan.product_line')
+        CostLines = pool.get('product.cost.plan.cost')
 
         to_create = []
         for plan in plans:
@@ -148,6 +197,43 @@ class Plan(Workflow, ModelSQL, ModelView):
                     plan.quantity, plan.product.default_uom))
         if to_create:
             ProductLines.create(to_create)
+
+        costs_to_create = []
+        for plan in plans:
+            costs_to_create.extend(plan.get_costs())
+        if costs_to_create:
+            CostLines.create(costs_to_create)
+
+    def get_costs(self):
+        " Returns the cost lines to be created on compute "
+        ret = []
+        for cost_type, field_name in self.get_cost_types():
+            ret.append(self.get_cost_line(cost_type, field_name))
+        return ret
+
+    def get_cost_line(self, cost_type, field_name):
+        cost = getattr(self, field_name, 0.0)
+        return {
+            'type': cost_type.id,
+            'cost': Decimal(str(cost)),
+            'plan': self.id,
+            'system': True,
+            }
+
+    @classmethod
+    def get_cost_types(cls):
+        """
+        Returns a list of values with the cost types and the field to get
+        their cost.
+        """
+        pool = Pool()
+        CostType = pool.get('product.cost.plan.cost.type')
+        ModelData = pool.get('ir.model.data')
+        ret = []
+        type_ = CostType(ModelData.get_id('product_cost_plan',
+                'raw_materials'))
+        ret.append((type_, 'product_cost'))
+        return ret
 
     def explode_bom(self, product, bom, quantity, uom):
         " Returns products for the especified products"
@@ -261,3 +347,51 @@ class PlanProductLine(ModelSQL, ModelView):
             self.product.default_uom, round=False)
 
         return Decimal(str(quantity)) * (self.cost_price or Decimal('0.0'))
+
+STATES = {
+    'readonly': Eval('system', False),
+    }
+DEPENDS = ['system']
+
+
+class PlanCost(ModelSQL, ModelView):
+    'Plan Cost'
+    __name__ = 'product.cost.plan.cost'
+
+    plan = fields.Many2One('product.cost.plan', 'Plan', required=True)
+    type = fields.Many2One('product.cost.plan.cost.type', 'Type',
+        required=True, states=STATES, depends=DEPENDS)
+    cost = fields.Numeric('Cost', required=True, states=STATES,
+        depends=DEPENDS)
+    system = fields.Boolean('System Managed', readonly=True)
+
+    @classmethod
+    def __setup__(cls):
+        super(PlanCost, cls).__setup__()
+        cls._error_messages.update({
+                'delete_system_cost': ('You can not delete cost "%s" '
+                    'because it\'s managed by system.'),
+                })
+
+    @staticmethod
+    def default_system():
+        return False
+
+    def get_rec_name(self, name):
+        return self.type.rec_name
+
+    @classmethod
+    def search_rec_name(cls, name, clause):
+        return [('type.name',) + tuple(clause[1:])]
+
+    @classmethod
+    def delete(cls, costs):
+        if not Transaction().context.get('reset_costs', False):
+            for cost in costs:
+                if cost.system:
+                    cls.raise_user_error('delete_system_cost',
+                        cost.rec_name)
+        super(PlanCost, cls).delete(costs)
+
+    def update_cost_values(self, value):
+        return {'cost': value, 'id': self.id}
