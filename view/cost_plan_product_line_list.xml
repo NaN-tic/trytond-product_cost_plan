@@ -7,7 +7,7 @@
     <field name="quantity"/>
     <field name="uom"/>
     <field name="product_cost_price"/>
-    <field name="cost_price"/>
     <field name="last_purchase_price"/>
+    <field name="cost_price"/>
     <field name="total"/>
 </tree>

@@ -1,7 +1,7 @@
 from decimal import Decimal
 from trytond.model import Workflow, ModelSQL, ModelView, fields
 from trytond.pool import Pool
-from trytond.pyson import Eval, Bool
+from trytond.pyson import Eval, Bool, If
 from trytond.transaction import Transaction
 
 __all__ = ['PlanCostType', 'Plan', 'PlanBOM', 'PlanProductLine', 'PlanCost']
@@ -17,12 +17,13 @@ class Plan(Workflow, ModelSQL, ModelView):
     'Product Cost Plan'
     __name__ = 'product.cost.plan'
 
-    product = fields.Many2One('product.product', 'Product', required=True,
+    number = fields.Char('Number')
+    product = fields.Many2One('product.product', 'Product',
         states={
             'readonly': Eval('state') != 'draft',
             }, depends=['state'], on_change=['product', 'bom', 'boms'])
     bom = fields.Many2One('production.bom', 'BOM', on_change_with=['product'],
-        required=True, states={
+        states={
             'readonly': Eval('state') != 'draft',
             }, depends=['state', 'product'],
         domain=[
@@ -40,7 +41,7 @@ class Plan(Workflow, ModelSQL, ModelView):
             'readonly': Eval('state') == 'draft',
             },
         depends=['state'],
-        on_change=['costs'])
+        on_change=['costs', 'products'])
     product_cost = fields.Function(fields.Numeric('Product Cost',
             on_change_with=['products']), 'on_change_with_product_cost')
     costs = fields.One2Many('product.cost.plan.cost', 'plan', 'Costs')
@@ -138,21 +139,16 @@ class Plan(Workflow, ModelSQL, ModelView):
 
         type_ = CostType(ModelData.get_id('product_cost_plan',
                 'raw_materials'))
-        self.product_cost = sum(p.total for p in self.products)
+        self.product_cost = sum(p.total for p in self.products if p.total)
         return self.update_cost_type(type_, self.product_cost)
 
     def on_change_with_product_cost(self, name=None):
-        cost = Decimal('0.0')
-        for line in self.products:
-            cost += line.total
-        return cost
+	cost = sum(p.total for p in self.products if p.total)
+        return cost or Decimal('0.0')
 
     def on_change_with_total_cost(self, name=None):
-        cost = Decimal('0.0')
-        for line in self.costs:
-            if line.cost:
-                cost += line.cost
-        return cost
+	cost = sum(c.cost for c in self.costs if c.cost)
+        return cost or Decimal('0.0')
 
     def get_unit_cost_price(self, name):
         total_cost = self.total_cost
@@ -193,8 +189,9 @@ class Plan(Workflow, ModelSQL, ModelView):
 
         to_create = []
         for plan in plans:
-            to_create.extend(plan.explode_bom(plan.product, plan.bom,
-                    plan.quantity, plan.product.default_uom))
+            if plan.product and plan.bom:
+                to_create.extend(plan.explode_bom(plan.product, plan.bom,
+                        plan.quantity, plan.product.default_uom))
         if to_create:
             ProductLines.create(to_create)
 
@@ -284,7 +281,8 @@ class PlanBOM(ModelSQL, ModelView):
     'Product Cost Plan BOM'
     __name__ = 'product.cost.plan.bom_line'
 
-    plan = fields.Many2One('product.cost.plan', 'Plan', required=True)
+    plan = fields.Many2One('product.cost.plan', 'Plan', required=True,
+        ondelete='CASCADE')
     product = fields.Many2One('product.product', 'Product', required=True)
     bom = fields.Many2One('production.bom', 'BOM', domain=[
             ('output_products', '=', Eval('product', 0)),
@@ -295,8 +293,9 @@ class PlanProductLine(ModelSQL, ModelView):
     'Product Cost Plan Product Line'
     __name__ = 'product.cost.plan.product_line'
 
-    plan = fields.Many2One('product.cost.plan', 'Plan', required=True)
-    product = fields.Many2One('product.product', 'Product', required=True,
+    plan = fields.Many2One('product.cost.plan', 'Plan', required=True,
+        ondelete='CASCADE')
+    product = fields.Many2One('product.product', 'Product',
         domain=[
             ('type', '!=', 'service'),
         ], on_change=['product', 'uom'])
@@ -306,14 +305,17 @@ class PlanProductLine(ModelSQL, ModelView):
         on_change_with=['product']), 'on_change_with_uom_category')
     uom = fields.Many2One('product.uom', 'Uom', required=True,
         domain=[
+            If(Bool(Eval('product', 0)),
             ('category', '=', Eval('uom_category')),
+            ('id', '!=', 0),
+            )
         ], depends=['uom_category'])
-    product_cost_price = fields.Numeric('Product Cost Price', required=True,
+    product_cost_price = fields.Numeric('Product Cost Price',
         states={
-            'readonly': Bool(Eval('product', 0)),
+            'readonly': True,
             }, depends=['product'])
     last_purchase_price = fields.Numeric('Last Purchase Price', states={
-            'readonly': Bool(Eval('product', 0)),
+            'readonly': True,
             }, depends=['product'])
     cost_price = fields.Numeric('Cost Price', required=True)
     total = fields.Function(fields.Numeric('Total Cost', on_change_with=[
@@ -325,9 +327,11 @@ class PlanProductLine(ModelSQL, ModelView):
         if self.product:
             uoms = self.product.default_uom.category.uoms
             if (not self.uom or self.uom not in uoms):
+                # TODO: Convert price to UoM
                 res['uom'] = self.product.default_uom.id
                 res['uom.rec_name'] = self.product.default_uom.rec_name
                 res['product_cost_price'] = self.product.cost_price
+		res['cost_price'] = self.product.cost_price
         else:
             res['uom'] = None
             res['uom.rec_name'] = ''
@@ -341,11 +345,14 @@ class PlanProductLine(ModelSQL, ModelView):
     def on_change_with_total(self, name=None):
         pool = Pool()
         Uom = pool.get('product.uom')
-        if not self.product:
+	quantity = self.quantity
+        if self.product:
+            # TODO: Once converted prices to line's UoM, do not do the following
+            # conversion
+            quantity = Uom.compute_qty(self.uom, self.quantity,
+                self.product.default_uom, round=False)
+        if not quantity:
             return Decimal('0.0')
-        quantity = Uom.compute_qty(self.uom, self.quantity,
-            self.product.default_uom, round=False)
-
         return Decimal(str(quantity)) * (self.cost_price or Decimal('0.0'))
 
 STATES = {
@@ -358,7 +365,8 @@ class PlanCost(ModelSQL, ModelView):
     'Plan Cost'
     __name__ = 'product.cost.plan.cost'
 
-    plan = fields.Many2One('product.cost.plan', 'Plan', required=True)
+    plan = fields.Many2One('product.cost.plan', 'Plan', required=True,
+        ondelete='CASCADE')
     type = fields.Many2One('product.cost.plan.cost.type', 'Type',
         required=True, states=STATES, depends=DEPENDS)
     cost = fields.Numeric('Cost', required=True, states=STATES,
