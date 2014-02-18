@@ -144,11 +144,11 @@ class Plan(Workflow, ModelSQL, ModelView):
 
     def on_change_with_product_cost(self, name=None):
 	cost = sum(p.total for p in self.products if p.total)
-        return cost or Decimal('0.0')
+        return cost
 
     def on_change_with_total_cost(self, name=None):
 	cost = sum(c.cost for c in self.costs if c.cost)
-        return cost or Decimal('0.0')
+        return cost
 
     def get_unit_cost_price(self, name):
         total_cost = self.total_cost
