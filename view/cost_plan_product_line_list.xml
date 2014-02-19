@@ -3,6 +3,7 @@
      copyright notices and license terms. -->
 <tree string="Product Cost Plan Product Line" editable="bottom">
     <field name="plan"/>
+    <field name="name"/>
     <field name="product"/>
     <field name="quantity"/>
     <field name="uom"/>

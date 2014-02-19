@@ -269,12 +269,13 @@ class Plan(Workflow, ModelSQL, ModelView):
         Input = pool.get('production.bom.input')
         quantity = Input.compute_quantity(input_, factor)
         return {
+            'name': input_.product.rec_name,
             'product': input_.product.id,
             'quantity': quantity,
             'uom': input_.uom.id,
             'product_cost_price': input_.product.cost_price,
             'cost_price': input_.product.cost_price,
-        }
+            }
 
 
 class PlanBOM(ModelSQL, ModelView):
@@ -293,6 +294,7 @@ class PlanProductLine(ModelSQL, ModelView):
     'Product Cost Plan Product Line'
     __name__ = 'product.cost.plan.product_line'
 
+    name = fields.Char('Name', required=True)
     plan = fields.Many2One('product.cost.plan', 'Plan', required=True,
         ondelete='CASCADE')
     product = fields.Many2One('product.product', 'Product',
@@ -328,11 +330,13 @@ class PlanProductLine(ModelSQL, ModelView):
             uoms = self.product.default_uom.category.uoms
             if (not self.uom or self.uom not in uoms):
                 # TODO: Convert price to UoM
+                res['name'] = self.product.rec_name
                 res['uom'] = self.product.default_uom.id
                 res['uom.rec_name'] = self.product.default_uom.rec_name
                 res['product_cost_price'] = self.product.cost_price
 		res['cost_price'] = self.product.cost_price
         else:
+            res['name'] = None
             res['uom'] = None
             res['uom.rec_name'] = ''
             res['product_cost_price'] = None
