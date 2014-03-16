@@ -6,5 +6,5 @@
     <field name="product"/>
     <field name="bom"/>
     <field name="state"/>
-    <field name="active" invisible_tree="1"/>
+    <field name="active" tree_invisible="1"/>
 </tree>
