@@ -292,7 +292,7 @@ msgstr "Administració Pla de costos de producte"
 
 msgctxt "selection:product.cost.plan,state:"
 msgid "Computed"
-msgstr "Calcul·lat"
+msgstr "Calculat"
 
 msgctxt "selection:product.cost.plan,state:"
 msgid "Draft"
