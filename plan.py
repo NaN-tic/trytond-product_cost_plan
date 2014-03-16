@@ -18,6 +18,7 @@ class Plan(Workflow, ModelSQL, ModelView):
     __name__ = 'product.cost.plan'
 
     number = fields.Char('Number')
+    active = fields.Boolean('Active')
     product = fields.Many2One('product.product', 'Product',
         states={
             'readonly': Eval('state') != 'draft',
@@ -68,6 +69,10 @@ class Plan(Workflow, ModelSQL, ModelView):
                     'icon': 'tryton-go-previous',
                     }
                 })
+
+    @staticmethod
+    def default_active():
+        return True
 
     @staticmethod
     def default_state():
