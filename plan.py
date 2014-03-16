@@ -43,12 +43,13 @@ class Plan(Workflow, ModelSQL, ModelView):
         depends=['state'],
         on_change=['costs', 'products'])
     product_cost = fields.Function(fields.Numeric('Product Cost',
-            on_change_with=['products']), 'on_change_with_product_cost')
+            on_change_with=['products'], digits=(16, 4)), 'on_change_with_product_cost')
     costs = fields.One2Many('product.cost.plan.cost', 'plan', 'Costs')
     total_cost = fields.Function(fields.Numeric('Total Cost',
-            on_change_with=['costs']),
+            on_change_with=['costs'], digits=(16, 4)),
         'on_change_with_total_cost')
-    unit_cost_price = fields.Function(fields.Numeric('Unit Cost Price'),
+    unit_cost_price = fields.Function(fields.Numeric('Unit Cost Price',
+            digits=(16, 4)),
         'get_unit_cost_price')
     state = fields.Selection([
             ('draft', 'Draft'),
@@ -301,7 +302,8 @@ class PlanProductLine(ModelSQL, ModelView):
         domain=[
             ('type', '!=', 'service'),
         ], on_change=['product', 'uom'])
-    quantity = fields.Float('Quantity', required=True)
+    quantity = fields.Float('Quantity', required=True,
+        digits=(16, Eval('uom_digits', 2)), depends=['uom_digits'])
     uom_category = fields.Function(fields.Many2One(
         'product.uom.category', 'Uom Category',
         on_change_with=['product']), 'on_change_with_uom_category')
@@ -311,17 +313,19 @@ class PlanProductLine(ModelSQL, ModelView):
             ('category', '=', Eval('uom_category')),
             ('id', '!=', 0),
             )
-        ], depends=['uom_category'])
-    product_cost_price = fields.Numeric('Product Cost Price',
+            ], depends=['uom_category', 'product'])
+    uom_digits = fields.Function(fields.Integer('UOM Digits',
+        on_change_with=['uom']), 'on_change_with_uom_digits')
+    product_cost_price = fields.Numeric('Product Cost Price', digits=(16, 4),
         states={
             'readonly': True,
             }, depends=['product'])
     last_purchase_price = fields.Numeric('Last Purchase Price', states={
             'readonly': True,
-            }, depends=['product'])
-    cost_price = fields.Numeric('Cost Price', required=True)
+            }, depends=['product'], digits=(16, 4))
+    cost_price = fields.Numeric('Cost Price', required=True, digits=(16, 4))
     total = fields.Function(fields.Numeric('Total Cost', on_change_with=[
-                'quantity', 'cost_price', 'uom', 'product']),
+                'quantity', 'cost_price', 'uom', 'product'], digits=(16, 4)),
         'on_change_with_total')
 
     def on_change_product(self):
@@ -359,6 +363,12 @@ class PlanProductLine(ModelSQL, ModelView):
             return Decimal('0.0')
         return Decimal(str(quantity)) * (self.cost_price or Decimal('0.0'))
 
+    def on_change_with_uom_digits(self, name=None):
+        if self.uom:
+            return self.uom.digits
+        return 2
+
+
 STATES = {
     'readonly': Eval('system', False),
     }
@@ -374,7 +384,7 @@ class PlanCost(ModelSQL, ModelView):
     type = fields.Many2One('product.cost.plan.cost.type', 'Type',
         required=True, states=STATES, depends=DEPENDS)
     cost = fields.Numeric('Cost', required=True, states=STATES,
-        depends=DEPENDS)
+        depends=DEPENDS, digits=(16, 4))
     system = fields.Boolean('System Managed', readonly=True)
 
     @classmethod
@@ -406,4 +416,7 @@ class PlanCost(ModelSQL, ModelView):
         super(PlanCost, cls).delete(costs)
 
     def update_cost_values(self, value):
-        return {'cost': value, 'id': self.id}
+        return {
+            'cost': value,
+            'id': self.id,
+            }
