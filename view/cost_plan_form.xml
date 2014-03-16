@@ -8,8 +8,6 @@
     <field name="product"/>
     <label name="bom"/>
     <field name="bom"/>
-    <label name="quantity"/>
-    <field name="quantity"/>
     <notebook colspan="6">
         <page string="General" id="general">
             <field name="products" colspan="4"/>
@@ -23,10 +21,8 @@
             <field name="boms" colspan="4"/>
         </page>
     </notebook>
-    <label name="total_cost"/>
-    <field name="total_cost"/>
-    <label name="unit_cost_price"/>
-    <field name="unit_cost_price"/>
+    <label name="cost_price"/>
+    <field name="cost_price"/>
     <newline/>
     <group id="state" colspan="6">
         <label name="state"/>

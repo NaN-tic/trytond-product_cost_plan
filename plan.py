@@ -33,24 +33,19 @@ class Plan(Workflow, ModelSQL, ModelView):
         states={
             'readonly': Eval('state') != 'draft',
             }, depends=['state'], on_change_with=['bom', 'boms'])
-    quantity = fields.Float('Quantity', required=True, states={
-            'readonly': Eval('state') != 'draft',
-            }, depends=['state'])
     products = fields.One2Many('product.cost.plan.product_line', 'plan',
         'Products', states={
             'readonly': Eval('state') == 'draft',
             },
         depends=['state'],
-        on_change=['costs', 'products'])
+        on_change=['products', 'costs'])
     product_cost = fields.Function(fields.Numeric('Product Cost',
-            on_change_with=['products'], digits=(16, 4)), 'on_change_with_product_cost')
+            on_change_with=['products'], digits=(16, 4)),
+        'on_change_with_product_cost')
     costs = fields.One2Many('product.cost.plan.cost', 'plan', 'Costs')
-    total_cost = fields.Function(fields.Numeric('Total Cost',
-            on_change_with=['costs'], digits=(16, 4)),
-        'on_change_with_total_cost')
-    unit_cost_price = fields.Function(fields.Numeric('Unit Cost Price',
-            digits=(16, 4)),
-        'get_unit_cost_price')
+    cost_price = fields.Function(fields.Numeric('Unit Cost Price',
+            digits=(16, 4), on_change_with=['costs']),
+        'on_change_with_cost_price')
     state = fields.Selection([
             ('draft', 'Draft'),
             ('computed', 'Computed'),
@@ -130,7 +125,7 @@ class Plan(Workflow, ModelSQL, ModelView):
                 cost.cost = value
         if to_update:
             res['costs'] = {'update': to_update}
-            res['total_cost'] = self.on_change_with_total_cost()
+            res['cost_price'] = self.on_change_with_cost_price()
         return res
 
     def on_change_products(self):
@@ -144,18 +139,10 @@ class Plan(Workflow, ModelSQL, ModelView):
         return self.update_cost_type(type_, self.product_cost)
 
     def on_change_with_product_cost(self, name=None):
-	cost = sum(p.total for p in self.products if p.total)
-        return cost
+	return sum(p.total for p in self.products if p.total)
 
-    def on_change_with_total_cost(self, name=None):
-	cost = sum(c.cost for c in self.costs if c.cost)
-        return cost
-
-    def get_unit_cost_price(self, name):
-        total_cost = self.total_cost
-        if self.quantity and total_cost:
-            return total_cost / Decimal(str(self.quantity))
-        return Decimal('0.0')
+    def on_change_with_cost_price(self, name=None):
+	return sum(c.cost for c in self.costs if c.cost)
 
     @classmethod
     @ModelView.button
@@ -192,7 +179,7 @@ class Plan(Workflow, ModelSQL, ModelView):
         for plan in plans:
             if plan.product and plan.bom:
                 to_create.extend(plan.explode_bom(plan.product, plan.bom,
-                        plan.quantity, plan.product.default_uom))
+                        1, plan.product.default_uom))
         if to_create:
             ProductLines.create(to_create)
 
@@ -234,7 +221,7 @@ class Plan(Workflow, ModelSQL, ModelView):
         return ret
 
     def explode_bom(self, product, bom, quantity, uom):
-        " Returns products for the especified products"
+        "Returns products for the especified products"
         pool = Pool()
         Input = pool.get('production.bom.input')
         res = []

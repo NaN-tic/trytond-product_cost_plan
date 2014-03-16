@@ -5,6 +5,5 @@
     <field name="number"/>
     <field name="product"/>
     <field name="bom"/>
-    <field name="quantity"/>
     <field name="state"/>
 </tree>
