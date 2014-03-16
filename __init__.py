@@ -3,6 +3,7 @@
 
 from trytond.pool import Pool
 from .plan import *
+from .configuration import *
 
 def register():
     Pool.register(
@@ -11,4 +12,5 @@ def register():
         PlanProductLine,
         PlanCostType,
         PlanCost,
+        Configuration,
         module='product_cost_plan', type_='model')

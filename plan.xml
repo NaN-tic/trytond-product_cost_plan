@@ -24,6 +24,27 @@
             <field name="user" ref="res.user_trigger"/>
             <field name="group" ref="group_product_cost_plan"/>
         </record>
+
+        <record model="ir.sequence.type" id="sequence_type_product_cost_plan">
+            <field name="name">Product Cost Plan</field>
+            <field name="code">product_cost_plan</field>
+        </record>
+        <record model="ir.sequence.type-res.group"
+            id="sequence_type_product_cost_plan_group_admin">
+            <field name="sequence_type" ref="sequence_type_product_cost_plan"/>
+            <field name="group" ref="res.group_admin"/>
+        </record>
+        <record model="ir.sequence.type-res.group"
+            id="sequence_type_product_cost_plan_group_production_admin">
+            <field name="sequence_type" ref="sequence_type_product_cost_plan"/>
+            <field name="group" ref="group_product_cost_plan_admin"/>
+        </record>
+
+        <record model="ir.sequence" id="sequence_product_cost_plan">
+            <field name="name">Product Cost Plan</field>
+            <field name="code">product_cost_plan</field>
+        </record>
+
         <record model="ir.ui.view" id="product_cost_plan_view_form">
             <field name="model">product.cost.plan</field>
             <field name="type">form</field>

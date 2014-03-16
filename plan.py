@@ -17,7 +17,7 @@ class Plan(Workflow, ModelSQL, ModelView):
     'Product Cost Plan'
     __name__ = 'product.cost.plan'
 
-    number = fields.Char('Number')
+    number = fields.Char('Number', select=True, readonly=True)
     active = fields.Boolean('Active')
     product = fields.Many2One('product.product', 'Product',
         states={
@@ -150,6 +150,18 @@ class Plan(Workflow, ModelSQL, ModelView):
 	return sum(c.cost for c in self.costs if c.cost)
 
     @classmethod
+    def create(cls, vlist):
+        Sequence = Pool().get('ir.sequence')
+        Config = Pool().get('production.configuration')
+
+        vlist = [x.copy() for x in vlist]
+        config = Config(1)
+        for values in vlist:
+            values['number'] = Sequence.get_id(
+                config.product_cost_plan_sequence.id)
+        return super(Plan, cls).create(vlist)
+
+    @classmethod
     @ModelView.button
     @Workflow.transition('draft')
     def reset(cls, plans):
@@ -195,7 +207,7 @@ class Plan(Workflow, ModelSQL, ModelView):
             CostLines.create(costs_to_create)
 
     def get_costs(self):
-        " Returns the cost lines to be created on compute "
+        "Returns the cost lines to be created on compute"
         ret = []
         for cost_type, field_name in self.get_cost_types():
             ret.append(self.get_cost_line(cost_type, field_name))
