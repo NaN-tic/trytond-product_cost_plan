@@ -183,7 +183,6 @@ Create a cost plan for product (without child boms)::
     True
     >>> plan.boms[0].bom == None
     True
-    >>> plan.quantity = 10
     >>> plan.save()
     >>> plan.state
     u'draft'
@@ -196,13 +195,9 @@ Create a cost plan for product (without child boms)::
     >>> c1, = plan.products.find([
     ...     ('product', '=', component1.id),
     ...     ], limit=1)
-    >>> c1.quantity == 50.0
-    True
     >>> c2, = plan.products.find([
     ...     ('product', '=', component2.id),
     ...     ], limit=1)
-    >>> c2.quantity == 1500.0
-    True
     >>> cA = plan.products.find([
     ...     ('product', '=', componentA.id),
     ...     ], limit=1)
@@ -216,9 +211,9 @@ Create a cost plan for product (without child boms)::
     >>> cost, = plan.costs
     >>> cost.rec_name == 'Raw materials'
     True
-    >>> cost.cost == Decimal('175.0')
+    >>> cost.cost == Decimal('17.5')
     True
-    >>> plan.total_cost == Decimal('175.0')
+    >>> plan.cost_price == Decimal('17.5')
     True
 
 Create a manual cost and test total cost is updated::
@@ -229,9 +224,9 @@ Create a manual cost and test total cost is updated::
     >>> costtype.save()
     >>> cost = Cost()
     >>> plan.costs.append(cost)
-    >>> cost.type=costtype
-    >>> cost.cost=Decimal('25.0')
-    >>> plan.total_cost == Decimal('200.0')
+    >>> cost.type = costtype
+    >>> cost.cost = Decimal('25.0')
+    >>> plan.cost_price == Decimal('42.5')
     True
 
 Create a cost plan for product (with child boms)::
@@ -241,7 +236,6 @@ Create a cost plan for product (with child boms)::
     >>> plan.product = product
     >>> len(plan.boms) == 1
     True
-    >>> plan.quantity = 10
     >>> plan.save()
     >>> plan.state
     u'draft'
@@ -258,18 +252,11 @@ Create a cost plan for product (with child boms)::
     >>> cA, = plan.products.find([
     ...     ('product', '=', componentA.id),
     ...     ], limit=1)
-    >>> cA.quantity == 50.0
-    True
     >>> cB, = plan.products.find([
     ...     ('product', '=', componentB.id),
     ...     ], limit=1)
-    >>> cB.quantity == 50.0
-    True
     >>> c2, = plan.products.find([
     ...     ('product', '=', component2.id),
     ...     ], limit=1)
-    >>> c2.quantity == 1500.0
+    >>> plan.cost_price == Decimal('17.5')
     True
-    >>> plan.total_cost == Decimal('175.0')
-    True
-
