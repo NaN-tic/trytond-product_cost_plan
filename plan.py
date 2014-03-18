@@ -119,16 +119,16 @@ class Plan(Workflow, ModelSQL, ModelView):
             res = []
             for input_ in inputs:
                 if input_.product.boms:
-                    res.append(input_.product.id)
-                    for product_bom in input_.product.boms:
-                        if product_bom.bom and product_bom.bom.inputs:
-                            res.extend(find_boms(product_bom.bom.inputs))
+                    product_bom = input_.product.boms[0].bom
+                    res.append((input_.product.id, product_bom.id))
+                    res += find_boms(product_bom.inputs)
             return res
 
         products = set(find_boms(self.bom.inputs))
-        for product in products:
+        for product_id, bom_id in products:
             boms['add'].append({
-                    'product': product,
+                    'product': product_id,
+                    'bom': bom_id,
                     })
         return boms
 
