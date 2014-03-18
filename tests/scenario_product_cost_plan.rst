@@ -181,7 +181,7 @@ Create a cost plan for product (without child boms)::
     >>> plan.product = product
     >>> len(plan.boms) == 1
     True
-    >>> plan.boms[0].bom == None
+    >>> plan.boms[0].bom != None
     True
     >>> plan.save()
     >>> plan.state

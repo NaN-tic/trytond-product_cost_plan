@@ -12,8 +12,6 @@
     <field name="uom"/>
     <label name="product_cost_price"/>
     <field name="product_cost_price"/>
-    <label name="last_purchase_price"/>
-    <field name="last_purchase_price"/>
     <label name="cost_price"/>
     <field name="cost_price"/>
     <label name="total"/>

@@ -343,10 +343,7 @@ class PlanProductLine(ModelSQL, ModelView):
     product_cost_price = fields.Numeric('Product Cost Price', digits=(16, 4),
         states={
             'readonly': True,
-            }, depends=['product'])
-    last_purchase_price = fields.Numeric('Last Purchase Price', states={
-            'readonly': True,
-            }, depends=['product'], digits=(16, 4))
+            }, on_change_with=['product', 'uom'], depends=['product'])
     cost_price = fields.Numeric('Cost Price', required=True, digits=(16, 4))
     total = fields.Function(fields.Numeric('Total Cost', on_change_with=[
                 'quantity', 'cost_price', 'uom', 'product'], digits=(16, 4)),
@@ -367,7 +364,6 @@ class PlanProductLine(ModelSQL, ModelView):
         if self.product:
             uoms = self.product.default_uom.category.uoms
             if (not self.uom or self.uom not in uoms):
-                # TODO: Convert price to UoM
                 res['name'] = self.product.rec_name
                 res['uom'] = self.product.default_uom.id
                 res['uom.rec_name'] = self.product.default_uom.rec_name
@@ -384,18 +380,24 @@ class PlanProductLine(ModelSQL, ModelView):
         if self.product:
             return self.product.default_uom.category.id
 
+    def on_change_with_product_cost_price(self):
+        Uom = Pool().get('product.uom')
+        if not self.product or not self.uom:
+            return
+        cost = Decimal(Uom.compute_qty(self.product.default_uom,
+            float(self.product.cost_price), self.uom, round=False))
+        digits = self.__class__.product_cost_price.digits[1]
+        return cost.quantize(Decimal(str(10 ** -digits)))
+
     def on_change_with_total(self, name=None):
         pool = Pool()
         Uom = pool.get('product.uom')
 	quantity = self.quantity
-        if self.product:
-            # TODO: Once converted prices to line's UoM, do not do the following
-            # conversion
-            quantity = Uom.compute_qty(self.uom, self.quantity,
-                self.product.default_uom, round=False)
         if not quantity:
             return Decimal('0.0')
-        return Decimal(str(quantity)) * (self.cost_price or Decimal('0.0'))
+        total = Decimal(str(quantity)) * (self.cost_price or Decimal('0.0'))
+        digits = self.__class__.total.digits[1]
+        return total.quantize(Decimal(str(10 ** -digits)))
 
     def on_change_with_uom_digits(self, name=None):
         if self.uom:
