@@ -25,6 +25,9 @@
         <page string="BOM Configuration" id="configuration">
             <field name="boms" colspan="4"/>
         </page>
+        <page string="Notes" id="notes">
+            <field name="notes" colspan="4"/>
+        </page>
     </notebook>
     <label name="cost_price"/>
     <field name="cost_price"/>

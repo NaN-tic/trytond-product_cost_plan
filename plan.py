@@ -59,6 +59,7 @@ class Plan(Workflow, ModelSQL, ModelView):
     cost_price = fields.Function(fields.Numeric('Unit Cost Price',
             digits=(16, 4), on_change_with=['costs']),
         'on_change_with_cost_price')
+    notes = fields.Text('Notes')
     state = fields.Selection([
             ('draft', 'Draft'),
             ('computed', 'Computed'),
