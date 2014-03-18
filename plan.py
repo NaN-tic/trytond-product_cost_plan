@@ -23,6 +23,18 @@ class Plan(Workflow, ModelSQL, ModelView):
         states={
             'readonly': Eval('state') != 'draft',
             }, depends=['state'], on_change=['product', 'bom', 'boms'])
+    uom = fields.Many2One('product.uom', 'UOM', required=True, domain=[
+            If(Bool(Eval('product_uom_category')),
+                ('category', '=', Eval('product_uom_category')),
+                (),
+            )],
+        states={
+            'readonly': Bool(Eval('product')),
+            }, depends=['product_uom_category', 'product'])
+    product_uom_category = fields.Function(
+        fields.Many2One('product.uom.category', 'Product Uom Category',
+            on_change_with=['product']),
+        'on_change_with_product_uom_category')
     bom = fields.Many2One('production.bom', 'BOM', on_change_with=['product'],
         states={
             'readonly': Eval('state') != 'draft',
@@ -83,6 +95,8 @@ class Plan(Workflow, ModelSQL, ModelView):
         bom = self.on_change_with_bom()
         self.bom = bom
         res['boms'] = self.on_change_with_boms()
+        if self.product:
+            res['uom'] = self.product.default_uom.id
         return res
 
     def on_change_with_bom(self):
@@ -148,6 +162,10 @@ class Plan(Workflow, ModelSQL, ModelView):
 
     def on_change_with_cost_price(self, name=None):
 	return sum(c.cost for c in self.costs if c.cost)
+
+    def on_change_with_product_uom_category(self, name=None):
+        if self.product:
+            return self.product.default_uom_category.id
 
     @classmethod
     def create(cls, vlist):
@@ -300,6 +318,7 @@ class PlanProductLine(ModelSQL, ModelView):
     __name__ = 'product.cost.plan.product_line'
 
     name = fields.Char('Name', required=True)
+    sequence = fields.Integer('Sequence')
     plan = fields.Many2One('product.cost.plan', 'Plan', required=True,
         ondelete='CASCADE')
     product = fields.Many2One('product.product', 'Product',
@@ -331,6 +350,16 @@ class PlanProductLine(ModelSQL, ModelView):
     total = fields.Function(fields.Numeric('Total Cost', on_change_with=[
                 'quantity', 'cost_price', 'uom', 'product'], digits=(16, 4)),
         'on_change_with_total')
+
+    @classmethod
+    def __setup__(cls):
+        super(PlanProductLine, cls).__setup__()
+        cls._order.insert(0, ('sequence', 'ASC'))
+
+    @staticmethod
+    def order_sequence(tables):
+        table, _ = tables[None]
+        return [table.sequence == None, table.sequence]
 
     def on_change_product(self):
         res = {}
