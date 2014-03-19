@@ -133,10 +133,15 @@ class Plan(Workflow, ModelSQL, ModelView):
                     })
         return boms
 
-    def update_cost_type(self, type_, value):
+    def update_cost_type(self, module, id, value):
         """
         Updates the cost line for type_ with value of field
         """
+        pool = Pool()
+        CostType = pool.get('product.cost.plan.cost.type')
+        ModelData = pool.get('ir.model.data')
+
+        type_ = CostType(ModelData.get_id(module, id))
         res = {}
         to_update = []
         for cost in self.costs:
@@ -149,14 +154,9 @@ class Plan(Workflow, ModelSQL, ModelView):
         return res
 
     def on_change_products(self):
-        pool = Pool()
-        CostType = pool.get('product.cost.plan.cost.type')
-        ModelData = pool.get('ir.model.data')
-
-        type_ = CostType(ModelData.get_id('product_cost_plan',
-                'raw_materials'))
         self.product_cost = sum(p.total for p in self.products if p.total)
-        return self.update_cost_type(type_, self.product_cost)
+        return self.update_cost_type('product_cost_plan', 'raw_materials',
+            self.product_cost)
 
     def on_change_with_product_cost(self, name=None):
 	return sum(p.total for p in self.products if p.total)
@@ -185,8 +185,8 @@ class Plan(Workflow, ModelSQL, ModelView):
     @Workflow.transition('draft')
     def reset(cls, plans):
         pool = Pool()
-        ProductLines = pool.get('product.cost.plan.product_line')
-        CostLines = pool.get('product.cost.plan.cost')
+        ProductLine = pool.get('product.cost.plan.product_line')
+        CostLine = pool.get('product.cost.plan.cost')
 
         types = [x[0]for x in cls.get_cost_types()]
         to_delete = []
@@ -198,18 +198,18 @@ class Plan(Workflow, ModelSQL, ModelView):
                     costs_to_delete.append(line)
 
         if to_delete:
-            ProductLines.delete(to_delete)
+            ProductLine.delete(to_delete)
         if costs_to_delete:
             with Transaction().set_context(reset_costs=True):
-                CostLines.delete(costs_to_delete)
+                CostLine.delete(costs_to_delete)
 
     @classmethod
     @ModelView.button
     @Workflow.transition('computed')
     def compute(cls, plans):
         pool = Pool()
-        ProductLines = pool.get('product.cost.plan.product_line')
-        CostLines = pool.get('product.cost.plan.cost')
+        ProductLine = pool.get('product.cost.plan.product_line')
+        CostLine = pool.get('product.cost.plan.cost')
 
         to_create = []
         for plan in plans:
@@ -217,13 +217,13 @@ class Plan(Workflow, ModelSQL, ModelView):
                 to_create.extend(plan.explode_bom(plan.product, plan.bom,
                         1, plan.product.default_uom))
         if to_create:
-            ProductLines.create(to_create)
+            ProductLine.create(to_create)
 
         costs_to_create = []
         for plan in plans:
             costs_to_create.extend(plan.get_costs())
         if costs_to_create:
-            CostLines.create(costs_to_create)
+            CostLine.create(costs_to_create)
 
     def get_costs(self):
         "Returns the cost lines to be created on compute"
@@ -300,6 +300,16 @@ class Plan(Workflow, ModelSQL, ModelView):
             'product_cost_price': input_.product.cost_price,
             'cost_price': input_.product.cost_price,
             }
+
+    @classmethod
+    def delete(cls, plans):
+        CostLine = Pool().get('product.cost.plan.cost')
+        to_delete = []
+        for plan in plans:
+            to_delete += plan.costs
+        with Transaction().set_context(reset_costs=True):
+            CostLine.delete(to_delete)
+        super(Plan, cls).delete(plans)
 
 
 class PlanBOM(ModelSQL, ModelView):
@@ -427,8 +437,8 @@ class PlanCost(ModelSQL, ModelView):
     def __setup__(cls):
         super(PlanCost, cls).__setup__()
         cls._error_messages.update({
-                'delete_system_cost': ('You can not delete cost "%s" '
-                    'because it\'s managed by system.'),
+                'delete_system_cost': ('You can not delete cost "%(cost)s" '
+                    'from plan "%(plan)s" because it\'s managed by system.'),
                 })
 
     @staticmethod
@@ -447,8 +457,10 @@ class PlanCost(ModelSQL, ModelView):
         if not Transaction().context.get('reset_costs', False):
             for cost in costs:
                 if cost.system:
-                    cls.raise_user_error('delete_system_cost',
-                        cost.rec_name)
+                    cls.raise_user_error('delete_system_cost', {
+                            'cost': cost.rec_name,
+                            'plan': cost.plan.rec_name,
+                            })
         super(PlanCost, cls).delete(costs)
 
     def update_cost_values(self, value):
