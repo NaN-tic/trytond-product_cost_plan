@@ -159,10 +159,10 @@ class Plan(Workflow, ModelSQL, ModelView):
             self.product_cost)
 
     def on_change_with_product_cost(self, name=None):
-	return sum(p.total for p in self.products if p.total)
+        return sum(p.total for p in self.products if p.total)
 
     def on_change_with_cost_price(self, name=None):
-	return sum(c.cost for c in self.costs if c.cost)
+        return sum(c.cost for c in self.costs if c.cost)
 
     def on_change_with_product_uom_category(self, name=None):
         if self.product:
@@ -290,15 +290,26 @@ class Plan(Workflow, ModelSQL, ModelView):
             *factor*: The factor to calculate the quantity
         """
         pool = Pool()
+        Uom = pool.get('product.uom')
         Input = pool.get('production.bom.input')
+        ProductLine = pool.get('product.cost.plan.product_line')
         quantity = Input.compute_quantity(input_, factor)
+        cost_factor = Decimal(Uom.compute_qty(input_.product.default_uom, 1,
+            input_.uom))
+        digits = ProductLine.product_cost_price.digits[1]
+        product_cost_price = (input_.product.cost_price /
+            cost_factor).quantize(Decimal(str(10 ** -digits)))
+        digits = ProductLine.cost_price.digits[1]
+        cost_price = (input_.product.cost_price /
+            cost_factor).quantize(Decimal(str(10 ** -digits)))
+
         return {
             'name': input_.product.rec_name,
             'product': input_.product.id,
             'quantity': quantity,
             'uom': input_.uom.id,
-            'product_cost_price': input_.product.cost_price,
-            'cost_price': input_.product.cost_price,
+            'product_cost_price': product_cost_price,
+            'cost_price': cost_price,
             }
 
     @classmethod
@@ -378,7 +389,7 @@ class PlanProductLine(ModelSQL, ModelView):
                 res['uom'] = self.product.default_uom.id
                 res['uom.rec_name'] = self.product.default_uom.rec_name
                 res['product_cost_price'] = self.product.cost_price
-		res['cost_price'] = self.product.cost_price
+                res['cost_price'] = self.product.cost_price
         else:
             res['name'] = None
             res['uom'] = None
@@ -400,9 +411,7 @@ class PlanProductLine(ModelSQL, ModelView):
         return cost.quantize(Decimal(str(10 ** -digits)))
 
     def on_change_with_total(self, name=None):
-        pool = Pool()
-        Uom = pool.get('product.uom')
-	quantity = self.quantity
+        quantity = self.quantity
         if not quantity:
             return Decimal('0.0')
         total = Decimal(str(quantity)) * (self.cost_price or Decimal('0.0'))
