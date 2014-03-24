@@ -183,6 +183,8 @@ Create a cost plan for product (without child boms)::
     True
     >>> plan.boms[0].bom != None
     True
+    >>> plan.boms[0].bom = None
+    >>> plan.quantity = 1
     >>> plan.save()
     >>> plan.state
     u'draft'
@@ -195,9 +197,13 @@ Create a cost plan for product (without child boms)::
     >>> c1, = plan.products.find([
     ...     ('product', '=', component1.id),
     ...     ], limit=1)
+    >>> c1.quantity == 5.0
+    True
     >>> c2, = plan.products.find([
     ...     ('product', '=', component2.id),
     ...     ], limit=1)
+    >>> c2.quantity == 150.0
+    True
     >>> cA = plan.products.find([
     ...     ('product', '=', componentA.id),
     ...     ], limit=1)
@@ -211,6 +217,7 @@ Create a cost plan for product (without child boms)::
     >>> cost, = plan.costs
     >>> cost.rec_name == 'Raw materials'
     True
+    >>> cost.cost
     >>> cost.cost == Decimal('17.5')
     True
     >>> plan.cost_price == Decimal('17.5')
@@ -252,11 +259,17 @@ Create a cost plan for product (with child boms)::
     >>> cA, = plan.products.find([
     ...     ('product', '=', componentA.id),
     ...     ], limit=1)
+    >>> cA.quantity == 5.0
+    True
     >>> cB, = plan.products.find([
     ...     ('product', '=', componentB.id),
     ...     ], limit=1)
+    >>> cB.quantity == 5.0
+    True
     >>> c2, = plan.products.find([
     ...     ('product', '=', component2.id),
     ...     ], limit=1)
+    >>> c2.quantity == 150.0
+    True
     >>> plan.cost_price == Decimal('17.5')
     True
