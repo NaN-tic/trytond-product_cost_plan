@@ -6,6 +6,7 @@ from trytond.transaction import Transaction
 
 __all__ = ['PlanCostType', 'Plan', 'PlanBOM', 'PlanProductLine', 'PlanCost']
 
+DIGITS = (16, 5)
 
 class PlanCostType(ModelSQL, ModelView):
     'Plan Cost Type'
@@ -23,6 +24,9 @@ class Plan(Workflow, ModelSQL, ModelView):
         states={
             'readonly': Eval('state') != 'draft',
             }, depends=['state'], on_change=['product', 'bom', 'boms'])
+    quantity = fields.Float('Quantity', required=True, states={
+            'readonly': Eval('state') != 'draft',
+            }, depends=['state'])
     uom = fields.Many2One('product.uom', 'UOM', required=True, domain=[
             If(Bool(Eval('product_uom_category')),
                 ('category', '=', Eval('product_uom_category')),
@@ -52,12 +56,18 @@ class Plan(Workflow, ModelSQL, ModelView):
             },
         depends=['state'],
         on_change=['products', 'costs'])
+    products_tree = fields.Function(
+        fields.One2Many('product.cost.plan.product_line', 'plan', 'Products',
+            states={
+                'readonly': Eval('state') == 'draft',
+                }, depends=['state'], on_change=['products_tree', 'costs',
+                'quantity']), 'get_products_tree', setter='set_products_tree')
     product_cost = fields.Function(fields.Numeric('Product Cost',
-            on_change_with=['products'], digits=(16, 4)),
+            on_change_with=['products_tree', 'quantity'], digits=DIGITS),
         'on_change_with_product_cost')
     costs = fields.One2Many('product.cost.plan.cost', 'plan', 'Costs')
     cost_price = fields.Function(fields.Numeric('Unit Cost Price',
-            digits=(16, 4), on_change_with=['costs']),
+            digits=DIGITS, on_change_with=['costs', 'quantity']),
         'on_change_with_cost_price')
     notes = fields.Text('Notes')
     state = fields.Selection([
@@ -90,6 +100,15 @@ class Plan(Workflow, ModelSQL, ModelView):
     @staticmethod
     def default_state():
         return 'draft'
+
+    def get_products_tree(self, name):
+        return [x.id for x in self.products if not x.parent]
+
+    @classmethod
+    def set_products_tree(cls, lines, name, value):
+        cls.write(lines, {
+                'products': value,
+                })
 
     def on_change_product(self):
         res = {'bom': None}
@@ -149,20 +168,32 @@ class Plan(Workflow, ModelSQL, ModelView):
                 to_update.append(cost.update_cost_values(value))
                 cost.cost = value
         if to_update:
-            res['costs'] = {'update': to_update}
             res['cost_price'] = self.on_change_with_cost_price()
+            res['costs'] = {'update': to_update}
         return res
 
     def on_change_products(self):
-        self.product_cost = sum(p.total for p in self.products if p.total)
+        self.product_cost = self.on_change_with_product_cost()
         return self.update_cost_type('product_cost_plan', 'raw_materials',
             self.product_cost)
 
+    def on_change_products_tree(self):
+        self.product_cost = sum(p.total for p in self.products_tree if p.total)
+        res = self.update_cost_type('product_cost_plan', 'raw_materials',
+            self.product_cost)
+        res['product_cost'] = self.product_cost
+        return res
+
     def on_change_with_product_cost(self, name=None):
-	return sum(p.total for p in self.products if p.total)
+        if not self.quantity:
+            return Decimal('0.0')
+        cost = sum(p.total for p in self.products_tree if p.total)
+        cost /= Decimal(str(self.quantity))
+        digits = self.__class__.product_cost.digits[1]
+        return cost.quantize(Decimal(str(10 ** -digits)))
 
     def on_change_with_cost_price(self, name=None):
-	return sum(c.cost for c in self.costs if c.cost)
+        return sum(c.cost for c in self.costs if c.cost)
 
     def on_change_with_product_uom_category(self, name=None):
         if self.product:
@@ -330,6 +361,9 @@ class PlanProductLine(ModelSQL, ModelView):
 
     name = fields.Char('Name', required=True)
     sequence = fields.Integer('Sequence')
+    parent = fields.Many2One('product.cost.plan.product_line', 'Parent')
+    children = fields.One2Many('product.cost.plan.product_line', 'parent',
+        'Children')
     plan = fields.Many2One('product.cost.plan', 'Plan', required=True,
         ondelete='CASCADE')
     product = fields.Many2One('product.product', 'Product',
@@ -350,14 +384,14 @@ class PlanProductLine(ModelSQL, ModelView):
             ], depends=['uom_category', 'product'])
     uom_digits = fields.Function(fields.Integer('UOM Digits',
         on_change_with=['uom']), 'on_change_with_uom_digits')
-    product_cost_price = fields.Numeric('Product Cost Price', digits=(16, 4),
+    product_cost_price = fields.Numeric('Product Cost Price', digits=DIGITS,
         states={
             'readonly': True,
             }, on_change_with=['product', 'uom'], depends=['product'])
-    cost_price = fields.Numeric('Cost Price', required=True, digits=(16, 4))
+    cost_price = fields.Numeric('Cost Price', required=True, digits=DIGITS)
     total = fields.Function(fields.Numeric('Total Cost', on_change_with=[
-                'quantity', 'cost_price', 'uom', 'product'], digits=(16, 4)),
-        'on_change_with_total')
+                'quantity', 'cost_price', 'uom', 'product', 'children'],
+            digits=DIGITS), 'on_change_with_total')
 
     @classmethod
     def __setup__(cls):
@@ -378,7 +412,7 @@ class PlanProductLine(ModelSQL, ModelView):
                 res['uom'] = self.product.default_uom.id
                 res['uom.rec_name'] = self.product.default_uom.rec_name
                 res['product_cost_price'] = self.product.cost_price
-		res['cost_price'] = self.product.cost_price
+                res['cost_price'] = self.product.cost_price
         else:
             res['name'] = None
             res['uom'] = None
@@ -402,10 +436,12 @@ class PlanProductLine(ModelSQL, ModelView):
     def on_change_with_total(self, name=None):
         pool = Pool()
         Uom = pool.get('product.uom')
-	quantity = self.quantity
+        quantity = self.quantity
         if not quantity:
             return Decimal('0.0')
         total = Decimal(str(quantity)) * (self.cost_price or Decimal('0.0'))
+        for child in self.children:
+            total += Decimal(str(quantity)) * child.total
         digits = self.__class__.total.digits[1]
         return total.quantize(Decimal(str(10 ** -digits)))
 
@@ -430,7 +466,7 @@ class PlanCost(ModelSQL, ModelView):
     type = fields.Many2One('product.cost.plan.cost.type', 'Type',
         required=True, states=STATES, depends=DEPENDS)
     cost = fields.Numeric('Cost', required=True, states=STATES,
-        depends=DEPENDS, digits=(16, 4))
+        depends=DEPENDS, digits=DIGITS)
     system = fields.Boolean('System Managed', readonly=True)
 
     @classmethod

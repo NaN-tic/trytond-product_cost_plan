@@ -132,6 +132,7 @@
             <field name="model">product.cost.plan.product_line</field>
             <field name="type">tree</field>
             <field name="name">cost_plan_product_line_list</field>
+            <field name="field_childs">children</field>
         </record>
         <record model="ir.action.act_window" id="act_product_cost_plan_product_line">
             <field name="name">Product Cost Plan Product Line</field>

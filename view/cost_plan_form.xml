@@ -9,13 +9,15 @@
     <newline/>
     <label name="product"/>
     <field name="product"/>
+    <label name="quantity"/>
+    <field name="quantity"/>
     <label name="uom"/>
     <field name="uom"/>
     <label name="bom"/>
     <field name="bom"/>
     <notebook colspan="6">
         <page string="General" id="general">
-            <field name="products" colspan="4"/>
+            <field name="products_tree" colspan="4"/>
             <label name="product_cost"/>
             <field name="product_cost"/>
         </page>
