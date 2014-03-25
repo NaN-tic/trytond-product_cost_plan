@@ -3,8 +3,10 @@ from trytond.model import Workflow, ModelSQL, ModelView, fields
 from trytond.pool import Pool
 from trytond.pyson import Eval, Bool, If
 from trytond.transaction import Transaction
+from trytond.wizard import Wizard, StateView, StateAction, Button
 
-__all__ = ['PlanCostType', 'Plan', 'PlanBOM', 'PlanProductLine', 'PlanCost']
+__all__ = ['PlanCostType', 'Plan', 'PlanBOM', 'PlanProductLine', 'PlanCost',
+    'CreateBomStart', 'CreateBom']
 
 DIGITS = (16, 5)
 
@@ -513,3 +515,74 @@ class PlanCost(ModelSQL, ModelView):
             'cost': value,
             'id': self.id,
             }
+
+
+class CreateBomStart(ModelView):
+    'Create BOM Start'
+    __name__ = 'product.cost.plan.create_bom.start'
+
+    name = fields.Char('Name', required=True, translate=True)
+    inputs = fields.One2Many('production.bom.input', 'bom', 'Inputs')
+
+
+class CreateBom(Wizard):
+    'Create BOM'
+    __name__ = 'product.cost.plan.create_bom'
+
+    start = StateView('product.cost.plan.create_bom.start',
+        'product_cost_plan.create_bom_start_view_form', [
+            Button('Cancel', 'end', 'tryton-cancel'),
+            Button('Ok', 'bom', 'tryton-ok', True),
+            ])
+    bom = StateAction('production.act_bom_list')
+
+    def default_start(self, fields):
+        pool = Pool()
+        CostPlan = pool.get('product.cost.plan')
+
+        inputs = []
+        plan = CostPlan(Transaction().context.get('active_id'))
+        for line in plan.products:
+            if not line.product:
+                continue
+            inputs.append(self._get_input_line(line))
+
+        return {'inputs': inputs}
+
+    def do_bom(self, action):
+        BOM = Pool().get('production.bom')
+
+        bom = BOM()
+        bom.name = self.start.name
+        bom.inputs = self.start.inputs
+        bom.outputs = self._get_bom_outputs()
+        bom.save()
+        data = {'res_id': [bom.id]}
+        action['views'].reverse()
+        return action, data
+
+    def _get_input_line(self, line):
+        'Return the BOM Input line for a product line'
+        pool = Pool()
+        BOMInput = pool.get('production.bom.input')
+        res = BOMInput.default_get(BOMInput._fields.keys())
+        res.update({
+            'product': line.product.id,
+            'uom': line.uom.id,
+            'quantity': line.quantity,
+            })
+        return res
+
+    def _get_bom_outputs(self):
+        pool = Pool()
+        CostPlan = pool.get('product.cost.plan')
+
+        plan = CostPlan(Transaction().context.get('active_id'))
+        outputs = []
+        if plan.product:
+            outputs.append({
+                    'product': plan.product.id,
+                    'uom': plan.product.default_uom.id,
+                    'quantity': plan.quantity,
+                    })
+        return outputs

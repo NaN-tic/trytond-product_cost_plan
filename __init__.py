@@ -13,4 +13,8 @@ def register():
         PlanCostType,
         PlanCost,
         Configuration,
+        CreateBomStart,
         module='product_cost_plan', type_='model')
+    Pool.register(
+        CreateBom,
+        module='product_cost_plan', type_='wizard')
