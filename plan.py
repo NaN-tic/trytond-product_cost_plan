@@ -521,7 +521,7 @@ class CreateBomStart(ModelView):
     'Create BOM Start'
     __name__ = 'product.cost.plan.create_bom.start'
 
-    name = fields.Char('Name', required=True, translate=True)
+    name = fields.Char('Name', required=True)
     inputs = fields.One2Many('production.bom.input', 'bom', 'Inputs')
 
 
