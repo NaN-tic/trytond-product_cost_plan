@@ -372,7 +372,7 @@ class PlanProductLine(ModelSQL, ModelView):
     'Product Cost Plan Product Line'
     __name__ = 'product.cost.plan.product_line'
 
-    name = fields.Char('Name', required=True)
+    name = fields.Char('Name')
     sequence = fields.Integer('Sequence')
     parent = fields.Many2One('product.cost.plan.product_line', 'Parent')
     children = fields.One2Many('product.cost.plan.product_line', 'parent',
