@@ -537,34 +537,35 @@ class CreateBom(Wizard):
     bom = StateAction('production.act_bom_list')
 
     def default_start(self, fields):
-        pool = Pool()
-        CostPlan = pool.get('product.cost.plan')
-
+        CostPlan = Pool().get('product.cost.plan')
         inputs = []
         plan = CostPlan(Transaction().context.get('active_id'))
         for line in plan.products:
             if not line.product:
                 continue
             inputs.append(self._get_input_line(line))
-
         return {'inputs': inputs}
 
     def do_bom(self, action):
-        BOM = Pool().get('production.bom')
+        pool = Pool()
+        BOM = pool.get('production.bom')
+        CostPlan = pool.get('product.cost.plan')
 
+        plan = CostPlan(Transaction().context.get('active_id'))
         bom = BOM()
         bom.name = self.start.name
         bom.inputs = self.start.inputs
         bom.outputs = self._get_bom_outputs()
         bom.save()
+        plan.bom = bom
+        plan.save()
         data = {'res_id': [bom.id]}
         action['views'].reverse()
         return action, data
 
     def _get_input_line(self, line):
         'Return the BOM Input line for a product line'
-        pool = Pool()
-        BOMInput = pool.get('production.bom.input')
+        BOMInput = Pool().get('production.bom.input')
         res = BOMInput.default_get(BOMInput._fields.keys())
         res.update({
             'product': line.product.id,
