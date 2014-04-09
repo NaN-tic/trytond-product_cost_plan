@@ -94,6 +94,11 @@ class Plan(Workflow, ModelSQL, ModelView):
                     'icon': 'tryton-go-previous',
                     }
                 })
+        cls._error_messages.update({
+                'bom_already_exists': ('A bom already exists for cost plan '
+                    '"%s".'),
+                })
+
 
     @staticmethod
     def default_active():
@@ -355,6 +360,47 @@ class Plan(Workflow, ModelSQL, ModelView):
             CostLine.delete(to_delete)
         super(Plan, cls).delete(plans)
 
+    def create_bom(self, name):
+        BOM = Pool().get('production.bom')
+        if self.bom:
+            self.raise_user_error('bom_already_exists', self.rec_name)
+        bom = BOM()
+        bom.name = name
+        bom.inputs = self._get_bom_inputs()
+        bom.outputs = self._get_bom_outputs()
+        bom.save()
+        self.bom = bom
+        self.save()
+        return bom
+
+    def _get_bom_outputs(self):
+        BOMOutput = Pool().get('production.bom.output')
+        outputs = []
+        if self.product:
+            output = BOMOutput()
+            output.product = self.product
+            output.uom = self.product.default_uom
+            output.quantity = self.quantity
+            outputs.append(output)
+        return outputs
+
+    def _get_bom_inputs(self):
+        inputs = []
+        for line in self.products:
+            if not line.product:
+                continue
+            inputs.append(self._get_input_line(line))
+        return inputs
+
+    def _get_input_line(self, line):
+        'Return the BOM Input line for a product line'
+        BOMInput = Pool().get('production.bom.input')
+        input_ = BOMInput()
+        input_.product = line.product
+        input_.uom = line.uom
+        input_.quantity = line.quantity
+        return input_
+
 
 class PlanBOM(ModelSQL, ModelView):
     'Product Cost Plan BOM'
@@ -522,7 +568,6 @@ class CreateBomStart(ModelView):
     __name__ = 'product.cost.plan.create_bom.start'
 
     name = fields.Char('Name', required=True)
-    inputs = fields.One2Many('production.bom.input', 'bom', 'Inputs')
 
 
 class CreateBom(Wizard):
@@ -538,52 +583,17 @@ class CreateBom(Wizard):
 
     def default_start(self, fields):
         CostPlan = Pool().get('product.cost.plan')
-        inputs = []
         plan = CostPlan(Transaction().context.get('active_id'))
-        for line in plan.products:
-            if not line.product:
-                continue
-            inputs.append(self._get_input_line(line))
-        return {'inputs': inputs}
+        return {
+            'name': plan.product.rec_name,
+            }
 
     def do_bom(self, action):
-        pool = Pool()
-        BOM = pool.get('production.bom')
-        CostPlan = pool.get('product.cost.plan')
-
+        CostPlan = Pool().get('product.cost.plan')
         plan = CostPlan(Transaction().context.get('active_id'))
-        bom = BOM()
-        bom.name = self.start.name
-        bom.inputs = self.start.inputs
-        bom.outputs = self._get_bom_outputs()
-        bom.save()
-        plan.bom = bom
-        plan.save()
-        data = {'res_id': [bom.id]}
+        bom = plan.create_bom(self.start.name)
+        data = {
+            'res_id': [bom.id]
+            }
         action['views'].reverse()
         return action, data
-
-    def _get_input_line(self, line):
-        'Return the BOM Input line for a product line'
-        BOMInput = Pool().get('production.bom.input')
-        res = BOMInput.default_get(BOMInput._fields.keys())
-        res.update({
-            'product': line.product.id,
-            'uom': line.uom.id,
-            'quantity': line.quantity,
-            })
-        return res
-
-    def _get_bom_outputs(self):
-        pool = Pool()
-        CostPlan = pool.get('product.cost.plan')
-
-        plan = CostPlan(Transaction().context.get('active_id'))
-        outputs = []
-        if plan.product:
-            outputs.append({
-                    'product': plan.product.id,
-                    'uom': plan.product.default_uom.id,
-                    'quantity': plan.quantity,
-                    })
-        return outputs

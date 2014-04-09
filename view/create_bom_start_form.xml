@@ -3,6 +3,5 @@
       copyright notices and license terms. -->
 <form string="Create BOM">
     <label name="name"/>
-    <field name="name"/>
-    <field name="inputs" colspan="4"/>
+    <field name="name" colspan="3"/>
 </form>

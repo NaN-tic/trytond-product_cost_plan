@@ -217,7 +217,6 @@ Create a cost plan for product (without child boms)::
     >>> cost, = plan.costs
     >>> cost.rec_name == 'Raw materials'
     True
-    >>> cost.cost
     >>> cost.cost == Decimal('17.5')
     True
     >>> plan.cost_price == Decimal('17.5')
