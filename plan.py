@@ -227,11 +227,11 @@ class Plan(ModelSQL, ModelView):
         if to_create:
             ProductLine.create(to_create)
 
-        costs_to_create = []
+        to_create = []
         for plan in plans:
-            costs_to_create.extend(plan.get_costs())
-        if costs_to_create:
-            CostLine.create(costs_to_create)
+            to_create.extend(plan.get_costs())
+        if to_create:
+            CostLine.create(to_create)
 
     def get_costs(self):
         "Returns the cost lines to be created on compute"
