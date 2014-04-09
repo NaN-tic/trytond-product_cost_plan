@@ -69,6 +69,10 @@ class Plan(ModelSQL, ModelView):
         cls._error_messages.update({
                 'bom_already_exists': ('A bom already exists for cost plan '
                     '"%s".'),
+                'cannot_mix_input_uoms': ('Product "%(product)s" in Cost Plan '
+                    '"%(plan)s" has different units of measure.'),
+                'product_already_has_bom': ('Product "%s" already has a BOM '
+                    'assigned.'),
                 })
 
 
@@ -347,6 +351,9 @@ class Plan(ModelSQL, ModelView):
         ProductBOM()
         if self.product.boms:
             product_bom = self.product.boms[0]
+            if product_bom.bom:
+                self.raise_user_error('product_already_has_bom',
+                    self.product.rec_name)
         else:
             product_bom = ProductBOM()
         product_bom.product = self.product
@@ -366,12 +373,22 @@ class Plan(ModelSQL, ModelView):
         return outputs
 
     def _get_bom_inputs(self):
-        inputs = []
+        inputs = {}
         for line in self.products:
             if not line.product:
                 continue
-            inputs.append(self._get_input_line(line))
-        return inputs
+            input_ = self._get_input_line(line)
+            if input_.product.id not in inputs:
+                inputs[input_.product.id] = input_
+                continue
+            existing = inputs[input_.product.id]
+            if existing.uom != input_.uom:
+                self.raise_user_error('cannot_mix_input_uoms', {
+                        'plan': self.rec_name,
+                        'product': existing.product.rec_name,
+                        })
+            existing.quantity += input_.quantity
+        return inputs.values()
 
     def _get_input_line(self, line):
         'Return the BOM Input line for a product line'
