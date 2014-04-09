@@ -477,7 +477,7 @@ class PlanProductLine(ModelSQL, ModelView):
         return total.quantize(Decimal(str(10 ** -digits)))
 
     def on_change_with_total_unit(self, name=None):
-        total = self.on_change_with_total(name)
+        total = self.on_change_with_total(None)
         if total and self.plan and self.plan.quantity:
             total /= Decimal(str(self.plan.quantity))
         else:
