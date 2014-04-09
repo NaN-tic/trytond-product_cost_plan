@@ -10,6 +10,7 @@
     <field name="product_cost_price"/>
     <field name="cost_price"/>
     <field name="total"/>
+    <field name="total_unit"/>
     <field name="parent" tree_invisible="1"/>
     <field name="children" tree_invisible="1"/>
 </tree>

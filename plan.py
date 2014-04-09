@@ -421,6 +421,10 @@ class PlanProductLine(ModelSQL, ModelView):
     total = fields.Function(fields.Numeric('Total Cost', on_change_with=[
                 'quantity', 'cost_price', 'uom', 'product', 'children'],
             digits=DIGITS), 'on_change_with_total')
+    total_unit = fields.Function(fields.Numeric('Total Unit Cost',
+            on_change_with=['quantity', 'cost_price', 'uom', 'product',
+                'children', '_parent_plan.quantity'],
+            digits=DIGITS), 'on_change_with_total_unit')
 
     @classmethod
     def __setup__(cls):
@@ -470,6 +474,15 @@ class PlanProductLine(ModelSQL, ModelView):
         for child in self.children:
             total += Decimal(str(quantity)) * child.total
         digits = self.__class__.total.digits[1]
+        return total.quantize(Decimal(str(10 ** -digits)))
+
+    def on_change_with_total_unit(self, name=None):
+        total = self.on_change_with_total(name)
+        if total and self.plan and self.plan.quantity:
+            total /= Decimal(str(self.plan.quantity))
+        else:
+            total = Decimal('0.0')
+        digits = self.__class__.total_unit.digits[1]
         return total.quantize(Decimal(str(10 ** -digits)))
 
     def on_change_with_uom_digits(self, name=None):
