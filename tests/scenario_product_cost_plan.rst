@@ -186,12 +186,8 @@ Create a cost plan for product (without child boms)::
     >>> plan.boms[0].bom = None
     >>> plan.quantity = 1
     >>> plan.save()
-    >>> plan.state
-    u'draft'
     >>> CostPlan.compute([plan.id], config.context)
     >>> plan.reload()
-    >>> plan.state
-    u'computed'
     >>> len(plan.products) == 2
     True
     >>> c1, = plan.products.find([
@@ -240,19 +236,16 @@ Create a cost plan for product (with child boms)::
     >>> CostPlan = Model.get('product.cost.plan')
     >>> plan = CostPlan()
     >>> plan.product = product
+    >>> plan.quantity = 1
     >>> len(plan.boms) == 1
     True
     >>> plan.save()
-    >>> plan.state
-    u'draft'
     >>> for product_bom in plan.boms:
     ...     product_bom.bom = product_bom.product.boms[0]
     ...     product_bom.save()
     >>> plan.reload()
     >>> CostPlan.compute([plan.id], config.context)
     >>> plan.reload()
-    >>> plan.state
-    u'computed'
     >>> len(plan.products) == 3
     True
     >>> cA, = plan.products.find([

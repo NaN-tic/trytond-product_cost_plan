@@ -15,6 +15,7 @@
     <field name="uom"/>
     <label name="bom"/>
     <field name="bom"/>
+    <button name="compute" string="Compute" colspan="2"/>
     <notebook colspan="6">
         <page string="General" id="general">
             <field name="products_tree" colspan="4"/>
@@ -33,13 +34,4 @@
     </notebook>
     <label name="cost_price"/>
     <field name="cost_price"/>
-    <newline/>
-    <group id="state" colspan="6">
-        <label name="state"/>
-        <field name="state"/>
-        <group id="buttons" colspan="2">
-            <button name="compute" string="Compute"/>
-            <button name="reset" string="Reset"/>
-        </group>
-    </group>
 </form>

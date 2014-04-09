@@ -5,6 +5,5 @@
     <field name="number"/>
     <field name="product"/>
     <field name="bom"/>
-    <field name="state"/>
     <field name="active" tree_invisible="1"/>
 </tree>

@@ -1,5 +1,5 @@
 from decimal import Decimal
-from trytond.model import Workflow, ModelSQL, ModelView, fields
+from trytond.model import ModelSQL, ModelView, fields
 from trytond.pool import Pool
 from trytond.pyson import Eval, Bool, If
 from trytond.transaction import Transaction
@@ -16,19 +16,15 @@ class PlanCostType(ModelSQL, ModelView):
     name = fields.Char('Name', required=True, translate=True)
 
 
-class Plan(Workflow, ModelSQL, ModelView):
+class Plan(ModelSQL, ModelView):
     'Product Cost Plan'
     __name__ = 'product.cost.plan'
 
     number = fields.Char('Number', select=True, readonly=True)
     active = fields.Boolean('Active')
     product = fields.Many2One('product.product', 'Product',
-        states={
-            'readonly': Eval('state') != 'draft',
-            }, depends=['state'], on_change=['product', 'bom', 'boms'])
-    quantity = fields.Float('Quantity', required=True, states={
-            'readonly': Eval('state') != 'draft',
-            }, depends=['state'])
+        on_change=['product', 'bom', 'boms'])
+    quantity = fields.Float('Quantity', required=True)
     uom = fields.Many2One('product.uom', 'UOM', required=True, domain=[
             If(Bool(Eval('product_uom_category')),
                 ('category', '=', Eval('product_uom_category')),
@@ -42,28 +38,17 @@ class Plan(Workflow, ModelSQL, ModelView):
             on_change_with=['product']),
         'on_change_with_product_uom_category')
     bom = fields.Many2One('production.bom', 'BOM', on_change_with=['product'],
-        states={
-            'readonly': Eval('state') != 'draft',
-            }, depends=['state', 'product'],
-        domain=[
+        depends=['product'], domain=[
             ('output_products', '=', Eval('product', 0)),
             ])
     boms = fields.One2Many('product.cost.plan.bom_line', 'plan', 'BOMs',
-        states={
-            'readonly': Eval('state') != 'draft',
-            }, depends=['state'], on_change_with=['bom', 'boms'])
+        on_change_with=['bom', 'boms'])
     products = fields.One2Many('product.cost.plan.product_line', 'plan',
-        'Products', states={
-            'readonly': Eval('state') == 'draft',
-            },
-        depends=['state'],
-        on_change=['products', 'costs'])
+        'Products', on_change=['products', 'costs'])
     products_tree = fields.Function(
         fields.One2Many('product.cost.plan.product_line', 'plan', 'Products',
-            states={
-                'readonly': Eval('state') == 'draft',
-                }, depends=['state'], on_change=['products_tree', 'costs',
-                'quantity']), 'get_products_tree', setter='set_products_tree')
+            on_change=['products_tree', 'costs', 'quantity']),
+        'get_products_tree', setter='set_products_tree')
     product_cost = fields.Function(fields.Numeric('Product Cost',
             on_change_with=['products_tree', 'quantity'], digits=DIGITS),
         'on_change_with_product_cost')
@@ -72,27 +57,14 @@ class Plan(Workflow, ModelSQL, ModelView):
             digits=DIGITS, on_change_with=['costs', 'quantity']),
         'on_change_with_cost_price')
     notes = fields.Text('Notes')
-    state = fields.Selection([
-            ('draft', 'Draft'),
-            ('computed', 'Computed'),
-            ], 'State', readonly=True)
 
     @classmethod
     def __setup__(cls):
         super(Plan, cls).__setup__()
-        cls._transitions |= set((
-                ('draft', 'computed'),
-                ('computed', 'draft'),
-                ))
         cls._buttons.update({
                 'compute': {
-                    'invisible': Eval('state') == 'computed',
-                    'icon': 'tryton-go-next',
+                    'icon': 'tryton-spreadsheet',
                     },
-                'reset': {
-                    'invisible': Eval('state') == 'draft',
-                    'icon': 'tryton-go-previous',
-                    }
                 })
         cls._error_messages.update({
                 'bom_already_exists': ('A bom already exists for cost plan '
@@ -219,9 +191,7 @@ class Plan(Workflow, ModelSQL, ModelView):
         return super(Plan, cls).create(vlist)
 
     @classmethod
-    @ModelView.button
-    @Workflow.transition('draft')
-    def reset(cls, plans):
+    def remove_product_lines(cls, plans):
         pool = Pool()
         ProductLine = pool.get('product.cost.plan.product_line')
         CostLine = pool.get('product.cost.plan.cost')
@@ -243,12 +213,12 @@ class Plan(Workflow, ModelSQL, ModelView):
 
     @classmethod
     @ModelView.button
-    @Workflow.transition('computed')
     def compute(cls, plans):
         pool = Pool()
         ProductLine = pool.get('product.cost.plan.product_line')
         CostLine = pool.get('product.cost.plan.cost')
 
+        cls.remove_product_lines(plans)
         to_create = []
         for plan in plans:
             if plan.product and plan.bom:
