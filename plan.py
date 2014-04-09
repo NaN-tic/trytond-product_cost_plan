@@ -331,7 +331,9 @@ class Plan(ModelSQL, ModelView):
         super(Plan, cls).delete(plans)
 
     def create_bom(self, name):
-        BOM = Pool().get('production.bom')
+        pool = Pool()
+        BOM = pool.get('production.bom')
+        ProductBOM = pool.get('product.product-production.bom')
         if self.bom:
             self.raise_user_error('bom_already_exists', self.rec_name)
         bom = BOM()
@@ -341,6 +343,15 @@ class Plan(ModelSQL, ModelView):
         bom.save()
         self.bom = bom
         self.save()
+
+        ProductBOM()
+        if self.product.boms:
+            product_bom = self.product.boms[0]
+        else:
+            product_bom = ProductBOM()
+        product_bom.product = self.product
+        product_bom.bom = bom
+        product_bom.save()
         return bom
 
     def _get_bom_outputs(self):
