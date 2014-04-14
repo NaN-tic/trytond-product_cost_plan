@@ -1,7 +1,7 @@
 <?xml version="1.0"?>
 <!-- The COPYRIGHT file at the top level of this repository contains the full
      copyright notices and license terms. -->
-<tree string="Plan Cost" editable="bottom">
+<tree string="Plan Cost" editable="bottom" sequence="sequence">
     <field name="plan"/>
     <field name="type"/>
     <field name="cost"/>

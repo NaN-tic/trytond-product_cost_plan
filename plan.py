@@ -531,6 +531,7 @@ class PlanCost(ModelSQL, ModelView):
 
     plan = fields.Many2One('product.cost.plan', 'Plan', required=True,
         ondelete='CASCADE')
+    sequence = fields.Integer('Sequence')
     type = fields.Many2One('product.cost.plan.cost.type', 'Type',
         required=True, states=STATES, depends=DEPENDS)
     cost = fields.Numeric('Cost', required=True, states=STATES,
@@ -540,6 +541,7 @@ class PlanCost(ModelSQL, ModelView):
     @classmethod
     def __setup__(cls):
         super(PlanCost, cls).__setup__()
+        cls._order.insert(0, ('sequence', 'ASC'))
         cls._error_messages.update({
                 'delete_system_cost': ('You can not delete cost "%(cost)s" '
                     'from plan "%(plan)s" because it\'s managed by system.'),
@@ -548,6 +550,11 @@ class PlanCost(ModelSQL, ModelView):
     @staticmethod
     def default_system():
         return False
+
+    @staticmethod
+    def order_sequence(tables):
+        table, _ = tables[None]
+        return [table.sequence == None, table.sequence]
 
     def get_rec_name(self, name):
         return self.type.rec_name
