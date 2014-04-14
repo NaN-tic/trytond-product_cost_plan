@@ -17,7 +17,7 @@
     <field name="bom"/>
     <button name="compute" string="Compute" colspan="2"/>
     <notebook colspan="6">
-        <page string="General" id="general">
+        <page string="Products" id="products">
             <field name="products_tree" colspan="4"/>
             <label name="product_cost"/>
             <field name="product_cost"/>
