@@ -21,6 +21,7 @@ class Plan(ModelSQL, ModelView):
     __name__ = 'product.cost.plan'
 
     number = fields.Char('Number', select=True, readonly=True)
+    name = fields.Char('Name', select=True)
     active = fields.Boolean('Active')
     product = fields.Many2One('product.product', 'Product',
         on_change=['product', 'bom', 'boms'])
@@ -161,7 +162,7 @@ class Plan(ModelSQL, ModelView):
             self.product_cost)
 
     def on_change_products_tree(self):
-        self.product_cost = sum(p.total for p in self.products_tree if p.total)
+        self.product_cost = self.on_change_with_product_cost()
         res = self.update_cost_type('product_cost_plan', 'raw_materials',
             self.product_cost)
         res['product_cost'] = self.product_cost
@@ -500,7 +501,7 @@ class PlanProductLine(ModelSQL, ModelView):
             return Decimal('0.0')
         total = Decimal(str(quantity)) * (self.cost_price or Decimal('0.0'))
         for child in self.children:
-            total += Decimal(str(quantity)) * child.total
+            total += Decimal(str(quantity)) * (child.total or Decimal('0.0'))
         digits = self.__class__.total.digits[1]
         return total.quantize(Decimal(str(10 ** -digits)))
 

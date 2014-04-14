@@ -4,6 +4,8 @@
 <form string="Product Cost Plan" col="6" cursor="product">
     <label name="number"/>
     <field name="number"/>
+    <label name="name"/>
+    <field name="name"/>
     <label name="active"/>
     <field name="active"/>
     <newline/>
