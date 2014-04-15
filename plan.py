@@ -132,7 +132,7 @@ class Plan(ModelSQL, ModelView):
         for product_id, bom_id in products:
             boms['add'].append({
                     'product': product_id,
-                    'bom': bom_id,
+                    'bom': None,
                     })
         return boms
 
