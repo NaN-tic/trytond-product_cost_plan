@@ -43,7 +43,7 @@ class Plan(ModelSQL, ModelView):
             ('output_products', '=', Eval('product', 0)),
             ])
     boms = fields.One2Many('product.cost.plan.bom_line', 'plan', 'BOMs',
-        on_change_with=['bom', 'boms'])
+        on_change_with=['bom', 'boms', 'product'])
     products = fields.One2Many('product.cost.plan.product_line', 'plan',
         'Products', on_change=['products', 'costs'])
     products_tree = fields.Function(
