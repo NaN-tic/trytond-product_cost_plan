@@ -85,6 +85,19 @@ class Plan(ModelSQL, ModelView):
     def default_state():
         return 'draft'
 
+    def get_rec_name(self, name):
+        res = '[%s]' % self.number
+        if self.name:
+            res += ' ' + self.name
+        return res
+
+    @classmethod
+    def search_rec_name(cls, name, clause):
+        return ['OR',
+            ('number',) + tuple(clause[1:]),
+            ('name',) + tuple(clause[1:]),
+            ]
+
     def get_products_tree(self, name):
         return [x.id for x in self.products if not x.parent]
 
