@@ -4,11 +4,12 @@ from trytond.pool import Pool
 from trytond.pyson import Eval, Bool, If
 from trytond.transaction import Transaction
 from trytond.wizard import Wizard, StateView, StateAction, Button
+from trytond.config import CONFIG
+DIGITS = int(CONFIG.get('unit_price_digits', 4))
 
 __all__ = ['PlanCostType', 'Plan', 'PlanBOM', 'PlanProductLine', 'PlanCost',
     'CreateBomStart', 'CreateBom']
 
-DIGITS = (16, 5)
 
 class PlanCostType(ModelSQL, ModelView):
     'Plan Cost Type'
@@ -51,11 +52,11 @@ class Plan(ModelSQL, ModelView):
             on_change=['products_tree', 'costs', 'quantity']),
         'get_products_tree', setter='set_products_tree')
     product_cost = fields.Function(fields.Numeric('Product Cost',
-            on_change_with=['products_tree', 'quantity'], digits=DIGITS),
+            on_change_with=['products_tree', 'quantity'], digits=(16, DIGITS)),
         'on_change_with_product_cost')
     costs = fields.One2Many('product.cost.plan.cost', 'plan', 'Costs')
     cost_price = fields.Function(fields.Numeric('Unit Cost Price',
-            digits=DIGITS, on_change_with=['costs', 'quantity']),
+            digits=(16, DIGITS), on_change_with=['costs', 'quantity']),
         'on_change_with_cost_price')
     notes = fields.Text('Notes')
 
@@ -455,18 +456,20 @@ class PlanProductLine(ModelSQL, ModelView):
             ], depends=['uom_category', 'product'])
     uom_digits = fields.Function(fields.Integer('UOM Digits',
         on_change_with=['uom']), 'on_change_with_uom_digits')
-    product_cost_price = fields.Numeric('Product Cost Price', digits=DIGITS,
+    product_cost_price = fields.Numeric('Product Cost Price',
+        digits=(16, DIGITS),
         states={
             'readonly': True,
             }, on_change_with=['product', 'uom'], depends=['product'])
-    cost_price = fields.Numeric('Cost Price', required=True, digits=DIGITS)
+    cost_price = fields.Numeric('Cost Price', required=True,
+        digits=(16, DIGITS))
     total = fields.Function(fields.Numeric('Total Cost', on_change_with=[
                 'quantity', 'cost_price', 'uom', 'product', 'children'],
-            digits=DIGITS), 'on_change_with_total')
+            digits=(16, DIGITS)), 'on_change_with_total')
     total_unit = fields.Function(fields.Numeric('Total Unit Cost',
             on_change_with=['quantity', 'cost_price', 'uom', 'product',
                 'children', '_parent_plan.quantity'],
-            digits=DIGITS), 'on_change_with_total_unit')
+            digits=(16, DIGITS)), 'on_change_with_total_unit')
 
     @classmethod
     def __setup__(cls):
@@ -549,7 +552,7 @@ class PlanCost(ModelSQL, ModelView):
     type = fields.Many2One('product.cost.plan.cost.type', 'Type',
         required=True, states=STATES, depends=DEPENDS)
     cost = fields.Numeric('Cost', required=True, states=STATES,
-        depends=DEPENDS, digits=DIGITS)
+        depends=DEPENDS, digits=(16, DIGITS))
     system = fields.Boolean('System Managed', readonly=True)
 
     @classmethod
