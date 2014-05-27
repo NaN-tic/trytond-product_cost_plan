@@ -24,8 +24,7 @@ class Plan(ModelSQL, ModelView):
     number = fields.Char('Number', select=True, readonly=True)
     name = fields.Char('Name', select=True)
     active = fields.Boolean('Active')
-    product = fields.Many2One('product.product', 'Product',
-        on_change=['product', 'bom', 'boms'])
+    product = fields.Many2One('product.product', 'Product')
     quantity = fields.Float('Quantity', required=True)
     uom = fields.Many2One('product.uom', 'UOM', required=True, domain=[
             If(Bool(Eval('product_uom_category')),
@@ -36,27 +35,24 @@ class Plan(ModelSQL, ModelView):
             'readonly': Bool(Eval('product')),
             }, depends=['product_uom_category', 'product'])
     product_uom_category = fields.Function(
-        fields.Many2One('product.uom.category', 'Product Uom Category',
-            on_change_with=['product']),
+        fields.Many2One('product.uom.category', 'Product Uom Category'),
         'on_change_with_product_uom_category')
-    bom = fields.Many2One('production.bom', 'BOM', on_change_with=['product'],
+    bom = fields.Many2One('production.bom', 'BOM',
         depends=['product'], domain=[
             ('output_products', '=', Eval('product', 0)),
             ])
-    boms = fields.One2Many('product.cost.plan.bom_line', 'plan', 'BOMs',
-        on_change_with=['bom', 'boms', 'product'])
+    boms = fields.One2Many('product.cost.plan.bom_line', 'plan', 'BOMs')
     products = fields.One2Many('product.cost.plan.product_line', 'plan',
-        'Products', on_change=['products', 'costs'])
+        'Products')
     products_tree = fields.Function(
-        fields.One2Many('product.cost.plan.product_line', 'plan', 'Products',
-            on_change=['products_tree', 'costs', 'quantity']),
+        fields.One2Many('product.cost.plan.product_line', 'plan', 'Products'),
         'get_products_tree', setter='set_products_tree')
     product_cost = fields.Function(fields.Numeric('Product Cost',
-            on_change_with=['products_tree', 'quantity'], digits=(16, DIGITS)),
+            digits=(16, DIGITS)),
         'on_change_with_product_cost')
     costs = fields.One2Many('product.cost.plan.cost', 'plan', 'Costs')
     cost_price = fields.Function(fields.Numeric('Unit Cost Price',
-            digits=(16, DIGITS), on_change_with=['costs', 'quantity']),
+            digits=(16, DIGITS)),
         'on_change_with_cost_price')
     notes = fields.Text('Notes')
 
@@ -108,6 +104,7 @@ class Plan(ModelSQL, ModelView):
                 'products': value,
                 })
 
+    @fields.depends('product', 'bom', 'boms')
     def on_change_product(self):
         res = {'bom': None}
         bom = self.on_change_with_bom()
@@ -117,6 +114,7 @@ class Plan(ModelSQL, ModelView):
             res['uom'] = self.product.default_uom.id
         return res
 
+    @fields.depends('product')
     def on_change_with_bom(self):
         BOM = Pool().get('production.bom')
         if not self.product:
@@ -125,6 +123,7 @@ class Plan(ModelSQL, ModelView):
         if boms:
             return boms[0].id
 
+    @fields.depends('bom', 'boms', 'product')
     def on_change_with_boms(self):
         boms = {
             'remove': [x.id for x in self.boms],
@@ -170,11 +169,13 @@ class Plan(ModelSQL, ModelView):
             res['costs'] = {'update': to_update}
         return res
 
+    @fields.depends('products', 'costs', 'product_cost')
     def on_change_products(self):
         self.product_cost = self.on_change_with_product_cost()
         return self.update_cost_type('product_cost_plan', 'raw_materials',
             self.product_cost)
 
+    @fields.depends('products_tree', 'costs', 'quantity')
     def on_change_products_tree(self):
         self.product_cost = self.on_change_with_product_cost()
         res = self.update_cost_type('product_cost_plan', 'raw_materials',
@@ -182,6 +183,7 @@ class Plan(ModelSQL, ModelView):
         res['product_cost'] = self.product_cost
         return res
 
+    @fields.depends('products_tree', 'quantity')
     def on_change_with_product_cost(self, name=None):
         if not self.quantity:
             return Decimal('0.0')
@@ -190,9 +192,11 @@ class Plan(ModelSQL, ModelView):
         digits = self.__class__.product_cost.digits[1]
         return cost.quantize(Decimal(str(10 ** -digits)))
 
+    @fields.depends('costs', 'quantity')
     def on_change_with_cost_price(self, name=None):
         return sum(c.cost for c in self.costs if c.cost)
 
+    @fields.depends('product')
     def on_change_with_product_uom_category(self, name=None):
         if self.product:
             return self.product.default_uom_category.id
@@ -441,12 +445,11 @@ class PlanProductLine(ModelSQL, ModelView):
     product = fields.Many2One('product.product', 'Product',
         domain=[
             ('type', '!=', 'service'),
-        ], on_change=['product', 'uom'])
+        ])
     quantity = fields.Float('Quantity', required=True,
         digits=(16, Eval('uom_digits', 2)), depends=['uom_digits'])
     uom_category = fields.Function(fields.Many2One(
-        'product.uom.category', 'Uom Category',
-        on_change_with=['product']), 'on_change_with_uom_category')
+        'product.uom.category', 'Uom Category'), 'on_change_with_uom_category')
     uom = fields.Many2One('product.uom', 'Uom', required=True,
         domain=[
             If(Bool(Eval('product', 0)),
@@ -454,21 +457,18 @@ class PlanProductLine(ModelSQL, ModelView):
             ('id', '!=', 0),
             )
             ], depends=['uom_category', 'product'])
-    uom_digits = fields.Function(fields.Integer('UOM Digits',
-        on_change_with=['uom']), 'on_change_with_uom_digits')
+    uom_digits = fields.Function(fields.Integer('UOM Digits'),
+        'on_change_with_uom_digits')
     product_cost_price = fields.Numeric('Product Cost Price',
         digits=(16, DIGITS),
         states={
             'readonly': True,
-            }, on_change_with=['product', 'uom'], depends=['product'])
+            }, depends=['product'])
     cost_price = fields.Numeric('Cost Price', required=True,
         digits=(16, DIGITS))
-    total = fields.Function(fields.Numeric('Total Cost', on_change_with=[
-                'quantity', 'cost_price', 'uom', 'product', 'children'],
+    total = fields.Function(fields.Numeric('Total Cost',
             digits=(16, DIGITS)), 'on_change_with_total')
     total_unit = fields.Function(fields.Numeric('Total Unit Cost',
-            on_change_with=['quantity', 'cost_price', 'uom', 'product',
-                'children', '_parent_plan.quantity'],
             digits=(16, DIGITS)), 'on_change_with_total_unit')
 
     @classmethod
@@ -481,6 +481,7 @@ class PlanProductLine(ModelSQL, ModelView):
         table, _ = tables[None]
         return [table.sequence == None, table.sequence]
 
+    @fields.depends('product', 'uom')
     def on_change_product(self):
         res = {}
         if self.product:
@@ -498,10 +499,12 @@ class PlanProductLine(ModelSQL, ModelView):
             res['product_cost_price'] = None
         return res
 
+    @fields.depends('product')
     def on_change_with_uom_category(self, name=None):
         if self.product:
             return self.product.default_uom.category.id
 
+    @fields.depends('product', 'uom')
     def on_change_with_product_cost_price(self):
         Uom = Pool().get('product.uom')
         if not self.product or not self.uom:
@@ -511,6 +514,7 @@ class PlanProductLine(ModelSQL, ModelView):
         digits = self.__class__.product_cost_price.digits[1]
         return cost.quantize(Decimal(str(10 ** -digits)))
 
+    @fields.depends('quantity', 'cost_price', 'uom', 'product', 'children')
     def on_change_with_total(self, name=None):
         quantity = self.quantity
         if not quantity:
@@ -521,6 +525,8 @@ class PlanProductLine(ModelSQL, ModelView):
         digits = self.__class__.total.digits[1]
         return total.quantize(Decimal(str(10 ** -digits)))
 
+    @fields.depends('quantity', 'cost_price', 'uom', 'product', 'children',
+        '_parent_plan.quantity')
     def on_change_with_total_unit(self, name=None):
         total = self.on_change_with_total(None)
         if total and self.plan and self.plan.quantity:
@@ -530,6 +536,7 @@ class PlanProductLine(ModelSQL, ModelView):
         digits = self.__class__.total_unit.digits[1]
         return total.quantize(Decimal(str(10 ** -digits)))
 
+    @fields.depends('uom')
     def on_change_with_uom_digits(self, name=None):
         if self.uom:
             return self.uom.digits
