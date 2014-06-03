@@ -142,11 +142,11 @@ class Plan(ModelSQL, ModelView):
             return res
 
         products = set(find_boms(self.bom.inputs))
-        for product_id, bom_id in products:
-            boms['add'].append({
-                    'product': product_id,
-                    'bom': None,
-                    })
+        for index, (product_id, bom_id) in enumerate(products):
+            boms['add'].append((index, {
+                        'product': product_id,
+                        'bom': None,
+                        }))
         return boms
 
     def update_cost_type(self, module, id, value):

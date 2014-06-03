@@ -1,6 +1,6 @@
-===================
-Production Scenario
-===================
+==========================
+Product Cost Plan Scenario
+==========================
 
 =============
 General Setup
@@ -224,9 +224,9 @@ Create a manual cost and test total cost is updated::
     >>> costtype = CostType(name='Manual')
     >>> costtype.save()
     >>> cost = Cost()
-    >>> plan.costs.append(cost)
     >>> cost.type = costtype
     >>> cost.cost = Decimal('25.0')
+    >>> plan.costs.append(cost)
     >>> plan.cost_price == Decimal('42.5')
     True
 
