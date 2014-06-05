@@ -45,7 +45,10 @@ class Plan(ModelSQL, ModelView):
     products = fields.One2Many('product.cost.plan.product_line', 'plan',
         'Products')
     products_tree = fields.Function(
-        fields.One2Many('product.cost.plan.product_line', 'plan', 'Products'),
+        fields.One2Many('product.cost.plan.product_line', 'plan', 'Products',
+            domain=[
+                ('parent', '=', None),
+                ]),
         'get_products_tree', setter='set_products_tree')
     product_cost = fields.Function(fields.Numeric('Product Cost',
             digits=(16, DIGITS)),
