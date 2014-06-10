@@ -29,7 +29,7 @@ class Plan(ModelSQL, ModelView):
     uom = fields.Many2One('product.uom', 'UOM', required=True, domain=[
             If(Bool(Eval('product_uom_category')),
                 ('category', '=', Eval('product_uom_category')),
-                (),
+                ('id', '!=', -1),
             )],
         states={
             'readonly': Bool(Eval('product')),
