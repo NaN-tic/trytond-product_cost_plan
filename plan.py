@@ -48,7 +48,11 @@ class Plan(ModelSQL, ModelView):
         fields.One2Many('product.cost.plan.product_line', 'plan', 'Products',
             domain=[
                 ('parent', '=', None),
-                ]),
+                ],
+            states={
+                'readonly': ~Bool(Eval('costs', [0])),
+                },
+            depends=['costs']),
         'get_products_tree', setter='set_products_tree')
     product_cost = fields.Function(fields.Numeric('Product Cost',
             digits=(16, DIGITS)),
