@@ -102,15 +102,6 @@ class Plan(ModelSQL, ModelView):
             ('name',) + tuple(clause[1:]),
             ]
 
-    def get_products_tree(self, name):
-        return [x.id for x in self.products if not x.parent]
-
-    @classmethod
-    def set_products_tree(cls, lines, name, value):
-        cls.write(lines, {
-                'products': value,
-                })
-
     @fields.depends('product', 'bom', 'boms')
     def on_change_product(self):
         res = {'bom': None}
@@ -120,6 +111,11 @@ class Plan(ModelSQL, ModelView):
         if self.product:
             res['uom'] = self.product.default_uom.id
         return res
+
+    @fields.depends('product')
+    def on_change_with_product_uom_category(self, name=None):
+        if self.product:
+            return self.product.default_uom_category.id
 
     @fields.depends('product')
     def on_change_with_bom(self):
@@ -156,41 +152,16 @@ class Plan(ModelSQL, ModelView):
                         }))
         return boms
 
-    def update_cost_type(self, module, id, value):
-        """
-        Updates the cost line for type_ with value of field
-        """
-        pool = Pool()
-        CostType = pool.get('product.cost.plan.cost.type')
-        ModelData = pool.get('ir.model.data')
+    def get_products_tree(self, name):
+        return [x.id for x in self.products if not x.parent]
 
-        type_ = CostType(ModelData.get_id(module, id))
-        res = {}
-        to_update = []
-        for cost in self.costs:
-            if cost.type == type_ and cost.system:
-                to_update.append(cost.update_cost_values(value))
-                cost.cost = value
-        if to_update:
-            res['cost_price'] = self.on_change_with_cost_price()
-            res['costs'] = {'update': to_update}
-        return res
+    @classmethod
+    def set_products_tree(cls, lines, name, value):
+        cls.write(lines, {
+                'products': value,
+                })
 
-    @fields.depends('products', 'costs', 'product_cost')
-    def on_change_products(self):
-        self.product_cost = self.on_change_with_product_cost()
-        return self.update_cost_type('product_cost_plan', 'raw_materials',
-            self.product_cost)
-
-    @fields.depends('products_tree', 'costs', 'quantity')
-    def on_change_products_tree(self):
-        self.product_cost = self.on_change_with_product_cost()
-        res = self.update_cost_type('product_cost_plan', 'raw_materials',
-            self.product_cost)
-        res['product_cost'] = self.product_cost
-        return res
-
-    @fields.depends('products_tree', 'quantity')
+    @fields.depends('quantity', 'products', 'products_tree')
     def on_change_with_product_cost(self, name=None):
         if not self.quantity:
             return Decimal('0.0')
@@ -199,26 +170,36 @@ class Plan(ModelSQL, ModelView):
         digits = self.__class__.product_cost.digits[1]
         return cost.quantize(Decimal(str(10 ** -digits)))
 
-    @fields.depends('costs', 'quantity')
+    @fields.depends('product_cost', 'costs', methods=['product_cost'])
+    def on_change_with_costs(self):
+        self.product_cost = self.on_change_with_product_cost()
+        return self._on_change_with_costs_cost_type('product_cost_plan',
+            'raw_materials', self.product_cost)
+
+    def _on_change_with_costs_cost_type(self, module, cost_type_xml_id, value):
+        """
+        Updates the cost line for type_ with value of field
+        """
+        pool = Pool()
+        CostType = pool.get('product.cost.plan.cost.type')
+        ModelData = pool.get('ir.model.data')
+
+        type_ = CostType(ModelData.get_id(module, cost_type_xml_id))
+        to_update = []
+        for cost in self.costs:
+            if cost.type == type_ and cost.system:
+                to_update.append(cost.update_cost_values(value))
+                cost.cost = value
+        if to_update:
+            return {
+                'update': to_update,
+                }
+        return {}
+
+    @fields.depends('costs', methods=['costs'])
     def on_change_with_cost_price(self, name=None):
+        self.on_change_with_costs()
         return sum(c.cost for c in self.costs if c.cost)
-
-    @fields.depends('product')
-    def on_change_with_product_uom_category(self, name=None):
-        if self.product:
-            return self.product.default_uom_category.id
-
-    @classmethod
-    def create(cls, vlist):
-        Sequence = Pool().get('ir.sequence')
-        Config = Pool().get('production.configuration')
-
-        vlist = [x.copy() for x in vlist]
-        config = Config(1)
-        for values in vlist:
-            values['number'] = Sequence.get_id(
-                config.product_cost_plan_sequence.id)
-        return super(Plan, cls).create(vlist)
 
     @classmethod
     def remove_product_lines(cls, plans):
@@ -350,16 +331,6 @@ class Plan(ModelSQL, ModelView):
             'cost_price': cost_price,
             }
 
-    @classmethod
-    def delete(cls, plans):
-        CostLine = Pool().get('product.cost.plan.cost')
-        to_delete = []
-        for plan in plans:
-            to_delete += plan.costs
-        with Transaction().set_context(reset_costs=True):
-            CostLine.delete(to_delete)
-        super(Plan, cls).delete(plans)
-
     def create_bom(self, name):
         pool = Pool()
         BOM = pool.get('production.bom')
@@ -424,6 +395,28 @@ class Plan(ModelSQL, ModelView):
         input_.uom = line.uom
         input_.quantity = line.quantity
         return input_
+
+    @classmethod
+    def create(cls, vlist):
+        Sequence = Pool().get('ir.sequence')
+        Config = Pool().get('production.configuration')
+
+        vlist = [x.copy() for x in vlist]
+        config = Config(1)
+        for values in vlist:
+            values['number'] = Sequence.get_id(
+                config.product_cost_plan_sequence.id)
+        return super(Plan, cls).create(vlist)
+
+    @classmethod
+    def delete(cls, plans):
+        CostLine = Pool().get('product.cost.plan.cost')
+        to_delete = []
+        for plan in plans:
+            to_delete += plan.costs
+        with Transaction().set_context(reset_costs=True):
+            CostLine.delete(to_delete)
+        super(Plan, cls).delete(plans)
 
 
 class PlanBOM(ModelSQL, ModelView):
@@ -532,8 +525,7 @@ class PlanProductLine(ModelSQL, ModelView):
         digits = self.__class__.total.digits[1]
         return total.quantize(Decimal(str(10 ** -digits)))
 
-    @fields.depends('quantity', 'cost_price', 'uom', 'product', 'children',
-        '_parent_plan.quantity')
+    @fields.depends('_parent_plan.quantity', methods=['total'])
     def on_change_with_total_unit(self, name=None):
         total = self.on_change_with_total(None)
         if total and self.plan and self.plan.quantity:
