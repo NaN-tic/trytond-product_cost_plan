@@ -59,7 +59,7 @@ msgid "Product Cost"
 msgstr "Coste del producto"
 
 msgctxt "field:product.cost.plan,product_uom_category:"
-msgid "Product Uom Category"
+msgid "Product UoM Category"
 msgstr "Categoría UdM del producto"
 
 msgctxt "field:product.cost.plan,products:"
@@ -75,7 +75,7 @@ msgid "State"
 msgstr "Estado"
 
 msgctxt "field:product.cost.plan,uom:"
-msgid "UOM"
+msgid "UoM"
 msgstr "UdM"
 
 msgctxt "field:product.cost.plan,write_date:"
@@ -255,15 +255,15 @@ msgid "Total Cost"
 msgstr "Coste total"
 
 msgctxt "field:product.cost.plan.product_line,uom:"
-msgid "Uom"
+msgid "UoM"
 msgstr "UdM"
 
 msgctxt "field:product.cost.plan.product_line,uom_category:"
-msgid "Uom Category"
+msgid "UoM Category"
 msgstr "Categoría de UdM"
 
 msgctxt "field:product.cost.plan.product_line,uom_digits:"
-msgid "UOM Digits"
+msgid "UoM Digits"
 msgstr "Dígitos UdM"
 
 msgctxt "field:product.cost.plan.product_line,write_date:"

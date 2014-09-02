@@ -25,8 +25,9 @@ class Plan(ModelSQL, ModelView):
     name = fields.Char('Name', select=True)
     active = fields.Boolean('Active')
     product = fields.Many2One('product.product', 'Product')
-    quantity = fields.Float('Quantity', required=True)
-    uom = fields.Many2One('product.uom', 'UOM', required=True, domain=[
+    quantity = fields.Float('Quantity', digits=(16, Eval('uom_digits', 2)),
+        required=True, depends=['uom_digits'])
+    uom = fields.Many2One('product.uom', 'UoM', required=True, domain=[
             If(Bool(Eval('product_uom_category')),
                 ('category', '=', Eval('product_uom_category')),
                 ('id', '!=', -1),
@@ -34,8 +35,10 @@ class Plan(ModelSQL, ModelView):
         states={
             'readonly': Bool(Eval('product')),
             }, depends=['product_uom_category', 'product'])
+    uom_digits = fields.Function(fields.Integer('UoM Digits'),
+        'on_change_with_uom_digits')
     product_uom_category = fields.Function(
-        fields.Many2One('product.uom.category', 'Product Uom Category'),
+        fields.Many2One('product.uom.category', 'Product UoM Category'),
         'on_change_with_product_uom_category')
     bom = fields.Many2One('production.bom', 'BOM',
         depends=['product'], domain=[
@@ -111,6 +114,10 @@ class Plan(ModelSQL, ModelView):
         if self.product:
             res['uom'] = self.product.default_uom.id
         return res
+
+    @fields.depends('uom')
+    def on_change_with_uom_digits(self, name=None):
+        return self.uom.digits if self.uom else 2
 
     @fields.depends('product')
     def on_change_with_product_uom_category(self, name=None):
@@ -234,7 +241,7 @@ class Plan(ModelSQL, ModelView):
         for plan in plans:
             if plan.product and plan.bom:
                 to_create.extend(plan.explode_bom(plan.product, plan.bom,
-                        1, plan.product.default_uom))
+                        plan.quantity, plan.uom))
         if to_create:
             ProductLine.create(to_create)
 
@@ -309,11 +316,11 @@ class Plan(ModelSQL, ModelView):
             *factor*: The factor to calculate the quantity
         """
         pool = Pool()
-        Uom = pool.get('product.uom')
+        UoM = pool.get('product.uom')
         Input = pool.get('production.bom.input')
         ProductLine = pool.get('product.cost.plan.product_line')
         quantity = Input.compute_quantity(input_, factor)
-        cost_factor = Decimal(Uom.compute_qty(input_.product.default_uom, 1,
+        cost_factor = Decimal(UoM.compute_qty(input_.product.default_uom, 1,
             input_.uom))
         digits = ProductLine.product_cost_price.digits[1]
         product_cost_price = (input_.product.cost_price /
@@ -394,6 +401,10 @@ class Plan(ModelSQL, ModelView):
         input_.product = line.product
         input_.uom = line.uom
         input_.quantity = line.quantity
+        parent_line = line.parent
+        while parent_line:
+            input_.quantity *= parent_line.quantity
+            parent_line = parent_line.parent
         return input_
 
     @classmethod
@@ -407,6 +418,30 @@ class Plan(ModelSQL, ModelView):
             values['number'] = Sequence.get_id(
                 config.product_cost_plan_sequence.id)
         return super(Plan, cls).create(vlist)
+
+    @classmethod
+    def copy(cls, plans, default=None):
+        if default is None:
+            default = {}
+        else:
+            default = default.copy()
+        default['products'] = None
+        default['products_tree'] = None
+
+        new_plans = []
+        for plan in plans:
+            new_plans.append(plan._copy_plan(default))
+        return new_plans
+
+    def _copy_plan(self, default):
+        ProductLine = Pool().get('product.cost.plan.product_line')
+
+        new_plan, = super(Plan, self).copy([self], default=default)
+        ProductLine.copy(self.products_tree, default={
+                'plan': new_plan.id,
+                'children': None,
+                })
+        return new_plan
 
     @classmethod
     def delete(cls, plans):
@@ -448,16 +483,16 @@ class PlanProductLine(ModelSQL, ModelView):
         ])
     quantity = fields.Float('Quantity', required=True,
         digits=(16, Eval('uom_digits', 2)), depends=['uom_digits'])
-    uom_category = fields.Function(fields.Many2One(
-        'product.uom.category', 'Uom Category'), 'on_change_with_uom_category')
-    uom = fields.Many2One('product.uom', 'Uom', required=True,
+    uom_category = fields.Function(fields.Many2One('product.uom.category',
+            'UoM Category'),
+        'on_change_with_uom_category')
+    uom = fields.Many2One('product.uom', 'UoM', required=True,
         domain=[
             If(Bool(Eval('product', 0)),
-            ('category', '=', Eval('uom_category')),
-            ('id', '!=', 0),
-            )
+                ('category', '=', Eval('uom_category')),
+                ('id', '!=', 0)),
             ], depends=['uom_category', 'product'])
-    uom_digits = fields.Function(fields.Integer('UOM Digits'),
+    uom_digits = fields.Function(fields.Integer('UoM Digits'),
         'on_change_with_uom_digits')
     product_cost_price = fields.Numeric('Product Cost Price',
         digits=(16, DIGITS),
@@ -467,9 +502,11 @@ class PlanProductLine(ModelSQL, ModelView):
     cost_price = fields.Numeric('Cost Price', required=True,
         digits=(16, DIGITS))
     total = fields.Function(fields.Numeric('Total Cost',
-            digits=(16, DIGITS)), 'on_change_with_total')
+            digits=(16, DIGITS)),
+        'on_change_with_total')
     total_unit = fields.Function(fields.Numeric('Total Unit Cost',
-            digits=(16, DIGITS)), 'on_change_with_total_unit')
+            digits=(16, DIGITS)),
+        'on_change_with_total_unit')
 
     @classmethod
     def __setup__(cls):
@@ -506,10 +543,10 @@ class PlanProductLine(ModelSQL, ModelView):
 
     @fields.depends('product', 'uom')
     def on_change_with_product_cost_price(self):
-        Uom = Pool().get('product.uom')
+        UoM = Pool().get('product.uom')
         if not self.product or not self.uom:
             return
-        cost = Decimal(Uom.compute_qty(self.product.default_uom,
+        cost = Decimal(UoM.compute_qty(self.product.default_uom,
             float(self.product.cost_price), self.uom, round=False))
         digits = self.__class__.product_cost_price.digits[1]
         return cost.quantize(Decimal(str(10 ** -digits)))
@@ -521,7 +558,8 @@ class PlanProductLine(ModelSQL, ModelView):
             return Decimal('0.0')
         total = Decimal(str(quantity)) * (self.cost_price or Decimal('0.0'))
         for child in self.children:
-            total += Decimal(str(quantity)) * (child.total or Decimal('0.0'))
+            total += Decimal(str(quantity)) * (child.on_change_with_total()
+                or Decimal('0.0'))
         digits = self.__class__.total.digits[1]
         return total.quantize(Decimal(str(10 ** -digits)))
 
@@ -540,6 +578,25 @@ class PlanProductLine(ModelSQL, ModelView):
         if self.uom:
             return self.uom.digits
         return 2
+
+    @classmethod
+    def copy(cls, lines, default=None):
+        if default is None:
+            default = {}
+        else:
+            default = default.copy()
+        default['children'] = None
+
+        new_lines = []
+        for line in lines:
+            new_line, = super(PlanProductLine, cls).copy([line],
+                default=default)
+            new_lines.append(new_line)
+
+            new_default = default.copy()
+            new_default['parent'] = new_line.id
+            cls.copy(line.children, default=new_default)
+        return new_lines
 
 
 STATES = {
