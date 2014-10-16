@@ -179,10 +179,6 @@ Create a cost plan for product (without child boms)::
     >>> CostPlan = Model.get('product.cost.plan')
     >>> plan = CostPlan()
     >>> plan.product = product
-    >>> len(plan.boms) == 1
-    True
-    >>> plan.boms[0].bom == None
-    True
     >>> plan.quantity = 1
     >>> plan.save()
     >>> CostPlan.compute([plan.id], config.context)
@@ -228,39 +224,4 @@ Create a manual cost and test total cost is updated::
     >>> cost.cost = Decimal('25.0')
     >>> plan.costs.append(cost)
     >>> plan.cost_price == Decimal('42.5')
-    True
-
-Create a cost plan for product (with child boms)::
-
-    >>> CostPlan = Model.get('product.cost.plan')
-    >>> plan = CostPlan()
-    >>> plan.product = product
-    >>> plan.quantity = 1
-    >>> len(plan.boms) == 1
-    True
-    >>> plan.save()
-    >>> for product_bom in plan.boms:
-    ...     product_bom.bom = product_bom.product.boms[0]
-    ...     product_bom.save()
-    >>> plan.reload()
-    >>> CostPlan.compute([plan.id], config.context)
-    >>> plan.reload()
-    >>> len(plan.products) == 3
-    True
-    >>> cA, = plan.products.find([
-    ...     ('product', '=', componentA.id),
-    ...     ], limit=1)
-    >>> cA.quantity == 5.0
-    True
-    >>> cB, = plan.products.find([
-    ...     ('product', '=', componentB.id),
-    ...     ], limit=1)
-    >>> cB.quantity == 5.0
-    True
-    >>> c2, = plan.products.find([
-    ...     ('product', '=', component2.id),
-    ...     ], limit=1)
-    >>> c2.quantity == 150.0
-    True
-    >>> plan.cost_price == Decimal('17.5')
     True
