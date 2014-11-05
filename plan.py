@@ -4,8 +4,8 @@ from trytond.pool import Pool
 from trytond.pyson import Eval, Bool, If
 from trytond.transaction import Transaction
 from trytond.wizard import Wizard, StateView, StateAction, Button
-from trytond.config import CONFIG
-DIGITS = int(CONFIG.get('unit_price_digits', 4))
+from trytond.config import config
+DIGITS = int(config.get('digits', 'unit_price_digits', 4))
 
 __all__ = ['PlanCostType', 'Plan', 'PlanBOM', 'PlanProductLine', 'PlanCost',
     'CreateBomStart', 'CreateBom']
