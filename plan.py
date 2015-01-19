@@ -1,10 +1,14 @@
+# The COPYRIGHT file at the top level of this repository contains the full
+# copyright notices and license terms.
 from decimal import Decimal
+
+from trytond.config import config
 from trytond.model import ModelSQL, ModelView, fields
 from trytond.pool import Pool
 from trytond.pyson import Eval, Bool, If
 from trytond.transaction import Transaction
 from trytond.wizard import Wizard, StateView, StateAction, Button
-from trytond.config import config
+
 DIGITS = int(config.get('digits', 'unit_price_digits', 4))
 
 __all__ = ['PlanCostType', 'Plan', 'PlanBOM', 'PlanProductLine', 'PlanCost',
@@ -15,6 +19,8 @@ class PlanCostType(ModelSQL, ModelView):
     'Plan Cost Type'
     __name__ = 'product.cost.plan.cost.type'
     name = fields.Char('Name', required=True, translate=True)
+    system = fields.Boolean('System Managed', readonly=True)
+    plan_field_name = fields.Char('Plan Field Name', readonly=True)
 
 
 class Plan(ModelSQL, ModelView):
@@ -25,21 +31,21 @@ class Plan(ModelSQL, ModelView):
     name = fields.Char('Name', select=True)
     active = fields.Boolean('Active')
     product = fields.Many2One('product.product', 'Product')
+    product_uom_category = fields.Function(
+        fields.Many2One('product.uom.category', 'Product UoM Category'),
+        'on_change_with_product_uom_category')
     quantity = fields.Float('Quantity', digits=(16, Eval('uom_digits', 2)),
         required=True, depends=['uom_digits'])
     uom = fields.Many2One('product.uom', 'UoM', required=True, domain=[
-            If(Bool(Eval('product_uom_category')),
+            If(Bool(Eval('product')),
                 ('category', '=', Eval('product_uom_category')),
                 ('id', '!=', -1),
             )],
         states={
             'readonly': Bool(Eval('product')),
-            }, depends=['product_uom_category', 'product'])
+            }, depends=['product', 'product_uom_category'])
     uom_digits = fields.Function(fields.Integer('UoM Digits'),
         'on_change_with_uom_digits')
-    product_uom_category = fields.Function(
-        fields.Many2One('product.uom.category', 'Product UoM Category'),
-        'on_change_with_product_uom_category')
     bom = fields.Many2One('production.bom', 'BOM',
         depends=['product'], domain=[
             ('output_products', '=', Eval('product', 0)),
@@ -57,13 +63,13 @@ class Plan(ModelSQL, ModelView):
                 },
             depends=['costs']),
         'get_products_tree', setter='set_products_tree')
-    product_cost = fields.Function(fields.Numeric('Product Cost',
+    products_cost = fields.Function(fields.Numeric('Products Cost',
             digits=(16, DIGITS)),
-        'on_change_with_product_cost')
+        'get_products_cost')
     costs = fields.One2Many('product.cost.plan.cost', 'plan', 'Costs')
     cost_price = fields.Function(fields.Numeric('Unit Cost Price',
             digits=(16, DIGITS)),
-        'on_change_with_cost_price')
+        'get_cost_price')
     notes = fields.Text('Notes')
 
     @classmethod
@@ -73,14 +79,19 @@ class Plan(ModelSQL, ModelView):
                 'compute': {
                     'icon': 'tryton-spreadsheet',
                     },
+                'update_product_prices': {
+                    'icon': 'tryton-refresh',
+                    },
                 })
         cls._error_messages.update({
-                'bom_already_exists': ('A bom already exists for cost plan '
-                    '"%s".'),
+                'product_lines_will_be_removed': (
+                    'It will remove the existing Product Lines in this plan.'),
+                'bom_already_exists': (
+                    'A bom already exists for cost plan "%s".'),
                 'cannot_mix_input_uoms': ('Product "%(product)s" in Cost Plan '
                     '"%(plan)s" has different units of measure.'),
-                'product_already_has_bom': ('Product "%s" already has a BOM '
-                    'assigned.'),
+                'product_already_has_bom': (
+                    'Product "%s" already has a BOM assigned.'),
                 })
 
 
@@ -119,10 +130,12 @@ class Plan(ModelSQL, ModelView):
     def on_change_with_uom_digits(self, name=None):
         return self.uom.digits if self.uom else 2
 
-    @fields.depends('product')
+    @fields.depends('product', 'uom')
     def on_change_with_product_uom_category(self, name=None):
         if self.product:
             return self.product.default_uom_category.id
+        if self.uom:
+            return self.uom.category.id
 
     @fields.depends('product')
     def on_change_with_bom(self):
@@ -168,44 +181,15 @@ class Plan(ModelSQL, ModelView):
                 'products': value,
                 })
 
-    @fields.depends('quantity', 'products', 'products_tree')
-    def on_change_with_product_cost(self, name=None):
+    def get_products_cost(self, name):
         if not self.quantity:
             return Decimal('0.0')
-        cost = sum(p.total for p in self.products_tree if p.total)
+        cost = sum(p.get_total_cost(None, round=False) for p in self.products)
         cost /= Decimal(str(self.quantity))
-        digits = self.__class__.product_cost.digits[1]
+        digits = self.__class__.products_cost.digits[1]
         return cost.quantize(Decimal(str(10 ** -digits)))
 
-    @fields.depends('product_cost', 'costs', methods=['product_cost'])
-    def on_change_with_costs(self):
-        self.product_cost = self.on_change_with_product_cost()
-        return self._on_change_with_costs_cost_type('product_cost_plan',
-            'raw_materials', self.product_cost)
-
-    def _on_change_with_costs_cost_type(self, module, cost_type_xml_id, value):
-        """
-        Updates the cost line for type_ with value of field
-        """
-        pool = Pool()
-        CostType = pool.get('product.cost.plan.cost.type')
-        ModelData = pool.get('ir.model.data')
-
-        type_ = CostType(ModelData.get_id(module, cost_type_xml_id))
-        to_update = []
-        for cost in self.costs:
-            if cost.type == type_ and cost.system:
-                to_update.append(cost.update_cost_values(value))
-                cost.cost = value
-        if to_update:
-            return {
-                'update': to_update,
-                }
-        return {}
-
-    @fields.depends('costs', methods=['costs'])
-    def on_change_with_cost_price(self, name=None):
-        self.on_change_with_costs()
+    def get_cost_price(self, name):
         return sum(c.cost for c in self.costs if c.cost)
 
     @classmethod
@@ -214,20 +198,19 @@ class Plan(ModelSQL, ModelView):
         ProductLine = pool.get('product.cost.plan.product_line')
         CostLine = pool.get('product.cost.plan.cost')
 
-        types = [x[0]for x in cls.get_cost_types()]
-        to_delete = []
-        costs_to_delete = []
-        for plan in plans:
-            to_delete.extend(plan.products)
-            for line in plan.costs:
-                if line.type in types:
-                    costs_to_delete.append(line)
+        product_lines = ProductLine.search([
+                ('plan', 'in', [p.id for p in plans]),
+                ])
+        if product_lines:
+            cls.raise_user_warning('remove_product_lines',
+                'product_lines_will_be_removed')
+            ProductLine.delete(product_lines)
 
-        if to_delete:
-            ProductLine.delete(to_delete)
-        if costs_to_delete:
-            with Transaction().set_context(reset_costs=True):
-                CostLine.delete(costs_to_delete)
+        with Transaction().set_context(reset_costs=True):
+            CostLine.delete(CostLine.search([
+                        ('plan', 'in', [p.id for p in plans]),
+                        ('system', '=', True),
+                        ]))
 
     @classmethod
     @ModelView.button
@@ -250,37 +233,6 @@ class Plan(ModelSQL, ModelView):
             to_create.extend(plan.get_costs())
         if to_create:
             CostLine.create(to_create)
-
-    def get_costs(self):
-        "Returns the cost lines to be created on compute"
-        ret = []
-        for cost_type, field_name in self.get_cost_types():
-            ret.append(self.get_cost_line(cost_type, field_name))
-        return ret
-
-    def get_cost_line(self, cost_type, field_name):
-        cost = getattr(self, field_name, 0.0)
-        return {
-            'type': cost_type.id,
-            'cost': Decimal(str(cost)),
-            'plan': self.id,
-            'system': True,
-            }
-
-    @classmethod
-    def get_cost_types(cls):
-        """
-        Returns a list of values with the cost types and the field to get
-        their cost.
-        """
-        pool = Pool()
-        CostType = pool.get('product.cost.plan.cost.type')
-        ModelData = pool.get('ir.model.data')
-        ret = []
-        type_ = CostType(ModelData.get_id('product_cost_plan',
-                'raw_materials'))
-        ret.append((type_, 'product_cost'))
-        return ret
 
     def explode_bom(self, product, bom, quantity, uom):
         "Returns products for the especified products"
@@ -323,11 +275,15 @@ class Plan(ModelSQL, ModelView):
         cost_factor = Decimal(UoM.compute_qty(input_.product.default_uom, 1,
             input_.uom))
         digits = ProductLine.product_cost_price.digits[1]
-        product_cost_price = (input_.product.cost_price /
-            cost_factor).quantize(Decimal(str(10 ** -digits)))
-        digits = ProductLine.cost_price.digits[1]
-        cost_price = (input_.product.cost_price /
-            cost_factor).quantize(Decimal(str(10 ** -digits)))
+        if cost_factor == Decimal('0.0'):
+            product_cost_price = Decimal('0.0')
+            cost_price = Decimal('0.0')
+        else:
+            product_cost_price = (input_.product.cost_price /
+                cost_factor).quantize(Decimal(str(10 ** -digits)))
+            digits = ProductLine.cost_price.digits[1]
+            cost_price = (input_.product.cost_price /
+                cost_factor).quantize(Decimal(str(10 ** -digits)))
 
         return {
             'name': input_.product.rec_name,
@@ -337,6 +293,52 @@ class Plan(ModelSQL, ModelView):
             'product_cost_price': product_cost_price,
             'cost_price': cost_price,
             }
+
+    def get_costs(self):
+        "Returns the cost lines to be created on compute"
+        pool = Pool()
+        CostType = pool.get('product.cost.plan.cost.type')
+
+        ret = []
+        system_cost_types = CostType.search([
+                ('system', '=', True),
+                ])
+        for cost_type in system_cost_types:
+            ret.append(self._get_cost_line(cost_type))
+        return ret
+
+    def _get_cost_line(self, cost_type):
+        return {
+            'plan': self.id,
+            'type': cost_type.id,
+            'system': True,
+            }
+
+    @classmethod
+    @ModelView.button
+    def update_product_prices(cls, plans):
+        for plan in plans:
+            if not plan.product:
+                continue
+            plan._update_product_prices()
+            plan.product.save()
+            plan.product.template.save()
+
+    def _update_product_prices(self):
+        pool = Pool()
+        Uom = pool.get('product.uom')
+
+        assert self.product
+        cost_price = Uom.compute_price(self.uom, self.cost_price,
+            self.product.default_uom)
+        if hasattr(self.product.__class__, 'cost_price'):
+            digits = self.product.__class__.cost_price.digits[1]
+            cost_price = cost_price.quantize(Decimal(str(10 ** -digits)))
+            self.product.cost_price = cost_price
+        else:
+            digits = self.product.template.__class__.cost_price.digits[1]
+            cost_price = cost_price.quantize(Decimal(str(10 ** -digits)))
+            self.product.template.cost_price = cost_price
 
     def create_bom(self, name):
         pool = Pool()
@@ -371,7 +373,7 @@ class Plan(ModelSQL, ModelView):
         if self.product:
             output = BOMOutput()
             output.product = self.product
-            output.uom = self.product.default_uom
+            output.uom = self.uom
             output.quantity = self.quantity
             outputs.append(output)
         return outputs
@@ -477,21 +479,22 @@ class PlanProductLine(ModelSQL, ModelView):
         'Children')
     plan = fields.Many2One('product.cost.plan', 'Plan', required=True,
         ondelete='CASCADE')
-    product = fields.Many2One('product.product', 'Product',
-        domain=[
+    product = fields.Many2One('product.product', 'Product', domain=[
             ('type', '!=', 'service'),
-        ])
+            If(Bool(Eval('children')),
+                ('default_uom.category', '=', Eval('uom_category')),
+                ()),
+        ], depends=['children', 'uom_category'])
     quantity = fields.Float('Quantity', required=True,
         digits=(16, Eval('uom_digits', 2)), depends=['uom_digits'])
     uom_category = fields.Function(fields.Many2One('product.uom.category',
             'UoM Category'),
         'on_change_with_uom_category')
-    uom = fields.Many2One('product.uom', 'UoM', required=True,
-        domain=[
-            If(Bool(Eval('product', 0)),
+    uom = fields.Many2One('product.uom', 'UoM', required=True, domain=[
+            If(Bool(Eval('children')) | Bool(Eval('product')),
                 ('category', '=', Eval('uom_category')),
-                ('id', '!=', 0)),
-            ], depends=['uom_category', 'product'])
+                ()),
+            ], depends=['children', 'product', 'uom_category'])
     uom_digits = fields.Function(fields.Integer('UoM Digits'),
         'on_change_with_uom_digits')
     product_cost_price = fields.Numeric('Product Cost Price',
@@ -501,12 +504,14 @@ class PlanProductLine(ModelSQL, ModelView):
             }, depends=['product'])
     cost_price = fields.Numeric('Cost Price', required=True,
         digits=(16, DIGITS))
-    total = fields.Function(fields.Numeric('Total Cost',
-            digits=(16, DIGITS)),
-        'on_change_with_total')
-    total_unit = fields.Function(fields.Numeric('Total Unit Cost',
-            digits=(16, DIGITS)),
-        'on_change_with_total_unit')
+    unit_cost = fields.Function(fields.Numeric('Unit Cost',
+            digits=(16, DIGITS),
+            help="The cost of this product for each unit of plan's product."),
+        'get_unit_cost')
+    total_cost = fields.Function(fields.Numeric('Total Cost',
+            digits=(16, DIGITS),
+            help="The cost of this product for total plan's quantity."),
+        'get_total_cost')
 
     @classmethod
     def __setup__(cls):
@@ -536,48 +541,74 @@ class PlanProductLine(ModelSQL, ModelView):
             res['product_cost_price'] = None
         return res
 
-    @fields.depends('product')
+    @fields.depends('children', '_parent_plan.uom' 'product', 'uom')
     def on_change_with_uom_category(self, name=None):
+        if self.children:
+            # If product line has children, it must be have computable
+            # quantities of plan product
+            return self.plan.uom.category.id
         if self.product:
             return self.product.default_uom.category.id
-
-    @fields.depends('product', 'uom')
-    def on_change_with_product_cost_price(self):
-        UoM = Pool().get('product.uom')
-        if not self.product or not self.uom:
-            return
-        cost = Decimal(UoM.compute_qty(self.product.default_uom,
-            float(self.product.cost_price), self.uom, round=False))
-        digits = self.__class__.product_cost_price.digits[1]
-        return cost.quantize(Decimal(str(10 ** -digits)))
-
-    @fields.depends('quantity', 'cost_price', 'uom', 'product', 'children')
-    def on_change_with_total(self, name=None):
-        quantity = self.quantity
-        if not quantity:
-            return Decimal('0.0')
-        total = Decimal(str(quantity)) * (self.cost_price or Decimal('0.0'))
-        for child in self.children:
-            total += Decimal(str(quantity)) * (child.on_change_with_total()
-                or Decimal('0.0'))
-        digits = self.__class__.total.digits[1]
-        return total.quantize(Decimal(str(10 ** -digits)))
-
-    @fields.depends('_parent_plan.quantity', methods=['total'])
-    def on_change_with_total_unit(self, name=None):
-        total = self.on_change_with_total(None)
-        if total and self.plan and self.plan.quantity:
-            total /= Decimal(str(self.plan.quantity))
-        else:
-            total = Decimal('0.0')
-        digits = self.__class__.total_unit.digits[1]
-        return total.quantize(Decimal(str(10 ** -digits)))
 
     @fields.depends('uom')
     def on_change_with_uom_digits(self, name=None):
         if self.uom:
             return self.uom.digits
         return 2
+
+    @fields.depends('product', 'uom', 'cost_price')
+    def on_change_with_cost_price(self):
+        UoM = Pool().get('product.uom')
+
+        if (not self.product or not self.uom
+                or (self.cost_price
+                    and self.cost_price != self.product.cost_price)):
+            cost = self.cost_price
+        else:
+            cost = UoM.compute_price(self.product.default_uom,
+                self.product.cost_price, self.uom)
+        if cost:
+            digits = self.__class__.cost_price.digits[1]
+            return cost.quantize(Decimal(str(10 ** -digits)))
+        return cost
+
+    @fields.depends('product', 'uom')
+    def on_change_with_product_cost_price(self):
+        UoM = Pool().get('product.uom')
+        if not self.product:
+            return
+        if not self.uom:
+            cost = self.product.cost_price
+        else:
+            cost = UoM.compute_price(self.product.default_uom,
+                self.product.cost_price, self.uom)
+        digits = self.__class__.product_cost_price.digits[1]
+        return cost.quantize(Decimal(str(10 ** -digits)))
+
+    def get_unit_cost(self, name):
+        unit_cost = self.total_cost
+        if unit_cost and self.plan and self.plan.quantity:
+            unit_cost /= Decimal(str(self.plan.quantity))
+        digits = self.__class__.unit_cost.digits[1]
+        return unit_cost.quantize(Decimal(str(10 ** -digits)))
+
+    def get_total_cost(self, name, round=True):
+        if not self.cost_price:
+            return Decimal('0.0')
+        # Quantity is the quantity of this line for all plan's quantity
+        quantity = self.quantity
+        line = self
+        while quantity and line.parent:
+            quantity *= line.parent.quantity
+            line = line.parent
+        if not quantity:
+            return Decimal('0.0')
+
+        total_cost = Decimal(str(quantity)) * self.cost_price
+        if not round:
+            return total_cost
+        digits = self.__class__.total_cost.digits[1]
+        return total_cost.quantize(Decimal(str(10 ** -digits)))
 
     @classmethod
     def copy(cls, lines, default=None):
@@ -612,10 +643,15 @@ class PlanCost(ModelSQL, ModelView):
     plan = fields.Many2One('product.cost.plan', 'Plan', required=True,
         ondelete='CASCADE')
     sequence = fields.Integer('Sequence')
-    type = fields.Many2One('product.cost.plan.cost.type', 'Type',
+    type = fields.Many2One('product.cost.plan.cost.type', 'Type', domain=[
+            ('system', '=', Eval('system')),
+            ],
         required=True, states=STATES, depends=DEPENDS)
-    cost = fields.Numeric('Cost', required=True, states=STATES,
-        depends=DEPENDS, digits=(16, DIGITS))
+    internal_cost = fields.Numeric('Cost (Internal Use)', digits=(16, DIGITS),
+        readonly=True)
+    cost = fields.Function(fields.Numeric('Cost', digits=(16, DIGITS),
+            required=True, states=STATES, depends=DEPENDS),
+        'get_cost', setter='set_cost')
     system = fields.Boolean('System Managed', readonly=True)
 
     @classmethod
@@ -626,10 +662,6 @@ class PlanCost(ModelSQL, ModelView):
                 'delete_system_cost': ('You can not delete cost "%(cost)s" '
                     'from plan "%(plan)s" because it\'s managed by system.'),
                 })
-
-    @staticmethod
-    def default_system():
-        return False
 
     @staticmethod
     def order_sequence(tables):
@@ -643,6 +675,25 @@ class PlanCost(ModelSQL, ModelView):
     def search_rec_name(cls, name, clause):
         return [('type.name',) + tuple(clause[1:])]
 
+    @staticmethod
+    def default_system():
+        return False
+
+    def get_cost(self, name):
+        if self.system:
+            cost = getattr(self.plan, self.type.plan_field_name)
+        else:
+            cost = self.internal_cost
+        digits = self.__class__.cost.digits[1]
+        return cost.quantize(Decimal(str(10 ** -digits)))
+
+    @classmethod
+    def set_cost(cls, records, name, value):
+        records_todo = [r for r in records if not r.system]
+        cls.write(records, {
+                'internal_cost': value,
+                })
+
     @classmethod
     def delete(cls, costs):
         if not Transaction().context.get('reset_costs', False):
@@ -653,12 +704,6 @@ class PlanCost(ModelSQL, ModelView):
                             'plan': cost.plan.rec_name,
                             })
         super(PlanCost, cls).delete(costs)
-
-    def update_cost_values(self, value):
-        return {
-            'cost': value,
-            'id': self.id,
-            }
 
 
 class CreateBomStart(ModelView):

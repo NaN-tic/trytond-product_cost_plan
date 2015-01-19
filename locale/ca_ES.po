@@ -10,6 +10,26 @@ msgstr ""
 "No podeu eliminar el cost \"%(cost)s\" del pla \"%(plan)s\" perquè està "
 "gestionat pel sistema."
 
+msgctxt "error:product.cost.plan:"
+msgid "A bom already exists for cost plan \"%s\"."
+msgstr "Ja existeix una LdM pel pla de cost \"%s\"."
+
+msgctxt "error:product.cost.plan:"
+msgid "It will remove the existing Product Lines in this plan."
+msgstr "S'eliminaran les línies de producte d'aquest pla."
+
+msgctxt "error:product.cost.plan:"
+msgid ""
+"Product \"%(product)s\" in Cost Plan \"%(plan)s\" has different units of "
+"measure."
+msgstr ""
+"El producte \"%(product)s\" del pla de cost \"%(plan)s\" té una unitat de "
+"mesura diferent."
+
+msgctxt "error:product.cost.plan:"
+msgid "Product \"%s\" already has a BOM assigned."
+msgstr "El producte \"%s\" ja té una LdM assignada."
+
 msgctxt "field:product.cost.plan,active:"
 msgid "Active"
 msgstr "Actiu"
@@ -42,6 +62,10 @@ msgctxt "field:product.cost.plan,id:"
 msgid "ID"
 msgstr "Identificador"
 
+msgctxt "field:product.cost.plan,name:"
+msgid "Name"
+msgstr "Nom"
+
 msgctxt "field:product.cost.plan,notes:"
 msgid "Notes"
 msgstr "Notes"
@@ -54,10 +78,6 @@ msgctxt "field:product.cost.plan,product:"
 msgid "Product"
 msgstr "Producte"
 
-msgctxt "field:product.cost.plan,product_cost:"
-msgid "Product Cost"
-msgstr "Cost del producte"
-
 msgctxt "field:product.cost.plan,product_uom_category:"
 msgid "Product UoM Category"
 msgstr "Categoria UdM del producte"
@@ -66,17 +86,29 @@ msgctxt "field:product.cost.plan,products:"
 msgid "Products"
 msgstr "Productes"
 
+msgctxt "field:product.cost.plan,products_cost:"
+msgid "Products Cost"
+msgstr "Cost dels materials"
+
+msgctxt "field:product.cost.plan,products_tree:"
+msgid "Products"
+msgstr "Productes"
+
+msgctxt "field:product.cost.plan,quantity:"
+msgid "Quantity"
+msgstr "Quantitat"
+
 msgctxt "field:product.cost.plan,rec_name:"
 msgid "Name"
 msgstr "Nom"
 
-msgctxt "field:product.cost.plan,state:"
-msgid "State"
-msgstr "Estat"
-
 msgctxt "field:product.cost.plan,uom:"
 msgid "UoM"
 msgstr "UdM"
+
+msgctxt "field:product.cost.plan,uom_digits:"
+msgid "UoM Digits"
+msgstr "Digits UdM"
 
 msgctxt "field:product.cost.plan,write_date:"
 msgid "Write Date"
@@ -138,6 +170,10 @@ msgctxt "field:product.cost.plan.cost,id:"
 msgid "ID"
 msgstr "Identificador"
 
+msgctxt "field:product.cost.plan.cost,internal_cost:"
+msgid "Cost (Internal Use)"
+msgstr "Cost (ús intern)"
+
 msgctxt "field:product.cost.plan.cost,plan:"
 msgid "Plan"
 msgstr "Pla"
@@ -145,6 +181,10 @@ msgstr "Pla"
 msgctxt "field:product.cost.plan.cost,rec_name:"
 msgid "Name"
 msgstr "Nom"
+
+msgctxt "field:product.cost.plan.cost,sequence:"
+msgid "Sequence"
+msgstr "Seqüència"
 
 msgctxt "field:product.cost.plan.cost,system:"
 msgid "System Managed"
@@ -178,9 +218,17 @@ msgctxt "field:product.cost.plan.cost.type,name:"
 msgid "Name"
 msgstr "Nom"
 
+msgctxt "field:product.cost.plan.cost.type,plan_field_name:"
+msgid "Plan Field Name"
+msgstr "Nom camp del pla"
+
 msgctxt "field:product.cost.plan.cost.type,rec_name:"
 msgid "Name"
 msgstr "Nom"
+
+msgctxt "field:product.cost.plan.cost.type,system:"
+msgid "System Managed"
+msgstr "Gestionat pel sistema"
 
 msgctxt "field:product.cost.plan.cost.type,write_date:"
 msgid "Write Date"
@@ -194,13 +242,13 @@ msgctxt "field:product.cost.plan.create_bom.start,id:"
 msgid "ID"
 msgstr "Identificador"
 
-msgctxt "field:product.cost.plan.create_bom.start,inputs:"
-msgid "Inputs"
-msgstr "Entrades"
-
 msgctxt "field:product.cost.plan.create_bom.start,name:"
 msgid "Name"
 msgstr "Nom"
+
+msgctxt "field:product.cost.plan.product_line,children:"
+msgid "Children"
+msgstr "Fills"
 
 msgctxt "field:product.cost.plan.product_line,cost_price:"
 msgid "Cost Price"
@@ -218,13 +266,13 @@ msgctxt "field:product.cost.plan.product_line,id:"
 msgid "ID"
 msgstr "Identificador"
 
-msgctxt "field:product.cost.plan.product_line,last_purchase_price:"
-msgid "Last Purchase Price"
-msgstr "Últim preu de compra"
-
 msgctxt "field:product.cost.plan.product_line,name:"
 msgid "Name"
 msgstr "Nom"
+
+msgctxt "field:product.cost.plan.product_line,parent:"
+msgid "Parent"
+msgstr "Pare"
 
 msgctxt "field:product.cost.plan.product_line,plan:"
 msgid "Plan"
@@ -250,9 +298,13 @@ msgctxt "field:product.cost.plan.product_line,sequence:"
 msgid "Sequence"
 msgstr "Seqüència"
 
-msgctxt "field:product.cost.plan.product_line,total:"
+msgctxt "field:product.cost.plan.product_line,total_cost:"
 msgid "Total Cost"
 msgstr "Cost total"
+
+msgctxt "field:product.cost.plan.product_line,unit_cost:"
+msgid "Unit Cost"
+msgstr "Cost unitari"
 
 msgctxt "field:product.cost.plan.product_line,uom:"
 msgid "UoM"
@@ -277,6 +329,14 @@ msgstr "Usuari modificació"
 msgctxt "field:production.configuration,product_cost_plan_sequence:"
 msgid "Product Cost Plan Sequence"
 msgstr "Seqüencia pla de costsos de producte"
+
+msgctxt "help:product.cost.plan.product_line,total_cost:"
+msgid "The cost of this product for total plan's quantity."
+msgstr "El cost d'aquest producte per la quantitat total del pla."
+
+msgctxt "help:product.cost.plan.product_line,unit_cost:"
+msgid "The cost of this product for each unit of plan's product."
+msgstr "El cost d'aquest producte per cada unitat del producte del pla."
 
 msgctxt "model:ir.action,name:act_product_cost_plan"
 msgid "Product Cost Plan"
@@ -354,14 +414,6 @@ msgctxt "model:res.group,name:group_product_cost_plan_admin"
 msgid "Product Cost Plan Administration"
 msgstr "Administració Pla de costos de producte"
 
-msgctxt "selection:product.cost.plan,state:"
-msgid "Computed"
-msgstr "Calculat"
-
-msgctxt "selection:product.cost.plan,state:"
-msgid "Draft"
-msgstr "Esborrany"
-
 msgctxt "view:product.cost.plan.bom_line:"
 msgid "Product Cost Plan BOM"
 msgstr "LdM Pla de costos de producte"
@@ -395,10 +447,6 @@ msgid "Costs"
 msgstr "Costos"
 
 msgctxt "view:product.cost.plan:"
-msgid "General"
-msgstr "General"
-
-msgctxt "view:product.cost.plan:"
 msgid "Notes"
 msgstr "Notes"
 
@@ -407,8 +455,12 @@ msgid "Product Cost Plan"
 msgstr "Pla de costos de producte"
 
 msgctxt "view:product.cost.plan:"
-msgid "Reset"
-msgstr "Reinicialitza"
+msgid "Products"
+msgstr "Productes"
+
+msgctxt "view:product.cost.plan:"
+msgid "Update Product's Prices"
+msgstr "Actualitza preus del producte"
 
 msgctxt "wizard_button:product.cost.plan.create_bom,start,bom:"
 msgid "Ok"

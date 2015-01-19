@@ -20,6 +20,8 @@
     <field name="product_cost_price"/>
     <label name="cost_price"/>
     <field name="cost_price"/>
-    <label name="total"/>
-    <field name="total"/>
+    <label name="unit_cost"/>
+    <field name="unit_cost"/>
+    <label name="total_cost"/>
+    <field name="total_cost"/>
 </form>

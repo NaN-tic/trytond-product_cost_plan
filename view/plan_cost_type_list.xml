@@ -3,4 +3,5 @@
      copyright notices and license terms. -->
 <tree string="Plan Cost Type">
     <field name="name"/>
+    <field name="system"/>
 </tree>

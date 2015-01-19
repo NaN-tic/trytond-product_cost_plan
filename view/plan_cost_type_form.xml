@@ -4,4 +4,6 @@
 <form string="Plan Cost Type">
     <label name="name"/>
     <field name="name"/>
+    <label name="system"/>
+    <field name="system"/>
 </form>

@@ -21,8 +21,8 @@
     <notebook colspan="6">
         <page string="Products" id="products">
             <field name="products_tree" colspan="4"/>
-            <label name="product_cost"/>
-            <field name="product_cost"/>
+            <label name="products_cost"/>
+            <field name="products_cost"/>
         </page>
         <page id="costs" string="Costs">
             <field name="costs" colspan="4"/>
@@ -36,4 +36,6 @@
     </notebook>
     <label name="cost_price"/>
     <field name="cost_price"/>
+    <button name="update_product_prices" string="Update Product's Prices"
+        colspan="2"/>
 </form>
