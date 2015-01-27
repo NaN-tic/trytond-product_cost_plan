@@ -30,6 +30,10 @@ msgctxt "error:product.cost.plan:"
 msgid "Product \"%s\" already has a BOM assigned."
 msgstr "El producte \"%s\" ja té una LdM assignada."
 
+msgctxt "error:product.cost.plan:"
+msgid "The Cost Plan \"%s\" lacks the product."
+msgstr "Al pla de costos \"%s\" li falta el producte."
+
 msgctxt "field:product.cost.plan,active:"
 msgid "Active"
 msgstr "Actiu"

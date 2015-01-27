@@ -86,6 +86,7 @@ class Plan(ModelSQL, ModelView):
         cls._error_messages.update({
                 'product_lines_will_be_removed': (
                     'It will remove the existing Product Lines in this plan.'),
+                'lacks_the_product': 'The Cost Plan "%s" lacks the product.',
                 'bom_already_exists': (
                     'A bom already exists for cost plan "%s".'),
                 'cannot_mix_input_uoms': ('Product "%(product)s" in Cost Plan '
@@ -93,7 +94,6 @@ class Plan(ModelSQL, ModelView):
                 'product_already_has_bom': (
                     'Product "%s" already has a BOM assigned.'),
                 })
-
 
     @staticmethod
     def default_active():
@@ -107,6 +107,8 @@ class Plan(ModelSQL, ModelView):
         res = '[%s]' % self.number
         if self.name:
             res += ' ' + self.name
+        elif self.product:
+            res += ' ' + self.product.rec_name
         return res
 
     @classmethod
@@ -114,6 +116,7 @@ class Plan(ModelSQL, ModelView):
         return ['OR',
             ('number',) + tuple(clause[1:]),
             ('name',) + tuple(clause[1:]),
+            ('product',) + tuple(clause[1:]),
             ]
 
     @fields.depends('product', 'bom', 'boms')
@@ -344,8 +347,12 @@ class Plan(ModelSQL, ModelView):
         pool = Pool()
         BOM = pool.get('production.bom')
         ProductBOM = pool.get('product.product-production.bom')
+
+        if not self.product:
+            self.raise_user_error('lacks_the_product', self.rec_name)
         if self.bom:
             self.raise_user_error('bom_already_exists', self.rec_name)
+
         bom = BOM()
         bom.name = name
         bom.inputs = self._get_bom_inputs()
@@ -728,7 +735,7 @@ class CreateBom(Wizard):
         CostPlan = Pool().get('product.cost.plan')
         plan = CostPlan(Transaction().context.get('active_id'))
         return {
-            'name': plan.product.rec_name,
+            'name': plan.rec_name,
             }
 
     def do_bom(self, action):
