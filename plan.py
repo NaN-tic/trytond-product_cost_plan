@@ -525,6 +525,11 @@ class PlanProductLine(ModelSQL, ModelView):
         super(PlanProductLine, cls).__setup__()
         cls._order.insert(0, ('sequence', 'ASC'))
 
+    @classmethod
+    def validate(cls, lines):
+	super(PlanProductLine, cls).validate(lines)
+	cls.check_recursion(lines)
+
     @staticmethod
     def order_sequence(tables):
         table, _ = tables[None]
