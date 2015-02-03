@@ -527,8 +527,8 @@ class PlanProductLine(ModelSQL, ModelView):
 
     @classmethod
     def validate(cls, lines):
-	super(PlanProductLine, cls).validate(lines)
-	cls.check_recursion(lines)
+        super(PlanProductLine, cls).validate(lines)
+        cls.check_recursion(lines)
 
     @staticmethod
     def order_sequence(tables):
