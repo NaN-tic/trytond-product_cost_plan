@@ -119,9 +119,13 @@ class Plan(ModelSQL, ModelView):
             ('product',) + tuple(clause[1:]),
             ]
 
-    @fields.depends('product', 'bom', 'boms')
+    @fields.depends('product', 'bom', 'boms', 'name')
     def on_change_product(self):
-        res = {'bom': None}
+        res = {
+            'bom': None,
+            }
+        if not self.name:
+            res['name'] = self.product.rec_name
         bom = self.on_change_with_bom()
         self.bom = bom
         res['boms'] = self.on_change_with_boms()
@@ -351,7 +355,8 @@ class Plan(ModelSQL, ModelView):
         if not self.product:
             self.raise_user_error('lacks_the_product', self.rec_name)
         if self.bom:
-            self.raise_user_error('bom_already_exists', self.rec_name)
+            self.raise_user_error('bom_already_exists%s' % self.id,
+                'bom_already_exists', self.rec_name)
 
         bom = BOM()
         bom.name = name
@@ -365,7 +370,8 @@ class Plan(ModelSQL, ModelView):
         if self.product.boms:
             product_bom = self.product.boms[0]
             if product_bom.bom:
-                self.raise_user_error('product_already_has_bom',
+                self.raise_user_warning('product_already_has_bom%s' % self.id,
+                    'product_already_has_bom',
                     self.product.rec_name)
         else:
             product_bom = ProductBOM()
@@ -436,6 +442,7 @@ class Plan(ModelSQL, ModelView):
             default = default.copy()
         default['products'] = None
         default['products_tree'] = None
+        default['bom'] = None
 
         new_plans = []
         for plan in plans:
@@ -527,8 +534,8 @@ class PlanProductLine(ModelSQL, ModelView):
 
     @classmethod
     def validate(cls, lines):
-        super(PlanProductLine, cls).validate(lines)
-        cls.check_recursion(lines)
+	    super(PlanProductLine, cls).validate(lines)
+	    cls.check_recursion(lines)
 
     @staticmethod
     def order_sequence(tables):
