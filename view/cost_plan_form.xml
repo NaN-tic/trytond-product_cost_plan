@@ -36,6 +36,9 @@
     </notebook>
     <label name="cost_price"/>
     <field name="cost_price"/>
-    <button name="update_product_prices" string="Update Product's Prices"
-        colspan="2"/>
+    <label name="product_cost_price"/>
+    <field name="product_cost_price"/>
+    <button name="update_product_cost_price"
+        string="Update Product's Cost Price" colspan="2"
+        confirm="It will modify the product's field loosing the current value. Are you sure?"/>
 </form>

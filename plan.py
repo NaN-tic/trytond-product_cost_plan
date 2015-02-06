@@ -67,6 +67,9 @@ class Plan(ModelSQL, ModelView):
             digits=(16, DIGITS)),
         'get_products_cost')
     costs = fields.One2Many('product.cost.plan.cost', 'plan', 'Costs')
+    product_cost_price = fields.Function(fields.Numeric('Product Cost Price',
+            digits=(16, DIGITS)),
+        'get_product_cost_price')
     cost_price = fields.Function(fields.Numeric('Unit Cost Price',
             digits=(16, DIGITS)),
         'get_cost_price')
@@ -79,7 +82,7 @@ class Plan(ModelSQL, ModelView):
                 'compute': {
                     'icon': 'tryton-spreadsheet',
                     },
-                'update_product_prices': {
+                'update_product_cost_price': {
                     'icon': 'tryton-refresh',
                     },
                 })
@@ -195,6 +198,9 @@ class Plan(ModelSQL, ModelView):
         cost /= Decimal(str(self.quantity))
         digits = self.__class__.products_cost.digits[1]
         return cost.quantize(Decimal(str(10 ** -digits)))
+
+    def get_product_cost_price(self, name):
+        return self.product.cost_price if self.product else None
 
     def get_cost_price(self, name):
         return sum(c.cost for c in self.costs if c.cost)
@@ -323,15 +329,15 @@ class Plan(ModelSQL, ModelView):
 
     @classmethod
     @ModelView.button
-    def update_product_prices(cls, plans):
+    def update_product_cost_price(cls, plans):
         for plan in plans:
             if not plan.product:
                 continue
-            plan._update_product_prices()
+            plan._update_product_cost_price()
             plan.product.save()
             plan.product.template.save()
 
-    def _update_product_prices(self):
+    def _update_product_cost_price(self):
         pool = Pool()
         Uom = pool.get('product.uom')
 
@@ -366,8 +372,8 @@ class Plan(ModelSQL, ModelView):
         self.bom = bom
         self.save()
 
-        ProductBOM()
         if self.product.boms:
+            # TODO: create new bom to allow diferent "versions"?
             product_bom = self.product.boms[0]
             if product_bom.bom:
                 self.raise_user_warning('product_already_has_bom%s' % self.id,
