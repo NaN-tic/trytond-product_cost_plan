@@ -223,5 +223,7 @@ Create a manual cost and test total cost is updated::
     >>> cost.type = costtype
     >>> cost.cost = Decimal('25.0')
     >>> plan.costs.append(cost)
+    >>> plan.save()
+    >>> plan.reload()
     >>> plan.cost_price == Decimal('42.5')
     True
