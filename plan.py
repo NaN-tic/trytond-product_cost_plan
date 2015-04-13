@@ -566,12 +566,13 @@ class PlanProductLine(ModelSQL, ModelView):
             res['product_cost_price'] = None
         return res
 
-    @fields.depends('children', '_parent_plan.uom' 'product', 'uom')
+    @fields.depends('children', '_parent_plan.uom' 'product', 'uom', 'plan')
     def on_change_with_uom_category(self, name=None):
         if self.children:
             # If product line has children, it must be have computable
             # quantities of plan product
-            return self.plan.uom.category.id
+            if self.plan and self.plan.uom:
+                return self.plan.uom.category.id
         if self.product:
             return self.product.default_uom.category.id
 
