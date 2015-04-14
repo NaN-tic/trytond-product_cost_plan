@@ -475,7 +475,7 @@ msgstr "Productos"
 
 msgctxt "view:product.cost.plan:"
 msgid "Update Product's Cost Price"
-msgstr "Actualizar precio de venta del producto"
+msgstr "Actualizar precio de coste del producto"
 
 msgctxt "wizard_button:product.cost.plan.create_bom,start,bom:"
 msgid "Ok"
