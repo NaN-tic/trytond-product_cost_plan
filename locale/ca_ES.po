@@ -82,6 +82,10 @@ msgctxt "field:product.cost.plan,product:"
 msgid "Product"
 msgstr "Producte"
 
+msgctxt "field:product.cost.plan,product_cost_price:"
+msgid "Product Cost Price"
+msgstr "Preu de cost del producte"
+
 msgctxt "field:product.cost.plan,product_uom_category:"
 msgid "Product UoM Category"
 msgstr "Categoria UdM del producte"
@@ -443,12 +447,18 @@ msgid "BOM Configuration"
 msgstr "Configuració de llistes de materials"
 
 msgctxt "view:product.cost.plan:"
-msgid "Compute"
-msgstr "Calcula"
-
-msgctxt "view:product.cost.plan:"
 msgid "Costs"
 msgstr "Costos"
+
+msgctxt "view:product.cost.plan:"
+msgid "Initialize Cost Plan"
+msgstr "Inicialitza pla de cost"
+
+msgctxt "view:product.cost.plan:"
+msgid ""
+"It will modify the product's field loosing the current value. Are you sure?"
+msgstr ""
+"Això modificarà la fitxa del producte perdent el valor actual. N'està segur?"
 
 msgctxt "view:product.cost.plan:"
 msgid "Notes"
@@ -463,8 +473,8 @@ msgid "Products"
 msgstr "Productes"
 
 msgctxt "view:product.cost.plan:"
-msgid "Update Product's Prices"
-msgstr "Actualitza preus del producte"
+msgid "Update Product's Cost Price"
+msgstr "Actualitza preu de cost del producte"
 
 msgctxt "wizard_button:product.cost.plan.create_bom,start,bom:"
 msgid "Ok"
