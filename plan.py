@@ -587,7 +587,7 @@ class PlanProductLine(ModelSQL, ModelView):
         UoM = Pool().get('product.uom')
 
         if (not self.product or not self.uom
-                or (self.cost_price
+                or (self.cost_price != None
                     and self.cost_price != self.product.cost_price)):
             cost = self.cost_price
         else:
