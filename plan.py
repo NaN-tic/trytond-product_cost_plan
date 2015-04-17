@@ -206,7 +206,7 @@ class Plan(ModelSQL, ModelView):
         return sum(c.cost for c in self.costs if c.cost)
 
     @classmethod
-    def remove_product_lines(cls, plans):
+    def clean(cls, plans):
         pool = Pool()
         ProductLine = pool.get('product.cost.plan.product_line')
         CostLine = pool.get('product.cost.plan.cost')
@@ -232,7 +232,8 @@ class Plan(ModelSQL, ModelView):
         ProductLine = pool.get('product.cost.plan.product_line')
         CostLine = pool.get('product.cost.plan.cost')
 
-        cls.remove_product_lines(plans)
+        cls.clean(plans)
+
         to_create = []
         for plan in plans:
             if plan.product and plan.bom:
@@ -324,7 +325,8 @@ class Plan(ModelSQL, ModelView):
         return {
             'plan': self.id,
             'type': cost_type.id,
-            'system': True,
+            'system': cost_type.system,
+            'internal_cost': Decimal('0'),
             }
 
     @classmethod
@@ -540,8 +542,8 @@ class PlanProductLine(ModelSQL, ModelView):
 
     @classmethod
     def validate(cls, lines):
-	    super(PlanProductLine, cls).validate(lines)
-	    cls.check_recursion(lines)
+        super(PlanProductLine, cls).validate(lines)
+        cls.check_recursion(lines)
 
     @staticmethod
     def order_sequence(tables):
@@ -716,9 +718,10 @@ class PlanCost(ModelSQL, ModelView):
     @classmethod
     def set_cost(cls, records, name, value):
         records_todo = [r for r in records if not r.system]
-        cls.write(records, {
-                'internal_cost': value,
-                })
+        if records_todo:
+            cls.write(records_todo, {
+                    'internal_cost': value,
+                    })
 
     @classmethod
     def delete(cls, costs):
