@@ -127,7 +127,7 @@ class Plan(ModelSQL, ModelView):
         res = {
             'bom': None,
             }
-        if not self.name:
+        if self.product:
             res['name'] = self.product.rec_name
         bom = self.on_change_with_bom()
         self.bom = bom
