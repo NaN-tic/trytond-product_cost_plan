@@ -225,5 +225,5 @@ Create a manual cost and test total cost is updated::
     >>> plan.costs.append(cost)
     >>> plan.save()
     >>> plan.reload()
-    >>> plan.cost_price == Decimal('42.5')
-    True
+    >>> plan.cost_price
+    Decimal('42.5000')
