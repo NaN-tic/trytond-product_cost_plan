@@ -3,7 +3,8 @@
      copyright notices and license terms. -->
 <tree string="Product Cost Plan">
     <field name="number"/>
-    <field name="product"/>
+    <field name="name"/>
+    <field name="product" tree_invisible="1"/>
     <field name="bom"/>
     <field name="active" tree_invisible="1"/>
 </tree>
