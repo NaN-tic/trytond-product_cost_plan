@@ -28,7 +28,7 @@ class Plan(ModelSQL, ModelView):
     __name__ = 'product.cost.plan'
 
     number = fields.Char('Number', select=True, readonly=True)
-    name = fields.Char('Name', select=True)
+    name = fields.Char('Name', select=True, required=True)
     active = fields.Boolean('Active')
     product = fields.Many2One('product.product', 'Product')
     product_uom_category = fields.Function(
