@@ -92,8 +92,6 @@ class Plan(ModelSQL, ModelView):
                 'lacks_the_product': 'The Cost Plan "%s" lacks the product.',
                 'bom_already_exists': (
                     'A bom already exists for cost plan "%s".'),
-                'cannot_mix_input_uoms': ('Product "%(product)s" in Cost Plan '
-                    '"%(plan)s" has different units of measure.'),
                 'product_already_has_bom': (
                     'Product "%s" already has a BOM assigned.'),
                 })
@@ -400,6 +398,9 @@ class Plan(ModelSQL, ModelView):
         return outputs
 
     def _get_bom_inputs(self):
+        pool = Pool()
+        Uom = pool.get('product.uom')
+
         inputs = {}
         for line in self.products:
             if not line.product:
@@ -409,12 +410,8 @@ class Plan(ModelSQL, ModelView):
                 inputs[input_.product.id] = input_
                 continue
             existing = inputs[input_.product.id]
-            if existing.uom != input_.uom:
-                self.raise_user_error('cannot_mix_input_uoms', {
-                        'plan': self.rec_name,
-                        'product': existing.product.rec_name,
-                        })
-            existing.quantity += input_.quantity
+            existing.quantity += Uom.compute_qty(input_.uom, input_.quantity,
+                existing.uom)
         return inputs.values()
 
     def _get_input_line(self, line):

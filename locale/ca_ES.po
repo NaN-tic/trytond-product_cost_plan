@@ -19,14 +19,6 @@ msgid "It will remove the existing Product Lines in this plan."
 msgstr "S'eliminaran les línies de producte d'aquest pla."
 
 msgctxt "error:product.cost.plan:"
-msgid ""
-"Product \"%(product)s\" in Cost Plan \"%(plan)s\" has different units of "
-"measure."
-msgstr ""
-"El producte \"%(product)s\" del pla de cost \"%(plan)s\" té una unitat de "
-"mesura diferent."
-
-msgctxt "error:product.cost.plan:"
 msgid "Product \"%s\" already has a BOM assigned."
 msgstr "El producte \"%s\" ja té una LdM assignada."
 
