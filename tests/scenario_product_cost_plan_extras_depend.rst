@@ -1,6 +1,6 @@
-==========================
-Product Cost Plan Scenario
-==========================
+========================================
+Product Cost Plan Extras Depend Scenario
+========================================
 
 =============
 General Setup
@@ -23,6 +23,13 @@ Install product_cost_plan Module::
 
     >>> Module = Model.get('ir.module.module')
     >>> modules = Module.find([('name', '=', 'product_cost_plan')])
+    >>> Module.install([x.id for x in modules], config.context)
+    >>> Wizard('ir.module.module.install_upgrade').execute('upgrade')
+
+Install production_external_party Module::
+
+    >>> Module = Model.get('ir.module.module')
+    >>> modules = Module.find([('name', '=', 'production_external_party')])
     >>> Module.install([x.id for x in modules], config.context)
     >>> Wizard('ir.module.module.install_upgrade').execute('upgrade')
 
@@ -93,30 +100,13 @@ Create Components::
 
     >>> meter, = ProductUom.find([('name', '=', 'Meter')])
     >>> centimeter, = ProductUom.find([('name', '=', 'centimeter')])
-    >>> templateA = ProductTemplate()
-    >>> templateA.name = 'component A'
-    >>> templateA.default_uom = meter
-    >>> templateA.type = 'goods'
-    >>> templateA.list_price = Decimal(2)
-    >>> templateA.cost_price = Decimal(1)
-    >>> templateA.save()
-    >>> componentA, = templateA.products
-
-    >>> templateB = ProductTemplate()
-    >>> templateB.name = 'component B'
-    >>> templateB.default_uom = meter
-    >>> templateB.type = 'goods'
-    >>> templateB.list_price = Decimal(2)
-    >>> templateB.cost_price = Decimal(1)
-    >>> templateB.save()
-    >>> componentB, = templateB.products
-
     >>> template1 = ProductTemplate()
     >>> template1.name = 'component 1'
     >>> template1.default_uom = unit
     >>> template1.type = 'goods'
     >>> template1.list_price = Decimal(5)
     >>> template1.cost_price = Decimal(2)
+    >>> template1.may_belong_to_party = True
     >>> template1.save()
     >>> component1, = template1.products
 
@@ -129,28 +119,14 @@ Create Components::
     >>> template2.save()
     >>> component2, = template2.products
 
-Create Bill of Material::
+Create Bill of Material with party stock for component 1::
 
     >>> BOM = Model.get('production.bom')
-    >>> component_bom = BOM(name='component1')
-    >>> input1 = component_bom.inputs.new()
-    >>> input1.product = componentA
-    >>> input1.quantity = 1
-    >>> input2 = component_bom.inputs.new()
-    >>> input2.product = componentB
-    >>> input2.quantity = 1
-    >>> output = component_bom.outputs.new()
-    >>> output.product = component1
-    >>> output.quantity = 1
-    >>> component_bom.save()
-
-    >>> ProductBom = Model.get('product.product-production.bom')
-    >>> component1.boms.append(ProductBom(bom=component_bom))
-    >>> component1.save()
-
     >>> bom = BOM(name='product')
     >>> input1 =  bom.inputs.new()
     >>> input1.product = component1
+    >>> input1.party_stock
+    1
     >>> input1.quantity = 5
     >>> input2 =  bom.inputs.new()
     >>> input2.product = component2
@@ -165,7 +141,7 @@ Create Bill of Material::
     >>> product.boms.append(ProductBom(bom=bom))
     >>> product.save()
 
-Create a cost plan from BoM without child BoMs::
+Create a cost plan from BoM::
 
     >>> CostPlan = Model.get('product.cost.plan')
     >>> plan = CostPlan()
@@ -176,50 +152,18 @@ Create a cost plan from BoM without child BoMs::
     >>> plan.save()
     >>> plan.click('compute')
     >>> plan.reload()
-    >>> len(plan.products) == 2
-    True
-    >>> c1, = plan.products.find([
-    ...     ('product', '=', component1.id),
-    ...     ], limit=1)
-    >>> c1.quantity == 5.0
-    True
-    >>> c2, = plan.products.find([
-    ...     ('product', '=', component2.id),
-    ...     ], limit=1)
-    >>> c2.quantity == 150.0
-    True
-    >>> cA = plan.products.find([
-    ...     ('product', '=', componentA.id),
-    ...     ], limit=1)
-    >>> len(cA) == 0
-    True
-    >>> cB = plan.products.find([
-    ...     ('product', '=', componentB.id),
-    ...     ], limit=1)
-    >>> len(cB) == 0
-    True
+    >>> len(plan.products)
+    2
+    >>> sorted([(p.quantity, p.product.rec_name, bool(p.party_stock), p.cost_price)
+    ...         for p in plan.products])
+    [(5.0, u'component 1', True, Decimal('0.0000')), (150.0, u'component 2', False, Decimal('0.0500'))]
     >>> cost, = plan.costs
     >>> cost.rec_name == 'Raw materials'
     True
-    >>> cost.cost == Decimal('17.5')
-    True
-    >>> plan.cost_price == Decimal('17.5')
-    True
-
-Create a manual cost and test total cost is updated::
-
-    >>> CostType = Model.get('product.cost.plan.cost.type')
-    >>> Cost = Model.get('product.cost.plan.cost')
-    >>> costtype = CostType(name='Manual')
-    >>> costtype.save()
-    >>> cost = Cost()
-    >>> cost.type = costtype
-    >>> cost.cost = Decimal('25.0')
-    >>> plan.costs.append(cost)
-    >>> plan.save()
-    >>> plan.reload()
+    >>> cost.cost
+    Decimal('7.5000')
     >>> plan.cost_price
-    Decimal('42.5000')
+    Decimal('7.5000')
 
 Duplicate cost plan and change plan's product::
 
@@ -232,36 +176,32 @@ Duplicate cost plan and change plan's product::
     >>> len(plan2.products)
     2
 
-Update product's cost price::
+Set party stock also for second component::
 
+    >>> for product_line in plan2.products:
+    ...     if product_line.product == component2:
+    ...         product_line.party_stock = True
+    >>> plan2.save()
+    >>> plan2.reload()
+    >>> sorted([(p.quantity, p.product.rec_name, bool(p.party_stock), p.cost_price)
+    ...         for p in plan2.products])
+    [(5.0, u'component 1', True, Decimal('0.0000')), (150.0, u'component 2', True, Decimal('0.0'))]
     >>> plan2.cost_price
-    Decimal('42.5000')
-    >>> product2.template.cost_price
-    Decimal('0')
-    >>> plan2.click('update_product_cost_price')
-    >>> product2.reload()
-    >>> product2.template.cost_price
-    Decimal('42.5000')
+    0
 
 Create BoM from cost plan::
 
     >>> create_bom = Wizard('product.cost.plan.create_bom', [plan2])
     >>> create_bom.execute('bom')
     >>> plan2.reload()
-    >>> plan2.bom != None
-    True
-    >>> plan2.bom != bom
-    True
     >>> product2.reload()
-    >>> len(product2.boms)
-    1
     >>> product2.boms[0].bom == plan2.bom
     True
     >>> len(plan2.bom.inputs)
     2
-    >>> sorted([(i.quantity, i.product.rec_name, i.uom.symbol)
+    >>> sorted([(i.quantity, i.product.rec_name, bool(i.party_stock), i.uom.symbol)
     ...         for i in plan2.bom.inputs])
-    [(5.0, u'component 1', u'u'), (150.0, u'component 2', u'cm')]
+    [(5.0, u'component 1', True, u'u'), (150.0, u'component 2', True, u'cm')]
     >>> len(plan2.bom.outputs)
     1
     >>> plan2.bom.outputs[0].product == product2
@@ -287,8 +227,10 @@ Create plan from scratch::
     1
     >>> product_line = plan3.products_tree.new()
     >>> product_line.product = component1
+    >>> bool(product_line.party_stock)
+    True
     >>> product_line.cost_price
-    Decimal('2.0000')
+    Decimal('0.0')
     >>> product_line.quantity = 14
     >>> product_line.uom.symbol
     u'u'
@@ -308,10 +250,6 @@ Create plan from scratch::
     u'cm'
     >>> plan3.save()
     >>> product_line, = plan3.products_tree
-    >>> product_line.unit_cost
-    Decimal('14.0000')
-    >>> product_line.total_cost
-    Decimal('28.0000')
     >>> product_line2, = product_line.children
     >>> product_line2.unit_cost
     Decimal('1.2600')
@@ -321,9 +259,9 @@ Create plan from scratch::
     >>> cost.rec_name == 'Raw materials'
     True
     >>> cost.cost
-    Decimal('15.2600')
+    Decimal('1.2600')
     >>> plan3.cost_price
-    Decimal('15.2600')
+    Decimal('1.2600')
 
 Create BoM from Cost Plan::
 
@@ -335,9 +273,9 @@ Create BoM from Cost Plan::
     True
     >>> len(plan3.bom.inputs)
     2
-    >>> sorted([(i.quantity, i.product.rec_name, i.uom.symbol)
+    >>> sorted([(i.quantity, i.product.rec_name, bool(i.party_stock), i.uom.symbol)
     ...         for i in plan3.bom.inputs])
-    [(14.0, u'component 1', u'u'), (56.0, u'component 2', u'cm')]
+    [(14.0, u'component 1', True, u'u'), (56.0, u'component 2', False, u'cm')]
     >>> len(plan3.bom.outputs)
     1
     >>> plan3.bom.outputs[0].product == product3
