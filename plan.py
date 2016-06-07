@@ -160,8 +160,10 @@ class Plan(ModelSQL, ModelView):
             'remove': [x.id for x in self.boms],
             'add': [],
             }
-        if not self.bom:
+        if not self.product or not self.bom:
             return boms
+        if self.boms:
+            return
 
         def find_boms(inputs):
             res = []
