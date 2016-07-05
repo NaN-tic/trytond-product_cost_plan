@@ -121,17 +121,12 @@ class Plan(ModelSQL, ModelView):
 
     @fields.depends('product', 'bom', 'boms', 'name')
     def on_change_product(self):
-        res = {
-            'bom': None,
-            }
+        self.bom = None
         if self.product:
-            res['name'] = self.product.rec_name
-        bom = self.on_change_with_bom()
-        self.bom = bom
-        res['boms'] = self.on_change_with_boms()
+            self.name = self.product.rec_name
+        self.bom = self.on_change_with_bom()
         if self.product:
-            res['uom'] = self.product.default_uom.id
-        return res
+            self.uom = self.product.default_uom
 
     @fields.depends('uom')
     def on_change_with_uom_digits(self, name=None):
@@ -555,30 +550,28 @@ class PlanProductLine(ModelSQL, ModelView):
 
     @fields.depends('product', 'uom')
     def on_change_product(self):
-        res = {}
         if self.product:
             if (not self.uom
                     or self.uom.category != self.product.default_uom.category):
                 zero_cost_price = False
-                res['name'] = self.product.rec_name
+                self.name = self.product.rec_name
                 if hasattr(self.product, 'may_belong_to_party'):
-                    res['party_stock'] = self.product.may_belong_to_party
+                    self.party_stock = self.product.may_belong_to_party
                     if self.product.may_belong_to_party:
                         zero_cost_price = True
-                res['uom'] = self.product.default_uom.id
-                res['uom.rec_name'] = self.product.default_uom.rec_name
-                res['product_cost_price'] = self.product.cost_price
+                self.uom = self.product.default_uom.id
+                self.uom.rec_name = self.product.default_uom.rec_name
+                self.product_cost_price = self.product.cost_price
                 if zero_cost_price:
-                    res['cost_price'] = Decimal('0.0')
+                    self.cost_price = Decimal('0.0')
                 else:
-                    res['cost_price'] = self.product.cost_price
+                    self.cost_price = self.product.cost_price
         else:
-            res['name'] = None
-            res['party_stock'] = False
-            res['uom'] = None
-            res['uom.rec_name'] = ''
-            res['product_cost_price'] = None
-        return res
+            self.name = None
+            self.party_stock = False
+            self.uom = None
+            self.uom.rec_name = ''
+            self.product_cost_price = None
 
     @fields.depends('children', '_parent_plan.uom', 'product', 'uom', 'plan')
     def on_change_with_uom_category(self, name=None):
@@ -601,17 +594,12 @@ class PlanProductLine(ModelSQL, ModelView):
         UoM = Pool().get('product.uom')
 
         if self.party_stock:
-            return {
-                'cost_price': Decimal('0.0'),
-                }
+            self.cost_price = Decimal('0.0')
         if not self.cost_price and self.product and self.uom:
             digits = self.__class__.cost_price.digits[1]
             cost = UoM.compute_price(self.product.default_uom,
                 self.product.cost_price, self.uom)
-            return {
-                'cost_price': cost.quantize(Decimal(str(10 ** -digits)))
-                }
-        return {}
+            self.cost_price = cost.quantize(Decimal(str(10 ** -digits)))
 
     @fields.depends('product', 'uom', 'cost_price')
     def on_change_with_cost_price(self):
