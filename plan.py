@@ -9,10 +9,9 @@ from trytond.pyson import Eval, Bool, If
 from trytond.transaction import Transaction
 from trytond.wizard import Wizard, StateView, StateAction, Button
 
-DIGITS = int(config.get('digits', 'unit_price_digits', 4))
-
 __all__ = ['PlanCostType', 'Plan', 'PlanBOM', 'PlanProductLine', 'PlanCost',
     'CreateBomStart', 'CreateBom']
+DIGITS = (16, config.getint('product', 'price_decimal', default=4))
 
 
 class PlanCostType(ModelSQL, ModelView):
@@ -64,14 +63,14 @@ class Plan(ModelSQL, ModelView):
             depends=['costs']),
         'get_products_tree', setter='set_products_tree')
     products_cost = fields.Function(fields.Numeric('Products Cost',
-            digits=(16, DIGITS)),
+            digits=DIGITS),
         'get_products_cost')
     costs = fields.One2Many('product.cost.plan.cost', 'plan', 'Costs')
     product_cost_price = fields.Function(fields.Numeric('Product Cost Price',
-            digits=(16, DIGITS)),
+            digits=DIGITS),
         'get_product_cost_price')
     cost_price = fields.Function(fields.Numeric('Unit Cost Price',
-            digits=(16, DIGITS)),
+            digits=DIGITS),
         'get_cost_price')
     notes = fields.Text('Notes')
 
@@ -524,18 +523,18 @@ class PlanProductLine(ModelSQL, ModelView):
     party_stock = fields.Boolean('Party Stock',
         help='Use stock owned by party instead of company stock.')
     product_cost_price = fields.Numeric('Product Cost Price',
-        digits=(16, DIGITS),
+        digits=DIGITS,
         states={
             'readonly': True,
             }, depends=['product'])
     cost_price = fields.Numeric('Cost Price', required=True,
-        digits=(16, DIGITS))
+        digits=DIGITS)
     unit_cost = fields.Function(fields.Numeric('Unit Cost',
-            digits=(16, DIGITS),
+            digits=DIGITS,
             help="The cost of this product for each unit of plan's product."),
         'get_unit_cost')
     total_cost = fields.Function(fields.Numeric('Total Cost',
-            digits=(16, DIGITS),
+            digits=DIGITS,
             help="The cost of this product for total plan's quantity."),
         'get_total_cost')
 
@@ -705,9 +704,9 @@ class PlanCost(ModelSQL, ModelView):
             ('system', '=', Eval('system')),
             ],
         required=True, states=STATES, depends=DEPENDS)
-    internal_cost = fields.Numeric('Cost (Internal Use)', digits=(16, DIGITS),
+    internal_cost = fields.Numeric('Cost (Internal Use)', digits=DIGITS,
         readonly=True)
-    cost = fields.Function(fields.Numeric('Cost', digits=(16, DIGITS),
+    cost = fields.Function(fields.Numeric('Cost', digits=DIGITS,
             required=True, states=STATES, depends=DEPENDS),
         'get_cost', setter='set_cost')
     system = fields.Boolean('System Managed', readonly=True)
