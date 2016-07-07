@@ -4,6 +4,7 @@ from decimal import Decimal
 
 from trytond.config import config
 from trytond.model import ModelSQL, ModelView, fields
+from trytond.modules.product import TemplateFunction
 from trytond.pool import Pool
 from trytond.pyson import Eval, Bool, If
 from trytond.transaction import Transaction
@@ -337,7 +338,10 @@ class Plan(ModelSQL, ModelView):
         assert self.product
         cost_price = Uom.compute_price(self.uom, self.cost_price,
             self.product.default_uom)
-        if hasattr(self.product.__class__, 'cost_price'):
+        if (hasattr(self.product.__class__, 'cost_price') and not
+                isinstance(self.product.__class__.cost_price, TemplateFunction)
+                ):
+
             digits = self.product.__class__.cost_price.digits[1]
             cost_price = cost_price.quantize(Decimal(str(10 ** -digits)))
             self.product.cost_price = cost_price
@@ -591,7 +595,7 @@ class PlanProductLine(ModelSQL, ModelView):
 
         if self.party_stock:
             self.cost_price = Decimal('0.0')
-        if not self.cost_price and self.product and self.uom:
+        if self.cost_price is None and self.product and self.uom:
             digits = self.__class__.cost_price.digits[1]
             cost = UoM.compute_price(self.product.default_uom,
                 self.product.cost_price, self.uom)
