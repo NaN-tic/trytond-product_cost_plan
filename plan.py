@@ -99,10 +99,6 @@ class Plan(ModelSQL, ModelView):
     def default_active():
         return True
 
-    @staticmethod
-    def default_state():
-        return 'draft'
-
     def get_rec_name(self, name):
         res = '[%s]' % self.number
         if self.name:
