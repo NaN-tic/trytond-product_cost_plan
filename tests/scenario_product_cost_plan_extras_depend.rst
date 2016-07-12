@@ -21,17 +21,17 @@ Create database::
 
 Install product_cost_plan Module::
 
-    >>> Module = Model.get('ir.module.module')
+    >>> Module = Model.get('ir.module')
     >>> modules = Module.find([('name', '=', 'product_cost_plan')])
     >>> Module.install([x.id for x in modules], config.context)
-    >>> Wizard('ir.module.module.install_upgrade').execute('upgrade')
+    >>> Wizard('ir.module.install_upgrade').execute('upgrade')
 
 Install production_external_party Module::
 
-    >>> Module = Model.get('ir.module.module')
+    >>> Module = Model.get('ir.module')
     >>> modules = Module.find([('name', '=', 'production_external_party')])
     >>> Module.install([x.id for x in modules], config.context)
-    >>> Wizard('ir.module.module.install_upgrade').execute('upgrade')
+    >>> Wizard('ir.module.install_upgrade').execute('upgrade')
 
 Create company::
 
@@ -181,6 +181,8 @@ Set party stock also for second component::
     >>> for product_line in plan2.products:
     ...     if product_line.product == component2:
     ...         product_line.party_stock = True
+    ...         product_line.save()
+    ...         product_line.reload()
     >>> plan2.save()
     >>> plan2.reload()
     >>> sorted([(p.quantity, p.product.rec_name, bool(p.party_stock), p.cost_price)
