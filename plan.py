@@ -375,15 +375,7 @@ class Plan(ModelSQL, ModelView):
         self.bom = bom
         self.save()
 
-        if self.product.boms:
-            # TODO: create new bom to allow diferent "versions"?
-            product_bom = self.product.boms[0]
-            if product_bom.bom:
-                self.raise_user_warning('product_already_has_bom%s' % self.id,
-                    'product_already_has_bom',
-                    self.product.rec_name)
-        else:
-            product_bom = ProductBOM()
+        product_bom = ProductBOM()
         product_bom.product = self.product
         product_bom.bom = bom
         product_bom.save()
