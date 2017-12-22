@@ -584,7 +584,7 @@ class PlanProductLine(ModelSQL, ModelView):
         if self.product:
             return self.product.default_uom.category.id
 
-    @fields.depends('uom')
+    @fields.depends('uom', 'product')
     def on_change_with_uom_digits(self, name=None):
         if self.uom:
             return self.uom.digits
