@@ -69,7 +69,7 @@ class Plan(ModelSQL, ModelView):
     costs = fields.One2Many('product.cost.plan.cost', 'plan', 'Costs')
     product_cost_price = fields.Function(fields.Numeric('Product Cost Price',
             digits=(16, DIGITS)),
-        'get_product_cost_price')
+        'on_change_with_product_cost_price')
     cost_price = fields.Function(fields.Numeric('Unit Cost Price',
             digits=(16, DIGITS)),
         'get_cost_price')
@@ -197,7 +197,8 @@ class Plan(ModelSQL, ModelView):
         digits = self.__class__.products_cost.digits[1]
         return cost.quantize(Decimal(str(10 ** -digits)))
 
-    def get_product_cost_price(self, name):
+    @fields.depends('product')
+    def on_change_with_product_cost_price(self, name=None):
         return self.product.cost_price if self.product else None
 
     def get_cost_price(self, name):
