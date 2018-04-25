@@ -131,7 +131,7 @@ setup(name='%s_%s' % (PREFIX, MODULE),
     tests_require=tests_require,
     use_2to3=True,
     convert_2to3_doctests=[
-        'tests/scenario_account_invoice_discount.rst',
-        'tests/scenario_account_invoice_information_uom.rst',
+        'tests/scenario_product_cost_plan.rst',
+        'tests/scenario_product_cost_plan_extras_depend.rst',
         ],
     )
