@@ -439,6 +439,7 @@ class Plan(ModelSQL, ModelView):
         config = Config(1)
         for values in vlist:
             values['number'] = Sequence.get_id(
+                config.product_cost_plan.sequence and
                 config.product_cost_plan_sequence.id)
         return super(Plan, cls).create(vlist)
 
