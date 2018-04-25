@@ -12,52 +12,25 @@ Imports::
     >>> from dateutil.relativedelta import relativedelta
     >>> from decimal import Decimal
     >>> from proteus import config, Model, Wizard
+    >>> from trytond.tests.tools import activate_modules
+    >>> today = datetime.date.today()
+    >>> from trytond.modules.company.tests.tools import create_company, \
+    ...     get_company
     >>> today = datetime.date.today()
 
-Create database::
-
-    >>> config = config.set_trytond()
-    >>> config.pool.test = True
 
 Install product_cost_plan Module::
 
-    >>> Module = Model.get('ir.module')
-    >>> modules = Module.find([('name', '=', 'product_cost_plan')])
-    >>> Module.install([x.id for x in modules], config.context)
-    >>> Wizard('ir.module.install_upgrade').execute('upgrade')
-
-Install production_external_party Module::
-
-    >>> Module = Model.get('ir.module')
-    >>> modules = Module.find([('name', '=', 'production_external_party')])
-    >>> Module.install([x.id for x in modules], config.context)
-    >>> Wizard('ir.module.install_upgrade').execute('upgrade')
+    >>> config = activate_modules(['product_cost_plan', 'production_external_party'])
 
 Create company::
 
-    >>> Currency = Model.get('currency.currency')
-    >>> CurrencyRate = Model.get('currency.currency.rate')
-    >>> Company = Model.get('company.company')
-    >>> Party = Model.get('party.party')
-    >>> company_config = Wizard('company.company.config')
-    >>> company_config.execute('company')
-    >>> company = company_config.form
-    >>> party = Party(name='Dunder Mifflin')
-    >>> party.save()
-    >>> company.party = party
-    >>> currencies = Currency.find([('code', '=', 'USD')])
-    >>> if not currencies:
-    ...     currency = Currency(name='Euro', symbol=u'$', code='USD',
-    ...         rounding=Decimal('0.01'), mon_grouping='[3, 3, 0]',
-    ...         mon_decimal_point=',')
-    ...     currency.save()
-    ...     CurrencyRate(date=today + relativedelta(month=1, day=1),
-    ...         rate=Decimal('1.0'), currency=currency).save()
-    ... else:
-    ...     currency, = currencies
-    >>> company.currency = currency
-    >>> company_config.execute('add')
-    >>> company, = Company.find()
+    >>> _ = create_company()
+    >>> company = get_company()
+    >>> tax_identifier = company.party.identifiers.new()
+    >>> tax_identifier.type = 'eu_vat'
+    >>> tax_identifier.code = 'BE0897290877'
+    >>> company.party.save()
 
 Reload the context::
 
@@ -74,16 +47,18 @@ Create product::
     >>> template.default_uom = unit
     >>> template.type = 'goods'
     >>> template.list_price = Decimal(30)
-    >>> template.cost_price = Decimal(20)
+    >>> template.producible = True
     >>> template.save()
     >>> product, = template.products
+    >>> product.cost_price = Decimal(20)
+    >>> product.save()
 
     >>> template = ProductTemplate()
     >>> template.name = 'product 2'
     >>> template.default_uom = unit
     >>> template.type = 'goods'
     >>> template.list_price = Decimal(30)
-    >>> template.cost_price = Decimal(0)
+    >>> template.producible = True
     >>> template.save()
     >>> product2, = template.products
 
@@ -92,7 +67,7 @@ Create product::
     >>> template.default_uom = unit
     >>> template.type = 'goods'
     >>> template.list_price = Decimal(15)
-    >>> template.cost_price = Decimal(0)
+    >>> template.producible = True
     >>> template.save()
     >>> product3, = template.products
 
@@ -105,19 +80,21 @@ Create Components::
     >>> template1.default_uom = unit
     >>> template1.type = 'goods'
     >>> template1.list_price = Decimal(5)
-    >>> template1.cost_price = Decimal(2)
     >>> template1.may_belong_to_party = True
     >>> template1.save()
     >>> component1, = template1.products
+    >>> component1.cost_price = Decimal(2)
+    >>> component1.save()
 
     >>> template2 = ProductTemplate()
     >>> template2.name = 'component 2'
     >>> template2.default_uom = meter
     >>> template2.type = 'goods'
     >>> template2.list_price = Decimal(7)
-    >>> template2.cost_price = Decimal(5)
     >>> template2.save()
     >>> component2, = template2.products
+    >>> component2.cost_price = Decimal(5)
+    >>> component2.save()
 
 Create Bill of Material with party stock for component 1::
 
@@ -145,6 +122,7 @@ Create a cost plan from BoM::
 
     >>> CostPlan = Model.get('product.cost.plan')
     >>> plan = CostPlan()
+    >>> plan.number = '1'
     >>> plan.product = product
     >>> plan.bom == bom
     True
@@ -181,8 +159,6 @@ Set party stock also for second component::
     >>> for product_line in plan2.products:
     ...     if product_line.product == component2:
     ...         product_line.party_stock = True
-    ...         product_line.save()
-    ...         product_line.reload()
     >>> plan2.save()
     >>> plan2.reload()
     >>> sorted([(p.quantity, p.product.rec_name, bool(p.party_stock), p.cost_price)
@@ -284,4 +260,3 @@ Create BoM from Cost Plan::
     True
     >>> plan3.bom.outputs[0].quantity
     2.0
-

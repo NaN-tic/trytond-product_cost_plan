@@ -13,44 +13,22 @@ Imports::
     >>> from decimal import Decimal
     >>> from proteus import config, Model, Wizard
     >>> today = datetime.date.today()
-
-Create database::
-
-    >>> config = config.set_trytond()
-    >>> config.pool.test = True
+    >>> from trytond.tests.tools import activate_modules
+    >>> from trytond.modules.company.tests.tools import create_company, \
+    ...     get_company
 
 Install product_cost_plan Module::
 
-    >>> Module = Model.get('ir.module')
-    >>> modules = Module.find([('name', '=', 'product_cost_plan')])
-    >>> Module.install([x.id for x in modules], config.context)
-    >>> Wizard('ir.module.install_upgrade').execute('upgrade')
+    >>> config = activate_modules('product_cost_plan')
 
 Create company::
 
-    >>> Currency = Model.get('currency.currency')
-    >>> CurrencyRate = Model.get('currency.currency.rate')
-    >>> Company = Model.get('company.company')
-    >>> Party = Model.get('party.party')
-    >>> company_config = Wizard('company.company.config')
-    >>> company_config.execute('company')
-    >>> company = company_config.form
-    >>> party = Party(name='Dunder Mifflin')
-    >>> party.save()
-    >>> company.party = party
-    >>> currencies = Currency.find([('code', '=', 'USD')])
-    >>> if not currencies:
-    ...     currency = Currency(name='Euro', symbol=u'$', code='USD',
-    ...         rounding=Decimal('0.01'), mon_grouping='[3, 3, 0]',
-    ...         mon_decimal_point=',')
-    ...     currency.save()
-    ...     CurrencyRate(date=today + relativedelta(month=1, day=1),
-    ...         rate=Decimal('1.0'), currency=currency).save()
-    ... else:
-    ...     currency, = currencies
-    >>> company.currency = currency
-    >>> company_config.execute('add')
-    >>> company, = Company.find()
+    >>> _ = create_company()
+    >>> company = get_company()
+    >>> tax_identifier = company.party.identifiers.new()
+    >>> tax_identifier.type = 'eu_vat'
+    >>> tax_identifier.code = 'BE0897290877'
+    >>> company.party.save()
 
 Reload the context::
 
@@ -64,15 +42,18 @@ Create product::
     >>> ProductTemplate = Model.get('product.template')
     >>> template = ProductTemplate()
     >>> template.name = 'product'
+    >>> template.producible = True
     >>> template.default_uom = unit
     >>> template.type = 'goods'
     >>> template.list_price = Decimal(30)
-    >>> template.cost_price = Decimal(20)
     >>> template.save()
     >>> product, = template.products
+    >>> product.cost_price = Decimal(20)
+    >>> product.save()
 
     >>> template = ProductTemplate()
     >>> template.name = 'product 2'
+    >>> template.producible = True
     >>> template.default_uom = unit
     >>> template.type = 'goods'
     >>> template.list_price = Decimal(30)
@@ -82,6 +63,7 @@ Create product::
 
     >>> template = ProductTemplate()
     >>> template.name = 'product 3'
+    >>> template.producible = True
     >>> template.default_uom = unit
     >>> template.type = 'goods'
     >>> template.list_price = Decimal(15)
@@ -98,36 +80,41 @@ Create Components::
     >>> templateA.default_uom = meter
     >>> templateA.type = 'goods'
     >>> templateA.list_price = Decimal(2)
-    >>> templateA.cost_price = Decimal(1)
     >>> templateA.save()
     >>> componentA, = templateA.products
+    >>> componentA.cost_price = Decimal(1)
+    >>> componentA.save()
 
     >>> templateB = ProductTemplate()
     >>> templateB.name = 'component B'
     >>> templateB.default_uom = meter
     >>> templateB.type = 'goods'
     >>> templateB.list_price = Decimal(2)
-    >>> templateB.cost_price = Decimal(1)
     >>> templateB.save()
     >>> componentB, = templateB.products
+    >>> componentB.cost_price = Decimal(1)
+    >>> componentB.save()
 
     >>> template1 = ProductTemplate()
     >>> template1.name = 'component 1'
     >>> template1.default_uom = unit
+    >>> template1.producible = True
     >>> template1.type = 'goods'
     >>> template1.list_price = Decimal(5)
-    >>> template1.cost_price = Decimal(2)
     >>> template1.save()
     >>> component1, = template1.products
+    >>> component1.cost_price = Decimal(2)
+    >>> component1.save()
 
     >>> template2 = ProductTemplate()
     >>> template2.name = 'component 2'
     >>> template2.default_uom = meter
     >>> template2.type = 'goods'
     >>> template2.list_price = Decimal(7)
-    >>> template2.cost_price = Decimal(5)
     >>> template2.save()
     >>> component2, = template2.products
+    >>> component2.cost_price = Decimal(5)
+    >>> component2.save()
 
 Create Bill of Material::
 
@@ -145,7 +132,7 @@ Create Bill of Material::
     >>> component_bom.save()
 
     >>> ProductBom = Model.get('product.product-production.bom')
-    >>> component1.boms.append(ProductBom(bom=component_bom))
+    >>> component1.boms.append(ProductBom (bom=component_bom))
     >>> component1.save()
 
     >>> bom = BOM(name='product')
@@ -169,6 +156,7 @@ Create a cost plan from BoM without child BoMs::
 
     >>> CostPlan = Model.get('product.cost.plan')
     >>> plan = CostPlan()
+    >>> plan.number = '1'
     >>> plan.product = product
     >>> plan.bom == bom
     True
@@ -201,9 +189,9 @@ Create a cost plan from BoM without child BoMs::
     >>> cost, = plan.costs
     >>> cost.rec_name == 'Raw materials'
     True
-    >>> cost.cost == Decimal('17.5')
-    True
     >>> plan.cost_price == Decimal('17.5')
+    True
+    >>> cost.cost == Decimal('17.5')
     True
 
 Create a manual cost and test total cost is updated::
@@ -344,4 +332,3 @@ Create BoM from Cost Plan::
     True
     >>> plan3.bom.outputs[0].quantity
     2.0
-

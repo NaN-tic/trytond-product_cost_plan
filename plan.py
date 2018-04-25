@@ -4,15 +4,15 @@ from decimal import Decimal
 
 from trytond.config import config
 from trytond.model import ModelSQL, ModelView, fields
-from trytond.modules.product import TemplateFunction
 from trytond.pool import Pool
 from trytond.pyson import Eval, Bool, If
 from trytond.transaction import Transaction
 from trytond.wizard import Wizard, StateView, StateAction, Button
 
+price_digits = (16, config.getint('product', 'price_decimal', default=4))
+
 __all__ = ['PlanCostType', 'Plan', 'PlanBOM', 'PlanProductLine', 'PlanCost',
     'CreateBomStart', 'CreateBom']
-DIGITS = (16, config.getint('product', 'price_decimal', default=4))
 
 
 class PlanCostType(ModelSQL, ModelView):
@@ -64,14 +64,14 @@ class Plan(ModelSQL, ModelView):
             depends=['costs']),
         'get_products_tree', setter='set_products_tree')
     products_cost = fields.Function(fields.Numeric('Products Cost',
-            digits=DIGITS),
+            digits=price_digits),
         'get_products_cost')
     costs = fields.One2Many('product.cost.plan.cost', 'plan', 'Costs')
     product_cost_price = fields.Function(fields.Numeric('Product Cost Price',
-            digits=DIGITS),
+            digits=price_digits),
         'on_change_with_product_cost_price')
     cost_price = fields.Function(fields.Numeric('Unit Cost Price',
-            digits=DIGITS),
+            digits=price_digits),
         'get_cost_price')
     notes = fields.Text('Notes')
 
@@ -121,7 +121,9 @@ class Plan(ModelSQL, ModelView):
         self.bom = None
         if self.product:
             self.name = self.product.rec_name
-        self.bom = self.on_change_with_bom()
+        bom = self.on_change_with_bom()
+        self.bom = bom
+        self.boms = [x[1] for x in self.find_boms()]
         if self.product:
             self.uom = self.product.default_uom
 
@@ -145,6 +147,19 @@ class Plan(ModelSQL, ModelView):
         if boms:
             return boms[0].id
 
+    def find_boms(self, inputs=None):
+        res = []
+        if not self.bom:
+            return res
+        if not inputs:
+            inputs = self.bom.inputs
+        for input_ in inputs:
+            if input_.product.boms:
+                product_bom = input_.product.boms[0].bom
+                res.append((input_.product.id, product_bom.id))
+                res += self.find_boms(product_bom.inputs)
+        return res
+
     @fields.depends('bom', 'boms', 'product')
     def on_change_with_boms(self):
         boms = {
@@ -154,16 +169,7 @@ class Plan(ModelSQL, ModelView):
         if not self.bom:
             return boms
 
-        def find_boms(inputs):
-            res = []
-            for input_ in inputs:
-                if input_.product.boms:
-                    product_bom = input_.product.boms[0].bom
-                    res.append((input_.product.id, product_bom.id))
-                    res += find_boms(product_bom.inputs)
-            return res
-
-        products = set(find_boms(self.bom.inputs))
+        products = set(self.find_boms())
         for index, (product_id, _) in enumerate(products):
             boms['add'].append((index, {
                         'product': product_id,
@@ -339,10 +345,7 @@ class Plan(ModelSQL, ModelView):
         assert self.product
         cost_price = Uom.compute_price(self.uom, self.cost_price,
             self.product.default_uom)
-        if (hasattr(self.product.__class__, 'cost_price') and not
-                isinstance(self.product.__class__.cost_price, TemplateFunction)
-                ):
-
+        if hasattr(self.product.__class__, 'cost_price'):
             digits = self.product.__class__.cost_price.digits[1]
             cost_price = cost_price.quantize(Decimal(str(10 ** -digits)))
             self.product.cost_price = cost_price
@@ -519,18 +522,18 @@ class PlanProductLine(ModelSQL, ModelView):
     party_stock = fields.Boolean('Party Stock',
         help='Use stock owned by party instead of company stock.')
     product_cost_price = fields.Numeric('Product Cost Price',
-        digits=DIGITS,
+        digits=price_digits,
         states={
             'readonly': True,
             }, depends=['product'])
     cost_price = fields.Numeric('Cost Price', required=True,
-        digits=DIGITS)
+        digits=price_digits)
     unit_cost = fields.Function(fields.Numeric('Unit Cost',
-            digits=DIGITS,
+            digits=price_digits,
             help="The cost of this product for each unit of plan's product."),
         'get_unit_cost')
     total_cost = fields.Function(fields.Numeric('Total Cost',
-            digits=DIGITS,
+            digits=price_digits,
             help="The cost of this product for total plan's quantity."),
         'get_total_cost')
 
@@ -561,7 +564,6 @@ class PlanProductLine(ModelSQL, ModelView):
                     if self.product.may_belong_to_party:
                         zero_cost_price = True
                 self.uom = self.product.default_uom.id
-                self.uom.rec_name = self.product.default_uom.rec_name
                 self.product_cost_price = self.product.cost_price
                 if zero_cost_price:
                     self.cost_price = Decimal('0.0')
@@ -571,7 +573,6 @@ class PlanProductLine(ModelSQL, ModelView):
             self.name = None
             self.party_stock = False
             self.uom = None
-            self.uom.rec_name = ''
             self.product_cost_price = None
 
     @fields.depends('children', '_parent_plan.uom', 'product', 'uom', 'plan')
@@ -584,7 +585,7 @@ class PlanProductLine(ModelSQL, ModelView):
         if self.product:
             return self.product.default_uom.category.id
 
-    @fields.depends('uom', 'product')
+    @fields.depends('uom')
     def on_change_with_uom_digits(self, name=None):
         if self.uom:
             return self.uom.digits
@@ -596,7 +597,8 @@ class PlanProductLine(ModelSQL, ModelView):
 
         if self.party_stock:
             self.cost_price = Decimal('0.0')
-        if self.cost_price is None and self.product and self.uom:
+            return
+        if not self.cost_price and self.product and self.uom:
             digits = self.__class__.cost_price.digits[1]
             cost = UoM.compute_price(self.product.default_uom,
                 self.product.cost_price, self.uom)
@@ -693,9 +695,9 @@ class PlanCost(ModelSQL, ModelView):
             ('system', '=', Eval('system')),
             ],
         required=True, states=STATES, depends=DEPENDS)
-    internal_cost = fields.Numeric('Cost (Internal Use)', digits=DIGITS,
+    internal_cost = fields.Numeric('Cost (Internal Use)', digits=price_digits,
         readonly=True)
-    cost = fields.Function(fields.Numeric('Cost', digits=DIGITS,
+    cost = fields.Function(fields.Numeric('Cost', digits=price_digits,
             required=True, states=STATES, depends=DEPENDS),
         'get_cost', setter='set_cost')
     system = fields.Boolean('System Managed', readonly=True)

@@ -1,7 +1,7 @@
 <?xml version="1.0"?>
 <!-- The COPYRIGHT file at the top level of this repository contains the full
      copyright notices and license terms. -->
-<form string="Product Cost Plan" col="6" cursor="product">
+<form col="6" cursor="product">
     <label name="number"/>
     <field name="number"/>
     <label name="name"/>

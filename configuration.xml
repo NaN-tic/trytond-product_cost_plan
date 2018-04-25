@@ -5,15 +5,8 @@ this repository contains the full copyright notices and license terms. -->
     <data>
         <record model="ir.ui.view" id="production_configuration_view_form">
             <field name="model">production.configuration</field>
-            <field name="type" eval="None"/>
-            <field name="inherit" ref="production.production_configuration_view_form"/>
             <field name="name">configuration_form</field>
-        </record>
-
-        <record model="ir.property" id="property_product_cost_plan_sequence">
-            <field name="field"
-                search="[('model.model', '=', 'production.configuration'), ('name', '=', 'product_cost_plan_sequence')]"/>
-            <field name="value" eval="'ir.sequence,' + str(ref('sequence_product_cost_plan'))"/>
+            <field name="inherit" ref="production.production_configuration_view_form"/>
         </record>
     </data>
 </tryton>

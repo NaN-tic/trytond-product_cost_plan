@@ -4,44 +4,83 @@
 from setuptools import setup
 import re
 import os
-import ConfigParser
+import io
+try:
+    from configparser import ConfigParser
+except ImportError:
+    from ConfigParser import ConfigParser
 
 MODULE = 'product_cost_plan'
 PREFIX = 'nantic'
-MODULE2PREFIX = {}
+MODULE2PREFIX = {
+    'production_external_party': 'nantic',
+    }
 
 
 def read(fname):
-    return open(os.path.join(os.path.dirname(__file__), fname)).read()
+    return io.open(
+        os.path.join(os.path.dirname(__file__), fname),
+        'r', encoding='utf-8').read()
 
-config = ConfigParser.ConfigParser()
+
+def get_require_version(name):
+    if minor_version % 2:
+        require = '%s >= %s.%s.dev0, < %s.%s'
+    else:
+        require = '%s >= %s.%s, < %s.%s'
+    require %= (name, major_version, minor_version,
+        major_version, minor_version + 1)
+    return require
+
+config = ConfigParser()
 config.readfp(open('tryton.cfg'))
 info = dict(config.items('tryton'))
 for key in ('depends', 'extras_depend', 'xml'):
     if key in info:
         info[key] = info[key].strip().splitlines()
-major_version, minor_version, _ = info.get('version', '0.0.1').split('.', 2)
+
+version = info.get('version', '0.0.1')
+major_version, minor_version, _ = version.split('.', 2)
 major_version = int(major_version)
 minor_version = int(minor_version)
 
 requires = []
-for dep in info.get('depends', []):
-    if not re.match(r'(ir|res|webdav)(\W|$)', dep):
+for dep in info.get('depends', []) + ['production_external_party']:
+    if not re.match(r'(ir|res)(\W|$)', dep):
         prefix = MODULE2PREFIX.get(dep, 'trytond')
-        requires.append('%s_%s >= %s.%s, < %s.%s' %
-                (prefix, dep, major_version, minor_version,
-                major_version, minor_version + 1))
-requires.append('trytond >= %s.%s, < %s.%s' %
-        (major_version, minor_version, major_version, minor_version + 1))
+        requires.append(get_require_version('%s_%s' % (prefix, dep)))
+requires.append(get_require_version('trytond'))
 
-tests_require = ['proteus >= %s.%s, < %s.%s' %
-    (major_version, minor_version, major_version, minor_version + 1)]
+tests_require = [
+    get_require_version('proteus'),
+    get_require_version('nantic-production_external_party')
+]
+
+series = '%s.%s' % (major_version, minor_version)
+if minor_version % 2:
+    branch = 'default'
+else:
+    branch = series
+
+dependency_links = [
+    ('hg+https://bitbucket.org/nantic/'
+        'trytond-production_external_party@%(branch)s'
+        '#egg=nantic-production_external_party-%(series)s' % {
+            'branch': branch,
+            'series': series,
+            }),
+    ]
+
+if minor_version % 2:
+    # Add development index for testing with proteus
+    dependency_links.append('https://trydevpi.tryton.org/')
 
 setup(name='%s_%s' % (PREFIX, MODULE),
-    version=info.get('version', '0.0.1'),
-    description='Product Cost Plan',
+    version=version,
+    description='',
     long_description=read('README'),
     author='NaN·tic',
+    author_email='info@nan-tic.com',
     url='http://www.nan-tic.com/',
     download_url="https://bitbucket.org/nantic/trytond-%s" % MODULE,
     package_dir={'trytond.modules.%s' % MODULE: '.'},
@@ -51,7 +90,7 @@ setup(name='%s_%s' % (PREFIX, MODULE),
         ],
     package_data={
         'trytond.modules.%s' % MODULE: (info.get('xml', [])
-            + ['tryton.cfg', 'locale/*.po', 'view/*.xml', 'tests/*.rst']),
+            + ['tryton.cfg', 'locale/*.po', 'tests/*.rst']),
         },
     classifiers=[
         'Development Status :: 5 - Production/Stable',
@@ -71,12 +110,17 @@ setup(name='%s_%s' % (PREFIX, MODULE),
         'Natural Language :: Russian',
         'Natural Language :: Spanish',
         'Operating System :: OS Independent',
-        'Programming Language :: Python :: 2.6',
         'Programming Language :: Python :: 2.7',
+        'Programming Language :: Python :: 3.4',
+        'Programming Language :: Python :: 3.5',
+        'Programming Language :: Python :: 3.6',
+        'Programming Language :: Python :: Implementation :: CPython',
+        'Programming Language :: Python :: Implementation :: PyPy',
         'Topic :: Office/Business',
         ],
     license='GPL-3',
     install_requires=requires,
+    dependency_links=dependency_links,
     zip_safe=False,
     entry_points="""
     [trytond.modules]
@@ -85,4 +129,9 @@ setup(name='%s_%s' % (PREFIX, MODULE),
     test_suite='tests',
     test_loader='trytond.test_loader:Loader',
     tests_require=tests_require,
+    use_2to3=True,
+    convert_2to3_doctests=[
+        'tests/scenario_account_invoice_discount.rst',
+        'tests/scenario_account_invoice_information_uom.rst',
+        ],
     )
