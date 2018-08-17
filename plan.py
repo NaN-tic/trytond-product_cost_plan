@@ -3,7 +3,7 @@
 from decimal import Decimal
 
 from trytond.config import config
-from trytond.model import ModelSQL, ModelView, fields
+from trytond.model import ModelSQL, ModelView, fields, tree
 from trytond.pool import Pool
 from trytond.pyson import Eval, Bool, If
 from trytond.transaction import Transaction
@@ -413,7 +413,7 @@ class Plan(ModelSQL, ModelView):
             existing = inputs[input_.product.id]
             existing.quantity += Uom.compute_qty(input_.uom, input_.quantity,
                 existing.uom)
-        return inputs.values()
+        return list(inputs.values())
 
     def _get_input_line(self, line):
         'Return the BOM Input line for a product line'
@@ -439,7 +439,7 @@ class Plan(ModelSQL, ModelView):
         config = Config(1)
         for values in vlist:
             values['number'] = Sequence.get_id(
-                config.product_cost_plan.sequence and
+                config.product_cost_plan_sequence and
                 config.product_cost_plan_sequence.id)
         return super(Plan, cls).create(vlist)
 
@@ -491,7 +491,7 @@ class PlanBOM(ModelSQL, ModelView):
             ], depends=['product'])
 
 
-class PlanProductLine(ModelSQL, ModelView):
+class PlanProductLine(ModelSQL, ModelView, tree(separator='/')):
     'Product Cost Plan Product Line'
     __name__ = 'product.cost.plan.product_line'
 

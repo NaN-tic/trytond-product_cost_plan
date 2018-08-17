@@ -9,9 +9,8 @@ from trytond.modules.company.model import (
 __all__ = ['Configuration', 'ConfigurationProductcostPlan']
 
 
-class Configuration(CompanyMultiValueMixin):
+class Configuration(CompanyMultiValueMixin, metaclass=PoolMeta):
     __name__ = 'production.configuration'
-    __metaclass__ = PoolMeta
 
     product_cost_plan_sequence = fields.MultiValue(
         fields.Many2One('ir.sequence',

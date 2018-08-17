@@ -249,7 +249,7 @@ Create BoM from cost plan::
     2
     >>> sorted([(i.quantity, i.product.rec_name, i.uom.symbol)
     ...         for i in plan2.bom.inputs])
-    [(5.0, u'component 1', u'u'), (150.0, u'component 2', u'cm')]
+    [(5.0, 'component 1', 'u'), (150.0, 'component 2', 'cm')]
     >>> len(plan2.bom.outputs)
     1
     >>> plan2.bom.outputs[0].product == product2
@@ -264,7 +264,7 @@ Create plan from scratch::
     >>> plan3 = CostPlan()
     >>> plan3.product = product3
     >>> plan3.uom.symbol
-    u'u'
+    'u'
     >>> plan3.bom
     >>> plan3.quantity = 2
     >>> plan3.click('compute')
@@ -279,7 +279,7 @@ Create plan from scratch::
     Decimal('2.0000')
     >>> product_line.quantity = 14
     >>> product_line.uom.symbol
-    u'u'
+    'u'
     >>> product_line2 = product_line.children.new()
     >>> product_line2.plan = plan3
     >>> product_line2.product = component2
@@ -287,13 +287,13 @@ Create plan from scratch::
     Decimal('5.0000')
     >>> product_line2.quantity = 4
     >>> product_line2.uom.symbol
-    u'm'
+    'm'
     >>> product_line2.uom = centimeter
     >>> product_line2.cost_price
     Decimal('0.0500')
     >>> product_line2.cost_price = Decimal('0.0450')
     >>> product_line2.uom.symbol
-    u'cm'
+    'cm'
     >>> plan3.save()
     >>> product_line, = plan3.products_tree
     >>> product_line.unit_cost
@@ -325,7 +325,7 @@ Create BoM from Cost Plan::
     2
     >>> sorted([(i.quantity, i.product.rec_name, i.uom.symbol)
     ...         for i in plan3.bom.inputs])
-    [(14.0, u'component 1', u'u'), (56.0, u'component 2', u'cm')]
+    [(14.0, 'component 1', 'u'), (56.0, 'component 2', 'cm')]
     >>> len(plan3.bom.outputs)
     1
     >>> plan3.bom.outputs[0].product == product3
