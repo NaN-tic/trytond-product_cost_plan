@@ -8,6 +8,8 @@ from trytond.pool import Pool
 from trytond.pyson import Eval, Bool, If
 from trytond.transaction import Transaction
 from trytond.wizard import Wizard, StateView, StateAction, Button
+from trytond.i18n import gettext
+from trytond.exceptions import UserWarning
 
 price_digits = (16, config.getint('product', 'price_decimal', default=4))
 
@@ -85,15 +87,6 @@ class Plan(ModelSQL, ModelView):
                 'update_product_cost_price': {
                     'icon': 'tryton-refresh',
                     },
-                })
-        cls._error_messages.update({
-                'product_lines_will_be_removed': (
-                    'It will remove the existing Product Lines in this plan.'),
-                'lacks_the_product': 'The Cost Plan "%s" lacks the product.',
-                'bom_already_exists': (
-                    'A bom already exists for cost plan "%s".'),
-                'product_already_has_bom': (
-                    'Product "%s" already has a BOM assigned.'),
                 })
 
     @staticmethod
@@ -211,8 +204,8 @@ class Plan(ModelSQL, ModelView):
                 ('plan', 'in', [p.id for p in plans]),
                 ])
         if product_lines:
-            cls.raise_user_warning('remove_product_lines',
-                'product_lines_will_be_removed')
+            UserWarning('remove_product_lines',
+                gettext('product_cost_plan.product_lines_will_be_removed'))
             ProductLine.delete(product_lines)
 
         with Transaction().set_context(reset_costs=True):
@@ -360,10 +353,13 @@ class Plan(ModelSQL, ModelView):
         ProductBOM = pool.get('product.product-production.bom')
 
         if not self.product:
-            self.raise_user_error('lacks_the_product', self.rec_name)
+            raise UserWarning('not_product',
+                gettext('product_cost_plan.lacks_the_product',
+                    cost_plan=self.rec_name))
         if self.bom:
-            self.raise_user_error('bom_already_exists%s' % self.id,
-                'bom_already_exists', self.rec_name)
+            raise UserWarning('bom_already_exists%s' % self.id,
+                gettext('product_cost_plan.bom_already_exists',
+                    cost_plan=self.rec_name))
 
         bom = BOM()
         bom.name = name
@@ -377,9 +373,9 @@ class Plan(ModelSQL, ModelView):
             # TODO: create new bom to allow diferent "versions"?
             product_bom = self.product.boms[0]
             if product_bom.bom:
-                self.raise_user_warning('product_already_has_bom%s' % self.id,
-                    'product_already_has_bom',
-                    self.product.rec_name)
+                raise UserWarning('product_already_has_bom%s' % self.id,
+                    gettext('product_cost_plan.product_already_has_bom',
+                    self.product.rec_name))
         else:
             product_bom = ProductBOM()
         product_bom.product = self.product
@@ -707,10 +703,6 @@ class PlanCost(ModelSQL, ModelView):
     def __setup__(cls):
         super(PlanCost, cls).__setup__()
         cls._order.insert(0, ('sequence', 'ASC'))
-        cls._error_messages.update({
-                'delete_system_cost': ('You can not delete cost "%(cost)s" '
-                    'from plan "%(plan)s" because it\'s managed by system.'),
-                })
 
     @staticmethod
     def order_sequence(tables):
@@ -749,10 +741,10 @@ class PlanCost(ModelSQL, ModelView):
         if not Transaction().context.get('reset_costs', False):
             for cost in costs:
                 if cost.system:
-                    cls.raise_user_error('delete_system_cost', {
-                            'cost': cost.rec_name,
-                            'plan': cost.plan.rec_name,
-                            })
+                    raise UserWarning('delete_system_cost',
+                        gettext('product_cost_plan.delete_system_cost',
+                            cost=cost.rec_name,
+                            plan=cost.plan.rec_name))
         super(PlanCost, cls).delete(costs)
 
 
