@@ -1,30 +1,6 @@
-# 
+#
 msgid ""
 msgstr "Content-Type: text/plain; charset=utf-8\n"
-
-msgctxt "error:product.cost.plan.cost:"
-msgid ""
-"You can not delete cost \"%(cost)s\" from plan \"%(plan)s\" because it's "
-"managed by system."
-msgstr ""
-"No podeu eliminar el cost \"%(cost)s\" del pla \"%(plan)s\" perquè està "
-"gestionat pel sistema."
-
-msgctxt "error:product.cost.plan:"
-msgid "A bom already exists for cost plan \"%s\"."
-msgstr "Ja existeix una LdM pel pla de cost \"%s\"."
-
-msgctxt "error:product.cost.plan:"
-msgid "It will remove the existing Product Lines in this plan."
-msgstr "S'eliminaran les línies de producte d'aquest pla."
-
-msgctxt "error:product.cost.plan:"
-msgid "Product \"%s\" already has a BOM assigned."
-msgstr "El producte \"%s\" ja té una LdM assignada."
-
-msgctxt "error:product.cost.plan:"
-msgid "The Cost Plan \"%s\" lacks the product."
-msgstr "Al pla de costos \"%s\" li falta el producte."
 
 msgctxt "field:product.cost.plan,active:"
 msgid "Active"
@@ -56,7 +32,7 @@ msgstr "Usuari de creació"
 
 msgctxt "field:product.cost.plan,id:"
 msgid "ID"
-msgstr "Identificador"
+msgstr "ID"
 
 msgctxt "field:product.cost.plan,name:"
 msgid "Name"
@@ -99,7 +75,7 @@ msgid "Quantity"
 msgstr "Quantitat"
 
 msgctxt "field:product.cost.plan,rec_name:"
-msgid "Name"
+msgid "Record Name"
 msgstr "Nom"
 
 msgctxt "field:product.cost.plan,uom:"
@@ -112,11 +88,11 @@ msgstr "Digits UdM"
 
 msgctxt "field:product.cost.plan,write_date:"
 msgid "Write Date"
-msgstr "Data modificació"
+msgstr "Data de modificació"
 
 msgctxt "field:product.cost.plan,write_uid:"
 msgid "Write User"
-msgstr "Usuari modificació"
+msgstr "Usuari de modificació"
 
 msgctxt "field:product.cost.plan.bom_line,bom:"
 msgid "BOM"
@@ -132,7 +108,7 @@ msgstr "Usuari de creació"
 
 msgctxt "field:product.cost.plan.bom_line,id:"
 msgid "ID"
-msgstr "Identificador"
+msgstr "ID"
 
 msgctxt "field:product.cost.plan.bom_line,plan:"
 msgid "Plan"
@@ -143,16 +119,16 @@ msgid "Product"
 msgstr "Producte"
 
 msgctxt "field:product.cost.plan.bom_line,rec_name:"
-msgid "Name"
+msgid "Record Name"
 msgstr "Nom"
 
 msgctxt "field:product.cost.plan.bom_line,write_date:"
 msgid "Write Date"
-msgstr "Data modificació"
+msgstr "Data de modificació"
 
 msgctxt "field:product.cost.plan.bom_line,write_uid:"
 msgid "Write User"
-msgstr "Usuari modificació"
+msgstr "Usuari de modificació"
 
 msgctxt "field:product.cost.plan.cost,cost:"
 msgid "Cost"
@@ -168,7 +144,7 @@ msgstr "Usuari de creació"
 
 msgctxt "field:product.cost.plan.cost,id:"
 msgid "ID"
-msgstr "Identificador"
+msgstr "ID"
 
 msgctxt "field:product.cost.plan.cost,internal_cost:"
 msgid "Cost (Internal Use)"
@@ -179,7 +155,7 @@ msgid "Plan"
 msgstr "Pla"
 
 msgctxt "field:product.cost.plan.cost,rec_name:"
-msgid "Name"
+msgid "Record Name"
 msgstr "Nom"
 
 msgctxt "field:product.cost.plan.cost,sequence:"
@@ -196,11 +172,11 @@ msgstr "Tipus"
 
 msgctxt "field:product.cost.plan.cost,write_date:"
 msgid "Write Date"
-msgstr "Data modificació"
+msgstr "Data de modificació"
 
 msgctxt "field:product.cost.plan.cost,write_uid:"
 msgid "Write User"
-msgstr "Usuari modificació"
+msgstr "Usuari de modificació"
 
 msgctxt "field:product.cost.plan.cost.type,create_date:"
 msgid "Create Date"
@@ -212,7 +188,7 @@ msgstr "Usuari de creació"
 
 msgctxt "field:product.cost.plan.cost.type,id:"
 msgid "ID"
-msgstr "Identificador"
+msgstr "ID"
 
 msgctxt "field:product.cost.plan.cost.type,name:"
 msgid "Name"
@@ -223,7 +199,7 @@ msgid "Plan Field Name"
 msgstr "Nom camp del pla"
 
 msgctxt "field:product.cost.plan.cost.type,rec_name:"
-msgid "Name"
+msgid "Record Name"
 msgstr "Nom"
 
 msgctxt "field:product.cost.plan.cost.type,system:"
@@ -232,15 +208,15 @@ msgstr "Gestionat pel sistema"
 
 msgctxt "field:product.cost.plan.cost.type,write_date:"
 msgid "Write Date"
-msgstr "Data modificació"
+msgstr "Data de modificació"
 
 msgctxt "field:product.cost.plan.cost.type,write_uid:"
 msgid "Write User"
-msgstr "Usuari modificació"
+msgstr "Usuari de modificació"
 
 msgctxt "field:product.cost.plan.create_bom.start,id:"
 msgid "ID"
-msgstr "Identificador"
+msgstr "ID"
 
 msgctxt "field:product.cost.plan.create_bom.start,name:"
 msgid "Name"
@@ -264,7 +240,7 @@ msgstr "Usuari de creació"
 
 msgctxt "field:product.cost.plan.product_line,id:"
 msgid "ID"
-msgstr "Identificador"
+msgstr "ID"
 
 msgctxt "field:product.cost.plan.product_line,name:"
 msgid "Name"
@@ -273,6 +249,10 @@ msgstr "Nom"
 msgctxt "field:product.cost.plan.product_line,parent:"
 msgid "Parent"
 msgstr "Pare"
+
+msgctxt "field:product.cost.plan.product_line,party_stock:"
+msgid "Party Stock"
+msgstr "Stock del tercer"
 
 msgctxt "field:product.cost.plan.product_line,plan:"
 msgid "Plan"
@@ -291,7 +271,7 @@ msgid "Quantity"
 msgstr "Quantitat"
 
 msgctxt "field:product.cost.plan.product_line,rec_name:"
-msgid "Name"
+msgid "Record Name"
 msgstr "Nom"
 
 msgctxt "field:product.cost.plan.product_line,sequence:"
@@ -320,15 +300,52 @@ msgstr "Digits UdM"
 
 msgctxt "field:product.cost.plan.product_line,write_date:"
 msgid "Write Date"
-msgstr "Data modificació"
+msgstr "Data de modificació"
 
 msgctxt "field:product.cost.plan.product_line,write_uid:"
 msgid "Write User"
-msgstr "Usuari modificació"
+msgstr "Usuari de modificació"
 
 msgctxt "field:production.configuration,product_cost_plan_sequence:"
 msgid "Product Cost Plan Sequence"
 msgstr "Seqüencia pla de costsos de producte"
+
+msgctxt "field:production.configuration.cost_plan,company:"
+msgid "Company"
+msgstr "Empresa"
+
+msgctxt "field:production.configuration.cost_plan,create_date:"
+msgid "Create Date"
+msgstr "Data de creació"
+
+msgctxt "field:production.configuration.cost_plan,create_uid:"
+msgid "Create User"
+msgstr "Usuari de creació"
+
+msgctxt "field:production.configuration.cost_plan,id:"
+msgid "ID"
+msgstr "ID"
+
+msgctxt "field:production.configuration.cost_plan,product_cost_plan_sequence:"
+msgid "Product Cost Plan Sequence"
+msgstr "Seqüencia pla de costsos de producte"
+
+msgctxt "field:production.configuration.cost_plan,rec_name:"
+msgid "Record Name"
+msgstr "Nom registre"
+
+msgctxt "field:production.configuration.cost_plan,write_date:"
+msgid "Write Date"
+msgstr "Usuari de creació"
+
+msgctxt "field:production.configuration.cost_plan,write_uid:"
+msgid "Write User"
+msgstr "Usuari de modificació"
+
+msgctxt "help:product.cost.plan.product_line,party_stock:"
+msgid "Use stock owned by party instead of company stock."
+msgstr ""
+"Utilitza accions de propietat del tercer en lloc d'accions de l'empresa."
 
 msgctxt "help:product.cost.plan.product_line,total_cost:"
 msgid "The cost of this product for total plan's quantity."
@@ -348,7 +365,7 @@ msgstr "LdM Pla de costos de producte"
 
 msgctxt "model:ir.action,name:act_product_cost_plan_cost"
 msgid "Plan Costs"
-msgstr "Pla de costs"
+msgstr "Pla de costos"
 
 msgctxt "model:ir.action,name:act_product_cost_plan_cost_type"
 msgid "Plan Cost Type"
@@ -361,6 +378,31 @@ msgstr "Línia de producte de Pla de costos de producte"
 msgctxt "model:ir.action,name:wizard_create_bom"
 msgid "Create BOM"
 msgstr "Crear Llista de materials"
+
+msgctxt "model:ir.message,text:bom_already_exists"
+msgid "A bom already exists for cost plan \"%(cost_plan)s\"."
+msgstr ""
+"Ja existeix una llista de materials per el pla de costos \"%(cost_plan)s\"."
+
+msgctxt "model:ir.message,text:delete_system_cos"
+msgid ""
+"You can not delete cost \"%(cost)s\" from plan \"%(plan)s\" because it\\'s "
+"managed by system."
+msgstr ""
+"No puede eliminar el coste \"%(costo)s\" del plan \"%(plan)s\" porque es "
+"administrado por el sistema."
+
+msgctxt "model:ir.message,text:lacks_the_product"
+msgid "The Cost Plan \"%(cost_plan)s\" lacks the product."
+msgstr "El pla de costos \"%(cost_plan)s\" no té producte."
+
+msgctxt "model:ir.message,text:product_already_has_bom"
+msgid "Product \"%(product)s\" already has a BOM assigned."
+msgstr "El producte \"%(product)s\" ja té una llista de materials assignada."
+
+msgctxt "model:ir.message,text:product_lines_will_be_removed"
+msgid "It will remove the existing Product Lines in this plan."
+msgstr "S'esborrarán les línies de productes existents en aquest pla."
 
 msgctxt "model:ir.sequence,name:sequence_product_cost_plan"
 msgid "Product Cost Plan"
@@ -388,7 +430,7 @@ msgstr "LdM Pla de costos de producte"
 
 msgctxt "model:product.cost.plan.cost,name:"
 msgid "Plan Cost"
-msgstr "Pla de costs"
+msgstr "Pla de costos"
 
 msgctxt "model:product.cost.plan.cost.type,name:"
 msgid "Plan Cost Type"
@@ -405,6 +447,10 @@ msgstr "Inici crear Llista de materials"
 msgctxt "model:product.cost.plan.product_line,name:"
 msgid "Product Cost Plan Product Line"
 msgstr "Línia de producte de Pla de costos de producte"
+
+msgctxt "model:production.configuration.cost_plan,name:"
+msgid "Production Configuration Cost Plan"
+msgstr "Configuració de la producció del pla de costos"
 
 msgctxt "model:res.group,name:group_product_cost_plan"
 msgid "Product Cost Plan"
@@ -424,7 +470,7 @@ msgstr "Tipus de pla de cost"
 
 msgctxt "view:product.cost.plan.cost:"
 msgid "Plan Cost"
-msgstr "Pla de costs"
+msgstr "Pla de costos"
 
 msgctxt "view:product.cost.plan.create_bom.start:"
 msgid "Create BOM"
