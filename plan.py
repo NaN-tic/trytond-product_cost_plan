@@ -351,13 +351,15 @@ class Plan(ModelSQL, ModelView):
         pool = Pool()
         BOM = pool.get('production.bom')
         ProductBOM = pool.get('product.product-production.bom')
-
-        if not self.product:
-            raise UserWarning('not_product',
+        Warning = pool.get('res.user.warning')
+        key = 'not_product_%s' % self.id,
+        if not self.product and Warning.check(key):
+            raise UserWarning(key,
                 gettext('product_cost_plan.lacks_the_product',
                     cost_plan=self.rec_name))
-        if self.bom:
-            raise UserWarning('bom_already_exists%s' % self.id,
+        key = 'bom_already_exists%s' % self.id
+        if self.bom and Warning.check(key):
+            raise UserWarning(key,
                 gettext('product_cost_plan.bom_already_exists',
                     cost_plan=self.rec_name))
 
@@ -372,8 +374,9 @@ class Plan(ModelSQL, ModelView):
         if self.product.boms:
             # TODO: create new bom to allow diferent "versions"?
             product_bom = self.product.boms[0]
-            if product_bom.bom:
-                raise UserWarning('product_already_has_bom%s' % self.id,
+            key = 'product_already_has_bom%s' % self.id
+            if product_bom.bom and Warning.check(key):
+                raise UserWarning(key,
                     gettext('product_cost_plan.product_already_has_bom',
                     self.product.rec_name))
         else:
