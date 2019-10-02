@@ -17,7 +17,7 @@
     <field name="uom"/>
     <label name="bom"/>
     <field name="bom"/>
-    <button name="compute" string="Initialize Cost Plan" colspan="2"/>
+    <button name="compute" colspan="2"/>
     <notebook colspan="6">
         <page string="Products" id="products">
             <field name="products_tree" colspan="4"/>
