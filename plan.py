@@ -204,8 +204,10 @@ class Plan(ModelSQL, ModelView):
                 ('plan', 'in', [p.id for p in plans]),
                 ])
         if product_lines:
-            UserWarning('remove_product_lines',
-                gettext('product_cost_plan.product_lines_will_be_removed'))
+            key = 'task_product_lines_will_be_removed.%d' % product_lines[0].id
+            if Warning.check(key):
+                raise UserWarning('remove_product_lines',
+                    gettext('product_cost_plan.product_lines_will_be_removed'))
             ProductLine.delete(product_lines)
 
         with Transaction().set_context(reset_costs=True):
@@ -739,10 +741,12 @@ class PlanCost(ModelSQL, ModelView):
         if not Transaction().context.get('reset_costs', False):
             for cost in costs:
                 if cost.system:
-                    raise UserWarning('delete_system_cost',
-                        gettext('product_cost_plan.delete_system_cost',
-                            cost=cost.rec_name,
-                            plan=cost.plan.rec_name))
+                    key = 'task_delete_system_cost.%d' % cost.id
+                    if Warning.check(key):
+                        raise UserWarning('delete_system_cost',
+                            gettext('product_cost_plan.delete_system_cost',
+                                cost=cost.rec_name,
+                                plan=cost.plan.rec_name))
         super(PlanCost, cls).delete(costs)
 
 
