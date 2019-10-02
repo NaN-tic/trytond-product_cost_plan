@@ -84,6 +84,7 @@
 
         <record model="ir.model.button" id="plan_compute_button">
             <field name="name">compute</field>
+            <field name="string">Initialize Cost Plan</field>
             <field name="model" search="[('model', '=', 'product.cost.plan')]"/>
         </record>
         <record model="ir.model.button-res.group" id="plan_compute_button_group_cost">
