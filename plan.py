@@ -199,6 +199,7 @@ class Plan(ModelSQL, ModelView):
         pool = Pool()
         ProductLine = pool.get('product.cost.plan.product_line')
         CostLine = pool.get('product.cost.plan.cost')
+        Warning = Pool().get('res.user.warning')
 
         product_lines = ProductLine.search([
                 ('plan', 'in', [p.id for p in plans]),
@@ -738,6 +739,8 @@ class PlanCost(ModelSQL, ModelView):
 
     @classmethod
     def delete(cls, costs):
+        Warning = Pool().get('res.user.warning')
+
         if not Transaction().context.get('reset_costs', False):
             for cost in costs:
                 if cost.system:
