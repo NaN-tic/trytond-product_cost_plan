@@ -22,18 +22,6 @@ msgctxt "field:product.cost.plan,costs:"
 msgid "Costs"
 msgstr "Costes"
 
-msgctxt "field:product.cost.plan,create_date:"
-msgid "Create Date"
-msgstr "Fecha de creación"
-
-msgctxt "field:product.cost.plan,create_uid:"
-msgid "Create User"
-msgstr "Usuario de creación"
-
-msgctxt "field:product.cost.plan,id:"
-msgid "ID"
-msgstr "ID"
-
 msgctxt "field:product.cost.plan,name:"
 msgid "Name"
 msgstr "Nombre"
@@ -74,10 +62,6 @@ msgctxt "field:product.cost.plan,quantity:"
 msgid "Quantity"
 msgstr "Cantidad"
 
-msgctxt "field:product.cost.plan,rec_name:"
-msgid "Record Name"
-msgstr "Nombre"
-
 msgctxt "field:product.cost.plan,uom:"
 msgid "UoM"
 msgstr "UdM"
@@ -86,29 +70,9 @@ msgctxt "field:product.cost.plan,uom_digits:"
 msgid "UoM Digits"
 msgstr "Dígitos UdM"
 
-msgctxt "field:product.cost.plan,write_date:"
-msgid "Write Date"
-msgstr "Fecha de modificación"
-
-msgctxt "field:product.cost.plan,write_uid:"
-msgid "Write User"
-msgstr "Usuario de modificación"
-
 msgctxt "field:product.cost.plan.bom_line,bom:"
 msgid "BOM"
 msgstr "Lista de material"
-
-msgctxt "field:product.cost.plan.bom_line,create_date:"
-msgid "Create Date"
-msgstr "Fecha de creación"
-
-msgctxt "field:product.cost.plan.bom_line,create_uid:"
-msgid "Create User"
-msgstr "Usuario de creación"
-
-msgctxt "field:product.cost.plan.bom_line,id:"
-msgid "ID"
-msgstr "ID"
 
 msgctxt "field:product.cost.plan.bom_line,plan:"
 msgid "Plan"
@@ -118,33 +82,9 @@ msgctxt "field:product.cost.plan.bom_line,product:"
 msgid "Product"
 msgstr "Producto"
 
-msgctxt "field:product.cost.plan.bom_line,rec_name:"
-msgid "Record Name"
-msgstr "Nombre"
-
-msgctxt "field:product.cost.plan.bom_line,write_date:"
-msgid "Write Date"
-msgstr "Fecha de modificación"
-
-msgctxt "field:product.cost.plan.bom_line,write_uid:"
-msgid "Write User"
-msgstr "Usuario de modificación"
-
 msgctxt "field:product.cost.plan.cost,cost:"
 msgid "Cost"
 msgstr "Coste"
-
-msgctxt "field:product.cost.plan.cost,create_date:"
-msgid "Create Date"
-msgstr "Fecha de creación"
-
-msgctxt "field:product.cost.plan.cost,create_uid:"
-msgid "Create User"
-msgstr "Usuario de creación"
-
-msgctxt "field:product.cost.plan.cost,id:"
-msgid "ID"
-msgstr "ID"
 
 msgctxt "field:product.cost.plan.cost,internal_cost:"
 msgid "Cost (Internal Use)"
@@ -153,10 +93,6 @@ msgstr "Coste (uso interno)"
 msgctxt "field:product.cost.plan.cost,plan:"
 msgid "Plan"
 msgstr "Plan"
-
-msgctxt "field:product.cost.plan.cost,rec_name:"
-msgid "Record Name"
-msgstr "Nombre"
 
 msgctxt "field:product.cost.plan.cost,sequence:"
 msgid "Sequence"
@@ -170,26 +106,6 @@ msgctxt "field:product.cost.plan.cost,type:"
 msgid "Type"
 msgstr "Tipo"
 
-msgctxt "field:product.cost.plan.cost,write_date:"
-msgid "Write Date"
-msgstr "Fecha de modificación"
-
-msgctxt "field:product.cost.plan.cost,write_uid:"
-msgid "Write User"
-msgstr "Usuario de modificación"
-
-msgctxt "field:product.cost.plan.cost.type,create_date:"
-msgid "Create Date"
-msgstr "Fecha de creación"
-
-msgctxt "field:product.cost.plan.cost.type,create_uid:"
-msgid "Create User"
-msgstr "Usuario de creación"
-
-msgctxt "field:product.cost.plan.cost.type,id:"
-msgid "ID"
-msgstr "ID"
-
 msgctxt "field:product.cost.plan.cost.type,name:"
 msgid "Name"
 msgstr "Nombre"
@@ -198,25 +114,9 @@ msgctxt "field:product.cost.plan.cost.type,plan_field_name:"
 msgid "Plan Field Name"
 msgstr "Nombre campo del plan"
 
-msgctxt "field:product.cost.plan.cost.type,rec_name:"
-msgid "Record Name"
-msgstr "Nombre"
-
 msgctxt "field:product.cost.plan.cost.type,system:"
 msgid "System Managed"
 msgstr "Gestinado por el sistema"
-
-msgctxt "field:product.cost.plan.cost.type,write_date:"
-msgid "Write Date"
-msgstr "Fecha de modificación"
-
-msgctxt "field:product.cost.plan.cost.type,write_uid:"
-msgid "Write User"
-msgstr "Usuario de modificación"
-
-msgctxt "field:product.cost.plan.create_bom.start,id:"
-msgid "ID"
-msgstr "ID"
 
 msgctxt "field:product.cost.plan.create_bom.start,name:"
 msgid "Name"
@@ -229,18 +129,6 @@ msgstr "Hijos"
 msgctxt "field:product.cost.plan.product_line,cost_price:"
 msgid "Cost Price"
 msgstr "Precio de coste"
-
-msgctxt "field:product.cost.plan.product_line,create_date:"
-msgid "Create Date"
-msgstr "Fecha de creación"
-
-msgctxt "field:product.cost.plan.product_line,create_uid:"
-msgid "Create User"
-msgstr "Usuario de creación"
-
-msgctxt "field:product.cost.plan.product_line,id:"
-msgid "ID"
-msgstr "ID"
 
 msgctxt "field:product.cost.plan.product_line,name:"
 msgid "Name"
@@ -270,10 +158,6 @@ msgctxt "field:product.cost.plan.product_line,quantity:"
 msgid "Quantity"
 msgstr "Cantidad"
 
-msgctxt "field:product.cost.plan.product_line,rec_name:"
-msgid "Record Name"
-msgstr "Nombre"
-
 msgctxt "field:product.cost.plan.product_line,sequence:"
 msgid "Sequence"
 msgstr "Secuencia"
@@ -298,14 +182,6 @@ msgctxt "field:product.cost.plan.product_line,uom_digits:"
 msgid "UoM Digits"
 msgstr "Dígitos UdM"
 
-msgctxt "field:product.cost.plan.product_line,write_date:"
-msgid "Write Date"
-msgstr "Fecha de modificación"
-
-msgctxt "field:product.cost.plan.product_line,write_uid:"
-msgid "Write User"
-msgstr "Usuario de modificación"
-
 msgctxt "field:production.configuration,product_cost_plan_sequence:"
 msgid "Product Cost Plan Sequence"
 msgstr "Sequencia plan de coste del producto"
@@ -314,33 +190,9 @@ msgctxt "field:production.configuration.cost_plan,company:"
 msgid "Company"
 msgstr "Empresa"
 
-msgctxt "field:production.configuration.cost_plan,create_date:"
-msgid "Create Date"
-msgstr "Fecha de creación"
-
-msgctxt "field:production.configuration.cost_plan,create_uid:"
-msgid "Create User"
-msgstr "Usuario de creación"
-
-msgctxt "field:production.configuration.cost_plan,id:"
-msgid "ID"
-msgstr "ID"
-
 msgctxt "field:production.configuration.cost_plan,product_cost_plan_sequence:"
 msgid "Product Cost Plan Sequence"
 msgstr "Sequencia plan de coste del producto"
-
-msgctxt "field:production.configuration.cost_plan,rec_name:"
-msgid "Record Name"
-msgstr "Nombre registro"
-
-msgctxt "field:production.configuration.cost_plan,write_date:"
-msgid "Write Date"
-msgstr "Fecha de modificación"
-
-msgctxt "field:production.configuration.cost_plan,write_uid:"
-msgid "Write User"
-msgstr "Usuario de modificación"
 
 msgctxt "help:product.cost.plan.product_line,party_stock:"
 msgid "Use stock owned by party instead of company stock."
@@ -386,11 +238,11 @@ msgstr ""
 
 msgctxt "model:ir.message,text:delete_system_cos"
 msgid ""
-"You can not delete cost \"%(cost)s\" from plan \"%(plan)s\" because it\\'s "
+"You can not delete cost \"%(cost)s\" from plan \"%(plan)s\" because it's "
 "managed by system."
 msgstr ""
-"No podeu eliminar el cost \"%(cost)s\" del pla \"%(plan)s\" perquè està "
-"gestionat pel sistema."
+"No poden eliminar el coste \"%(cost)s\" del plan \"%(plan)s\" porque está "
+"gestionado por el sistema."
 
 msgctxt "model:ir.message,text:lacks_the_product"
 msgid "The Cost Plan \"%(cost_plan)s\" lacks the product."
@@ -403,6 +255,10 @@ msgstr "El producto \"%(product)s\" ya tiene una lista de materiales asignada."
 msgctxt "model:ir.message,text:product_lines_will_be_removed"
 msgid "It will remove the existing Product Lines in this plan."
 msgstr "Se eliminarán las líneas de productos existentes en este plan."
+
+msgctxt "model:ir.model.button,string:plan_compute_button"
+msgid "Initialize Cost Plan"
+msgstr ""
 
 msgctxt "model:ir.sequence,name:sequence_product_cost_plan"
 msgid "Product Cost Plan"
@@ -489,10 +345,6 @@ msgid "Costs"
 msgstr "Costes"
 
 msgctxt "view:product.cost.plan:"
-msgid "Initialize Cost Plan"
-msgstr "Inicializar plan de coste"
-
-msgctxt "view:product.cost.plan:"
 msgid ""
 "It will modify the product's field loosing the current value. Are you sure?"
 msgstr ""
@@ -502,10 +354,6 @@ msgstr ""
 msgctxt "view:product.cost.plan:"
 msgid "Notes"
 msgstr "Notas"
-
-msgctxt "view:product.cost.plan:"
-msgid "Product Cost Plan"
-msgstr "Plan de coste del producto"
 
 msgctxt "view:product.cost.plan:"
 msgid "Products"
