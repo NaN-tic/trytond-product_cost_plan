@@ -2,7 +2,7 @@
 <!-- This file is part of Tryton.  The COPYRIGHT file at the top level of
 this repository contains the full copyright notices and license terms. -->
 <tryton>
-    <data group="1">
+    <data grouped="1">
         <record model="ir.message" id="product_lines_will_be_removed">
             <field name="text">It will remove the existing Product Lines in this plan.</field>
         </record>
@@ -16,7 +16,7 @@ this repository contains the full copyright notices and license terms. -->
             <field name="text">Product "%(product)s" already has a BOM assigned.</field>
         </record>
         <record model="ir.message" id="delete_system_cos">
-            <field name="text">You can not delete cost "%(cost)s" from plan "%(plan)s" because it\'s managed by system.</field>
+            <field name="text">You can not delete cost "%(cost)s" from plan "%(plan)s" because it's managed by system.</field>
         </record>
     </data>
 </tryton>
