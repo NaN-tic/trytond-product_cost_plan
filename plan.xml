@@ -165,7 +165,9 @@
         <record model="ir.action.act_window" id="act_product_cost_plan_product_line">
             <field name="name">Product Cost Plan Product Line</field>
             <field name="res_model">product.cost.plan.product_line</field>
+            <field name="domain" eval="[('parent', '=', None)]" pyson="1"/>
         </record>
+
         <record model="ir.action.act_window.view"
                 id="act_product_cost_plan_product_line_view1">
             <field name="sequence" eval="10"/>
