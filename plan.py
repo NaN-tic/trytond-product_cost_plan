@@ -404,8 +404,17 @@ class Plan(ModelSQL, ModelView):
         pool = Pool()
         Uom = pool.get('product.uom')
 
+        def _get_all_inputs(lines):
+            lines = [x for x in lines]
+            for line in lines:
+                if not line.children:
+                    continue
+                lines += _get_all_inputs(line.children)
+            return lines
+
         inputs = {}
-        for line in self.products:
+        lines = _get_all_inputs(self.products)
+        for line in lines:
             if not line.product:
                 continue
             input_ = self._get_input_line(line)
@@ -502,7 +511,7 @@ class PlanProductLine(ModelSQL, ModelView, tree(separator='/')):
     parent = fields.Many2One('product.cost.plan.product_line', 'Parent')
     children = fields.One2Many('product.cost.plan.product_line', 'parent',
         'Children')
-    plan = fields.Many2One('product.cost.plan', 'Plan', required=True,
+    plan = fields.Many2One('product.cost.plan', 'Plan', required=False,
         ondelete='CASCADE')
     product = fields.Many2One('product.product', 'Product', domain=[
             ('type', '!=', 'service'),
