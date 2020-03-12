@@ -414,6 +414,7 @@ class Plan(ModelSQL, ModelView):
 
         inputs = {}
         lines = _get_all_inputs(self.products)
+        lines = list(set(lines))
         for line in lines:
             if not line.product:
                 continue
