@@ -381,7 +381,7 @@ class Plan(ModelSQL, ModelView):
             if product_bom.bom and Warning.check(key):
                 raise UserWarning(key,
                     gettext('product_cost_plan.product_already_has_bom',
-                    self.product.rec_name))
+                    product=self.product.rec_name))
         else:
             product_bom = ProductBOM()
         product_bom.product = self.product
