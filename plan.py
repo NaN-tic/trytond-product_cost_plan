@@ -182,7 +182,8 @@ class Plan(ModelSQL, ModelView):
     def get_products_cost(self, name):
         if not self.quantity:
             return Decimal('0.0')
-        cost = sum(p.get_total_cost(None, round=False) for p in self.products)
+        lines = Plan.get_all_inputs(self.products)
+        cost = sum(p.get_total_cost(None, round=False) for p in lines)
         cost /= Decimal(str(self.quantity))
         digits = self.__class__.products_cost.digits[1]
         return cost.quantize(Decimal(str(10 ** -digits)))
@@ -400,21 +401,22 @@ class Plan(ModelSQL, ModelView):
             outputs.append(output)
         return outputs
 
+    @classmethod
+    def get_all_inputs(cls, lines):
+        lines = [x for x in lines]
+        for line in lines:
+            if not line.children:
+                continue
+            lines += cls.get_all_inputs(line.children)
+        return list(set(lines))
+
     def _get_bom_inputs(self):
         pool = Pool()
         Uom = pool.get('product.uom')
-
-        def _get_all_inputs(lines):
-            lines = [x for x in lines]
-            for line in lines:
-                if not line.children:
-                    continue
-                lines += _get_all_inputs(line.children)
-            return lines
+        Plan = pool.get('product.cost.plan')
 
         inputs = {}
-        lines = _get_all_inputs(self.products)
-        lines = list(set(lines))
+        lines = Plan.get_all_inputs(self.products)
         for line in lines:
             if not line.product:
                 continue
