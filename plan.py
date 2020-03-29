@@ -643,10 +643,14 @@ class PlanProductLine(ModelSQL, ModelView, tree(separator='/')):
         digits = self.__class__.product_cost_price.digits[1]
         return cost.quantize(Decimal(str(10 ** -digits)))
 
+    def get_plan(self):
+        return self.plan if self.plan else self.parent.get_plan()
+
     def get_unit_cost(self, name):
         unit_cost = self.total_cost
-        if unit_cost and self.plan and self.plan.quantity:
-            unit_cost /= Decimal(str(self.plan.quantity))
+        plan = self.get_plan()
+        if unit_cost and plan and plan.quantity:
+            unit_cost /= Decimal(str(plan.quantity))
         digits = self.__class__.unit_cost.digits[1]
         return unit_cost.quantize(Decimal(str(10 ** -digits)))
 
