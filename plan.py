@@ -193,7 +193,7 @@ class Plan(ModelSQL, ModelView):
         return self.product.cost_price if self.product else None
 
     def get_cost_price(self, name):
-        return sum(c.cost for c in self.costs if c.cost)
+        return Decimal(sum(c.cost for c in self.costs if c.cost))
 
     @classmethod
     def clean(cls, plans):
