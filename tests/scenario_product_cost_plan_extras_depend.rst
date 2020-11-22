@@ -164,8 +164,8 @@ Set party stock also for second component::
     >>> sorted([(p.quantity, p.product.rec_name, bool(p.party_stock), p.cost_price)
     ...         for p in plan2.products])
     [(5.0, 'component 1', True, Decimal('0.0000')), (150.0, 'component 2', True, Decimal('0.0'))]
-    >>> plan2.cost_price
-    0
+    >>> plan2.cost_price == Decimal(0)
+    True
 
 Create BoM from cost plan::
 
