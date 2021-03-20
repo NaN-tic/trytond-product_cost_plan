@@ -19,7 +19,6 @@
         </record>
         <record model="ir.sequence.type" id="sequence_type_product_cost_plan">
             <field name="name">Product Cost Plan</field>
-            <field name="code">product_cost_plan</field>
         </record>
         <record model="ir.sequence.type-res.group"
             id="sequence_type_product_cost_plan_group_admin">
@@ -34,7 +33,7 @@
 
         <record model="ir.sequence" id="sequence_product_cost_plan">
             <field name="name">Product Cost Plan</field>
-            <field name="code">product_cost_plan</field>
+            <field name="sequence_type" ref="sequence_type_product_cost_plan"/>
         </record>
 
         <!-- product.cost.plan -->

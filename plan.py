@@ -446,15 +446,12 @@ class Plan(ModelSQL, ModelView):
 
     @classmethod
     def create(cls, vlist):
-        Sequence = Pool().get('ir.sequence')
         Config = Pool().get('production.configuration')
 
         vlist = [x.copy() for x in vlist]
         config = Config(1)
         for values in vlist:
-            values['number'] = Sequence.get_id(
-                config.product_cost_plan_sequence and
-                config.product_cost_plan_sequence.id)
+            values['number'] = config.product_cost_plan_sequence.get()
         return super(Plan, cls).create(vlist)
 
     @classmethod

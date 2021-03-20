@@ -1,7 +1,7 @@
 # This file is part of Tryton.  The COPYRIGHT file at the top level of
 # this repository contains the full copyright notices and license terms.
 from trytond.model import fields, ModelSQL
-from trytond.pyson import Eval
+from trytond.pyson import Eval, Id
 from trytond.pool import PoolMeta, Pool
 from trytond.modules.company.model import (
     CompanyMultiValueMixin, CompanyValueMixin)
@@ -17,7 +17,8 @@ class Configuration(CompanyMultiValueMixin, metaclass=PoolMeta):
             'Product Cost Plan Sequence', domain=[
                 ('company', 'in',
                     [Eval('context', {}).get('company', -1), None]),
-                ('code', '=', 'product_cost_plan'),
+                ('sequence_type', '=', Id('product_cost_plan',
+                        'sequence_type_product_cost_plan')),
                 ], required=True))
 
     @classmethod
@@ -36,5 +37,6 @@ class ConfigurationProductcostPlan(ModelSQL, CompanyValueMixin):
             'Product Cost Plan Sequence', domain=[
                 ('company', 'in',
                     [Eval('context', {}).get('company', -1), None]),
-                ('code', '=', 'product_cost_plan'),
+                ('sequence_type', '=', Id('product_cost_plan',
+                        'sequence_type_product_cost_plan')),
                 ], required=True)
