@@ -163,16 +163,11 @@ class Plan(ModelSQL, ModelView):
             return boms
 
         products = set(self.find_boms())
-        new_boms = set()
         for index, (product_id, _) in enumerate(products):
-            new_boms.add(product_id)
             boms['add'].append((index, {
                         'product': product_id,
                         'bom': None,
                         }))
-
-        if {x.product.id for x in self.boms if x.product} == new_boms:
-            return {}
         return boms
 
     def get_products_tree(self, name):
