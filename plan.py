@@ -3,7 +3,7 @@
 from decimal import Decimal
 
 from trytond.config import config
-from trytond.model import ModelSQL, ModelView, fields, tree
+from trytond.model import ModelSQL, ModelView, DeactivableMixin, fields, tree
 from trytond.pool import Pool
 from trytond.pyson import Eval, Bool, If
 from trytond.transaction import Transaction
@@ -25,13 +25,12 @@ class PlanCostType(ModelSQL, ModelView):
     plan_field_name = fields.Char('Plan Field Name', readonly=True)
 
 
-class Plan(ModelSQL, ModelView):
+class Plan(DeactivableMixin, ModelSQL, ModelView):
     'Product Cost Plan'
     __name__ = 'product.cost.plan'
 
     number = fields.Char('Number', select=True, readonly=True)
     name = fields.Char('Name', select=True, required=True)
-    active = fields.Boolean('Active')
     product = fields.Many2One('product.product', 'Product')
     product_uom_category = fields.Function(
         fields.Many2One('product.uom.category', 'Product UoM Category'),
@@ -88,10 +87,6 @@ class Plan(ModelSQL, ModelView):
                     'icon': 'tryton-refresh',
                     },
                 })
-
-    @staticmethod
-    def default_active():
-        return True
 
     def get_rec_name(self, name):
         res = '[%s]' % self.number
