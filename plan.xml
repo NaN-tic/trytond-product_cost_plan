@@ -349,21 +349,4 @@
             <field name="plan_field_name">products_cost</field>
         </record>
     </data>
-    <data depends="production_external_party">
-        <record model="ir.ui.view"
-                id="cost_plan_product_line_view_form_external_party">
-            <field name="model">product.cost.plan.product_line</field>
-            <field name="inherit"
-                ref="product_cost_plan.product_cost_plan_product_line_view_form"/>
-            <field name="name">cost_plan_product_line_form_external_party</field>
-        </record>
-
-        <record model="ir.ui.view"
-                id="cost_plan_product_line_view_tree_external_party">
-            <field name="model">product.cost.plan.product_line</field>
-            <field name="inherit"
-                ref="product_cost_plan.product_cost_plan_product_line_view_list"/>
-            <field name="name">cost_plan_product_line_tree_external_party</field>
-        </record>
-    </data>
 </tryton>

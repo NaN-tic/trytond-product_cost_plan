@@ -10,7 +10,6 @@ from configparser import ConfigParser
 MODULE = 'product_cost_plan'
 PREFIX = 'nantic'
 MODULE2PREFIX = {
-    'production_external_party': 'nantic',
     }
 
 
@@ -42,7 +41,7 @@ major_version = int(major_version)
 minor_version = int(minor_version)
 
 requires = []
-for dep in info.get('depends', []) + ['production_external_party']:
+for dep in info.get('depends', []):
     if not re.match(r'(ir|res)(\W|$)', dep):
         prefix = MODULE2PREFIX.get(dep, 'trytond')
         requires.append(get_require_version('%s_%s' % (prefix, dep)))
@@ -50,7 +49,6 @@ requires.append(get_require_version('trytond'))
 
 tests_require = [
     get_require_version('proteus'),
-    get_require_version('nantic-production_external_party')
 ]
 
 series = '%s.%s' % (major_version, minor_version)
@@ -60,12 +58,6 @@ else:
     branch = series
 
 dependency_links = [
-    ('hg+https://bitbucket.org/nantic/'
-        'trytond-production_external_party@%(branch)s'
-        '#egg=nantic-production_external_party-%(series)s' % {
-            'branch': branch,
-            'series': series,
-            }),
     ]
 
 if minor_version % 2:
