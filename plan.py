@@ -435,7 +435,8 @@ class Plan(DeactivableMixin, ModelSQL, ModelView):
             input_.party_stock = line.party_stock
         parent_line = line.parent
         while parent_line:
-            input_.quantity *= parent_line.quantity
+            input_.quantity = input_.uom.round(input_.quantity *
+                parent_line.quantity)
             parent_line = parent_line.parent
         return input_
 
