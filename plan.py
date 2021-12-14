@@ -145,7 +145,8 @@ class Plan(DeactivableMixin, ModelSQL, ModelView):
             if input_.product.boms:
                 product_bom = input_.product.boms[0].bom
                 res.append((input_.product.id, product_bom.id))
-                res += self.find_boms(product_bom.inputs)
+                if product_bom.id not in (x[1] for x in res):
+                    res += self.find_boms(product_bom.inputs)
         return res
 
     @fields.depends('bom', 'boms', 'product')
