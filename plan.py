@@ -204,7 +204,7 @@ class Plan(DeactivableMixin, ModelSQL, ModelView):
         if product_lines:
             key = 'task_product_lines_will_be_removed.%d' % product_lines[0].id
             if Warning.check(key):
-                raise UserWarning('remove_product_lines',
+                raise UserWarning(key,
                     gettext('product_cost_plan.product_lines_will_be_removed'))
             ProductLine.delete(product_lines)
 
