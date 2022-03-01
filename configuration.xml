@@ -9,9 +9,4 @@ this repository contains the full copyright notices and license terms. -->
             <field name="inherit" ref="production.production_configuration_view_form"/>
         </record>
     </data>
-    <data noupdate="1">
-        <record model="production.configuration" id="configuration_product_cost_plan_sequence">
-            <field name="product_cost_plan_sequence" ref="sequence_product_cost_plan"/>
-        </record>
-    </data>
 </tryton>

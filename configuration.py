@@ -3,23 +3,21 @@
 from trytond.model import fields, ModelSQL
 from trytond.pyson import Eval, Id
 from trytond.pool import PoolMeta, Pool
-from trytond.modules.company.model import (
-    CompanyMultiValueMixin, CompanyValueMixin)
+from trytond.modules.company.model import CompanyValueMixin
 
 __all__ = ['Configuration', 'ConfigurationProductcostPlan']
 
 
-class Configuration(CompanyMultiValueMixin, metaclass=PoolMeta):
+class Configuration(metaclass=PoolMeta):
     __name__ = 'production.configuration'
-
     product_cost_plan_sequence = fields.MultiValue(
-        fields.Many2One('ir.sequence',
-            'Product Cost Plan Sequence', domain=[
+        fields.Many2One('ir.sequence', "Product Cost Plan Sequence", required=True,
+            domain=[
                 ('company', 'in',
                     [Eval('context', {}).get('company', -1), None]),
                 ('sequence_type', '=', Id('product_cost_plan',
                         'sequence_type_product_cost_plan')),
-                ], required=True))
+                ]))
 
     @classmethod
     def multivalue_model(cls, field):
@@ -28,15 +26,29 @@ class Configuration(CompanyMultiValueMixin, metaclass=PoolMeta):
             return pool.get('production.configuration.cost_plan')
         return super(Configuration, cls).multivalue_model(field)
 
+    @classmethod
+    def default_product_cost_plan_sequence(cls, **pattern):
+        return cls.multivalue_model(
+            'product_cost_plan_sequence').default_product_cost_plan_sequence()
+
 
 class ConfigurationProductcostPlan(ModelSQL, CompanyValueMixin):
     "Production Configuration Cost Plan"
     __name__ = 'production.configuration.cost_plan'
-
     product_cost_plan_sequence = fields.Many2One('ir.sequence',
-            'Product Cost Plan Sequence', domain=[
-                ('company', 'in',
-                    [Eval('context', {}).get('company', -1), None]),
-                ('sequence_type', '=', Id('product_cost_plan',
-                        'sequence_type_product_cost_plan')),
-                ], required=True)
+        "Product Cost Plan Sequence", required=True,
+        domain=[
+            ('company', 'in', [Eval('company', -1), None]),
+            ('sequence_type', '=', Id('product_cost_plan',
+                    'sequence_type_product_cost_plan')),
+            ], depends=['company'])
+
+    @classmethod
+    def default_product_cost_plan_sequence(cls):
+        pool = Pool()
+        ModelData = pool.get('ir.model.data')
+        try:
+            return ModelData.get_id('product_cost_plan',
+                'sequence_product_cost_plan')
+        except KeyError:
+            return None
