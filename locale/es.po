@@ -406,7 +406,7 @@ msgstr "Se eliminarán las líneas de productos existentes en este plan."
 
 msgctxt "model:ir.model.button,string:plan_compute_button"
 msgid "Initialize Cost Plan"
-msgstr "Inicialitzar el plan de costes"
+msgstr "Inicializar el plan de costes"
 
 msgctxt "model:ir.sequence,name:sequence_product_cost_plan"
 msgid "Product Cost Plan"
@@ -494,7 +494,7 @@ msgstr "Costes"
 
 msgctxt "view:product.cost.plan:"
 msgid "Initialize Cost Plan"
-msgstr "Inicialitzar el plan de costes"
+msgstr "Inicializar el plan de costes"
 
 msgctxt "view:product.cost.plan:"
 msgid ""
