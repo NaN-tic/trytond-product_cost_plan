@@ -1,8 +1,6 @@
 # The COPYRIGHT file at the top level of this repository contains the full
 # copyright notices and license terms.
 from decimal import Decimal
-
-from trytond.config import config
 from trytond.model import ModelSQL, ModelView, DeactivableMixin, fields, tree
 from trytond.pool import Pool
 from trytond.pyson import Eval, Bool, If
@@ -10,8 +8,7 @@ from trytond.transaction import Transaction
 from trytond.wizard import Wizard, StateView, StateAction, Button
 from trytond.i18n import gettext
 from trytond.exceptions import UserWarning
-
-price_digits = (16, config.getint('product', 'price_decimal', default=4))
+from trytond.modules.product import price_digits, round_price
 
 __all__ = ['PlanCostType', 'Plan', 'PlanBOM', 'PlanProductLine', 'PlanCost',
     'CreateBomStart', 'CreateBom']
@@ -181,8 +178,7 @@ class Plan(DeactivableMixin, ModelSQL, ModelView):
         lines = Plan.get_all_inputs(self.products)
         cost = sum(p.get_total_cost(None, round=False) for p in lines)
         cost /= Decimal(str(self.quantity))
-        digits = self.__class__.products_cost.digits[1]
-        return cost.quantize(Decimal(str(10 ** -digits)))
+        return round_price(cost)
 
     @fields.depends('product')
     def on_change_with_product_cost_price(self, name=None):
@@ -273,7 +269,6 @@ class Plan(DeactivableMixin, ModelSQL, ModelView):
         pool = Pool()
         UoM = pool.get('product.uom')
         Input = pool.get('production.bom.input')
-        ProductLine = pool.get('product.cost.plan.product_line')
 
         quantity = Input.compute_quantity(input_, factor)
         party_stock = getattr(input_, 'party_stock', False)
@@ -282,22 +277,18 @@ class Plan(DeactivableMixin, ModelSQL, ModelView):
         cost_factor = Decimal(
             UoM.compute_qty(input_.product.default_uom, 1, input_.uom))
         if cost_factor != Decimal('0.0'):
-            product_cost_price = input_.product.cost_price / cost_factor
+            product_cost_price = Decimal(input_.product.cost_price / cost_factor)
             if not party_stock:
                 cost_price = product_cost_price
 
-        product_cost_price_digits = ProductLine.product_cost_price.digits[1]
-        cost_price_digits = ProductLine.cost_price.digits[1]
         return {
             'name': input_.product.rec_name,
             'product': input_.product.id,
             'quantity': quantity,
             'uom': input_.uom.id,
             'party_stock': getattr(input_, 'party_stock', False),
-            'product_cost_price': product_cost_price.quantize(
-                Decimal(str(10 ** -product_cost_price_digits))),
-            'cost_price': cost_price.quantize(
-                Decimal(str(10 ** -cost_price_digits))),
+            'product_cost_price': round_price(product_cost_price),
+            'cost_price': round_price(cost_price),
             }
 
     def get_costs(self):
@@ -339,13 +330,9 @@ class Plan(DeactivableMixin, ModelSQL, ModelView):
         cost_price = Uom.compute_price(self.uom, self.cost_price,
             self.product.default_uom)
         if hasattr(self.product.__class__, 'cost_price'):
-            digits = self.product.__class__.cost_price.digits[1]
-            cost_price = cost_price.quantize(Decimal(str(10 ** -digits)))
-            self.product.cost_price = cost_price
+            self.product.cost_price = round_price(cost_price)
         else:
-            digits = self.product.template.__class__.cost_price.digits[1]
-            cost_price = cost_price.quantize(Decimal(str(10 ** -digits)))
-            self.product.template.cost_price = cost_price
+            self.product.template.cost_price = round_price(cost_price)
 
     def create_bom(self, name):
         pool = Pool()
@@ -511,39 +498,35 @@ class PlanProductLine(ModelSQL, ModelView, tree(separator='/')):
     plan = fields.Many2One('product.cost.plan', 'Plan', required=False,
         ondelete='CASCADE')
     product = fields.Many2One('product.product', 'Product', domain=[
-            ('type', '!=', 'service'),
-            If(Bool(Eval('children')),
-                ('default_uom.category', '=', Eval('uom_category')),
-                ()),
-            ], depends=['children', 'uom_category'])
+        ('type', '!=', 'service'),
+        If(Bool(Eval('children')),
+            ('default_uom.category', '=', Eval('uom_category')),
+            ()),
+        ], depends=['children', 'uom_category'])
     quantity = fields.Float('Quantity', required=True,
         digits=(16, Eval('uom_digits', 2)), depends=['uom_digits'])
     uom_category = fields.Function(fields.Many2One('product.uom.category',
-            'UoM Category'),
-        'on_change_with_uom_category')
+        'UoM Category'), 'on_change_with_uom_category')
     uom = fields.Many2One('product.uom', 'UoM', required=True, domain=[
-            If(Bool(Eval('children')) | Bool(Eval('product')),
-                ('category', '=', Eval('uom_category')),
-                ()),
-            ], depends=['children', 'product', 'uom_category'])
+        If(Bool(Eval('children')) | Bool(Eval('product')),
+            ('category', '=', Eval('uom_category')),
+            ()),
+        ], depends=['children', 'product', 'uom_category'])
     uom_digits = fields.Function(fields.Integer('UoM Digits'),
         'on_change_with_uom_digits')
     party_stock = fields.Boolean('Party Stock',
         help='Use stock owned by party instead of company stock.')
-    product_cost_price = fields.Numeric('Product Cost Price',
-        digits=price_digits,
+    product_cost_price = fields.Numeric('Product Cost Price', digits=price_digits,
         states={
             'readonly': True,
-            }, depends=['product'])
+        }, depends=['product'])
     cost_price = fields.Numeric('Cost Price', required=True,
         digits=price_digits)
-    unit_cost = fields.Function(fields.Numeric('Unit Cost',
-            digits=price_digits,
-            help="The cost of this product for each unit of plan's product."),
+    unit_cost = fields.Function(fields.Numeric('Unit Cost', digits=price_digits,
+        help="The cost of this product for each unit of plan's product."),
         'get_unit_cost')
-    total_cost = fields.Function(fields.Numeric('Total Cost',
-            digits=price_digits,
-            help="The cost of this product for total plan's quantity."),
+    total_cost = fields.Function(fields.Numeric('Total Cost', digits=price_digits,
+        help="The cost of this product for total plan's quantity."),
         'get_total_cost')
 
     @classmethod
@@ -603,10 +586,9 @@ class PlanProductLine(ModelSQL, ModelView, tree(separator='/')):
             self.cost_price = Decimal('0.0')
             return
         if not self.cost_price and self.product and self.uom:
-            digits = self.__class__.cost_price.digits[1]
             cost = UoM.compute_price(self.product.default_uom,
                 self.product.cost_price, self.uom)
-            self.cost_price = cost.quantize(Decimal(str(10 ** -digits)))
+            self.cost_price = round_price(cost)
 
     @fields.depends('product', 'uom', 'cost_price')
     def on_change_with_cost_price(self):
@@ -620,8 +602,7 @@ class PlanProductLine(ModelSQL, ModelView, tree(separator='/')):
             cost = UoM.compute_price(self.product.default_uom,
                 self.product.cost_price, self.uom)
         if cost:
-            digits = self.__class__.cost_price.digits[1]
-            return cost.quantize(Decimal(str(10 ** -digits)))
+            return round_price(cost)
         return cost
 
     @fields.depends('product', 'uom')
@@ -634,8 +615,7 @@ class PlanProductLine(ModelSQL, ModelView, tree(separator='/')):
         else:
             cost = UoM.compute_price(self.product.default_uom,
                 self.product.cost_price, self.uom)
-        digits = self.__class__.product_cost_price.digits[1]
-        return cost.quantize(Decimal(str(10 ** -digits)))
+        return round_price(cost)
 
     def get_plan(self):
         if self.plan:
@@ -648,8 +628,7 @@ class PlanProductLine(ModelSQL, ModelView, tree(separator='/')):
         plan = self.get_plan()
         if unit_cost and plan and plan.quantity:
             unit_cost /= Decimal(str(plan.quantity))
-        digits = self.__class__.unit_cost.digits[1]
-        return unit_cost.quantize(Decimal(str(10 ** -digits)))
+        return round_price(unit_cost)
 
     def get_total_cost(self, name, round=True):
         if not self.cost_price:
@@ -666,8 +645,7 @@ class PlanProductLine(ModelSQL, ModelView, tree(separator='/')):
         total_cost = Decimal(str(quantity)) * self.cost_price
         if not round:
             return total_cost
-        digits = self.__class__.total_cost.digits[1]
-        return total_cost.quantize(Decimal(str(10 ** -digits)))
+        return round_price(total_cost)
 
     @classmethod
     def copy(cls, lines, default=None):
@@ -704,12 +682,11 @@ class PlanCost(ModelSQL, ModelView):
     sequence = fields.Integer('Sequence')
     type = fields.Many2One('product.cost.plan.cost.type', 'Type', domain=[
             ('system', '=', Eval('system')),
-            ],
-        required=True, states=STATES, depends=DEPENDS)
+        ], required=True, states=STATES, depends=DEPENDS)
     internal_cost = fields.Numeric('Cost (Internal Use)', digits=price_digits,
         readonly=True)
     cost = fields.Function(fields.Numeric('Cost', digits=price_digits,
-            required=True, states=STATES, depends=DEPENDS),
+        required=True, states=STATES, depends=DEPENDS),
         'get_cost', setter='set_cost')
     system = fields.Boolean('System Managed', readonly=True)
 
@@ -739,8 +716,7 @@ class PlanCost(ModelSQL, ModelView):
             cost = getattr(self.plan, self.type.plan_field_name)
         else:
             cost = self.internal_cost
-        digits = self.__class__.cost.digits[1]
-        return cost.quantize(Decimal(str(10 ** -digits)))
+        return round_price(cost)
 
     @classmethod
     def set_cost(cls, records, name, value):
