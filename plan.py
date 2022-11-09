@@ -26,8 +26,8 @@ class Plan(DeactivableMixin, ModelSQL, ModelView):
     'Product Cost Plan'
     __name__ = 'product.cost.plan'
 
-    number = fields.Char('Number', select=True, readonly=True)
-    name = fields.Char('Name', select=True, required=True)
+    number = fields.Char('Number', readonly=True)
+    name = fields.Char('Name', required=True)
     product = fields.Many2One('product.product', 'Product')
     product_uom_category = fields.Function(
         fields.Many2One('product.uom.category', 'Product UoM Category'),
