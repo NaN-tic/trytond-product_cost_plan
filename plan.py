@@ -445,7 +445,6 @@ class Plan(DeactivableMixin, ModelSQL, ModelView):
         else:
             default = default.copy()
         default['products'] = None
-        default['products_tree'] = None
         default['bom'] = None
 
         new_plans = []
