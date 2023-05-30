@@ -149,7 +149,7 @@ class Plan(DeactivableMixin, ModelSQL, ModelView):
     @fields.depends('bom', 'boms', 'product')
     def on_change_with_boms(self):
         boms = {
-            'remove': [x.id for x in self.boms],
+            'delete': [x.id for x in self.boms],
             'add': [],
             }
         if not self.bom:
