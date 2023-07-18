@@ -615,7 +615,7 @@ class PlanProductLine(ModelSQL, ModelView, tree(separator='/')):
         else:
             cost = UoM.compute_price(self.product.default_uom,
                 self.product.cost_price, self.uom)
-        return round_price(cost)
+        return round_price(cost or 0)
 
     def get_plan(self):
         if self.plan:
@@ -628,7 +628,7 @@ class PlanProductLine(ModelSQL, ModelView, tree(separator='/')):
         plan = self.get_plan()
         if unit_cost and plan and plan.quantity:
             unit_cost /= Decimal(str(plan.quantity))
-        return round_price(unit_cost)
+        return round_price(unit_cost or 0)
 
     def get_total_cost(self, name, round=True):
         if not self.cost_price:
@@ -645,7 +645,7 @@ class PlanProductLine(ModelSQL, ModelView, tree(separator='/')):
         total_cost = Decimal(str(quantity)) * self.cost_price
         if not round:
             return total_cost
-        return round_price(total_cost)
+        return round_price(total_cost or 0)
 
     @classmethod
     def copy(cls, lines, default=None):
