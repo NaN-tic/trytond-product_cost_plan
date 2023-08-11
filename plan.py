@@ -101,7 +101,7 @@ class Plan(DeactivableMixin, ModelSQL, ModelView):
             ('product',) + tuple(clause[1:]),
             ]
 
-    @fields.depends('product', 'bom', 'boms', 'name')
+    @fields.depends('product', methods=['on_change_with_bom', 'find_boms'])
     def on_change_product(self):
         self.bom = None
         if self.product:
@@ -132,6 +132,7 @@ class Plan(DeactivableMixin, ModelSQL, ModelView):
         if boms:
             return boms[0].id
 
+    @fields.depends('bom')
     def find_boms(self, inputs=None):
         res = []
         if not self.bom:
@@ -148,6 +149,7 @@ class Plan(DeactivableMixin, ModelSQL, ModelView):
 
     @fields.depends('bom', 'boms', 'product')
     def on_change_with_boms(self):
+        import pdb; pdb.set_trace()
         boms = {
             'delete': [x.id for x in self.boms],
             'add': [],
