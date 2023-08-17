@@ -275,43 +275,43 @@ Create plan from scratch::
     1
     >>> product_line = plan3.products_tree.new()
     >>> product_line.product = component1
-    >>> product_line.cost_price
-    Decimal('2.0000')
+    >>> product_line.cost_price == Decimal('2')
+    True
     >>> product_line.quantity = 14
     >>> product_line.uom.symbol
     'u'
     >>> product_line2 = product_line.children.new()
     >>> product_line2.plan = plan3
     >>> product_line2.product = component2
-    >>> product_line2.cost_price
-    Decimal('5.0000')
+    >>> product_line2.cost_price == Decimal('5')
+    True
     >>> product_line2.quantity = 4
     >>> product_line2.uom.symbol
     'm'
     >>> product_line2.uom = centimeter
-    >>> product_line2.cost_price
-    Decimal('0.0500')
+    >>> product_line2.cost_price == Decimal('0.05')
+    True
     >>> product_line2.cost_price = Decimal('0.0450')
     >>> product_line2.uom.symbol
     'cm'
     >>> plan3.save()
     >>> product_line, = plan3.products_tree
-    >>> product_line.unit_cost
-    Decimal('14.0000')
-    >>> product_line.total_cost
-    Decimal('28.0000')
+    >>> product_line.unit_cost == Decimal('14')
+    True
+    >>> product_line.total_cost == Decimal('28')
+    True
     >>> product_line2, = product_line.children
-    >>> product_line2.unit_cost
-    Decimal('1.2600')
-    >>> product_line2.total_cost
-    Decimal('2.5200')
+    >>> product_line2.unit_cost == Decimal('1.26')
+    True
+    >>> product_line2.total_cost == Decimal('2.52')
+    True
     >>> cost, = plan3.costs
     >>> cost.rec_name == 'Raw materials'
     True
-    >>> cost.cost
-    Decimal('15.2600')
-    >>> plan3.cost_price
-    Decimal('15.2600')
+    >>> cost.cost == Decimal('15.2600')
+    True
+    >>> plan3.cost_price == Decimal('15.2600')
+    True
 
 Create BoM from Cost Plan::
 
