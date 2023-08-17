@@ -149,20 +149,19 @@ class Plan(DeactivableMixin, ModelSQL, ModelView):
 
     @fields.depends('bom', 'boms', 'product')
     def on_change_with_boms(self):
-        boms = {
-            'delete': [x.id for x in self.boms],
-            'add': [],
-            }
-        if not self.bom:
-            return boms
+        BomLine = Pool().get('product.cost.plan.bom_line')
 
+        if not self.bom:
+            return []
+
+        res = []
         products = set(self.find_boms())
-        for index, (product_id, _) in enumerate(products):
-            boms['add'].append((index, {
-                        'product': product_id,
-                        'bom': None,
-                        }))
-        return boms
+        for product_id, _ in products:
+            res.append(BomLine(
+                    product=product_id,
+                    bom=None,
+                    ))
+        return res
 
     def get_products_tree(self, name):
         return [x.id for x in self.products if not x.parent]
