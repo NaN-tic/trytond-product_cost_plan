@@ -251,7 +251,7 @@ class Plan(DeactivableMixin, ModelSQL, ModelView):
             if product.id in plan_boms:
                 quantity = Input.compute_quantity(input_, factor)
                 res.extend(self.explode_bom(product, plan_boms[product.id],
-                        quantity, input_.uom))
+                        quantity, input_.unit))
             else:
                 line = self.get_product_line(input_, factor)
                 if line:
@@ -275,7 +275,7 @@ class Plan(DeactivableMixin, ModelSQL, ModelView):
         product_cost_price = Decimal('0.0')
         cost_price = Decimal('0.0')
         cost_factor = Decimal(
-            UoM.compute_qty(input_.product.default_uom, 1, input_.uom))
+            UoM.compute_qty(input_.product.default_uom, 1, input_.unit))
         if cost_factor != Decimal('0.0'):
             product_cost_price = Decimal(input_.product.cost_price / cost_factor)
             if not party_stock:
@@ -285,7 +285,7 @@ class Plan(DeactivableMixin, ModelSQL, ModelView):
             'name': input_.product.rec_name,
             'product': input_.product.id,
             'quantity': quantity,
-            'uom': input_.uom.id,
+            'uom': input_.unit.id,
             'party_stock': getattr(input_, 'party_stock', False),
             'product_cost_price': round_price(product_cost_price),
             'cost_price': round_price(cost_price),
@@ -379,7 +379,7 @@ class Plan(DeactivableMixin, ModelSQL, ModelView):
         if self.product:
             output = BOMOutput()
             output.product = self.product
-            output.uom = self.uom
+            output.unit = self.uom
             output.quantity = self.quantity
             outputs.append(output)
         return outputs
@@ -408,7 +408,7 @@ class Plan(DeactivableMixin, ModelSQL, ModelView):
                 inputs[input_.product.id] = input_
                 continue
             existing = inputs[input_.product.id]
-            existing.quantity += Uom.compute_qty(input_.uom, input_.quantity,
+            existing.quantity += Uom.compute_qty(input_.unit, input_.quantity,
                 existing.uom)
         return list(inputs.values())
 
@@ -417,13 +417,13 @@ class Plan(DeactivableMixin, ModelSQL, ModelView):
         BOMInput = Pool().get('production.bom.input')
         input_ = BOMInput()
         input_.product = line.product
-        input_.uom = line.uom
+        input_.unit = line.uom
         input_.quantity = line.quantity
         if hasattr(BOMInput, 'party_stock'):
             input_.party_stock = line.party_stock
         parent_line = line.parent
         while parent_line:
-            input_.quantity = input_.uom.round(input_.quantity *
+            input_.quantity = input_.unit.round(input_.quantity *
                 parent_line.quantity)
             parent_line = parent_line.parent
         return input_

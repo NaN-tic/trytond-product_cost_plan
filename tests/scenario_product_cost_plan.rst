@@ -142,7 +142,7 @@ Create Bill of Material::
     >>> input2 =  bom.inputs.new()
     >>> input2.product = component2
     >>> input2.quantity = 150
-    >>> input2.uom = centimeter
+    >>> input2.unit = centimeter
     >>> output = bom.outputs.new()
     >>> output.product = product
     >>> output.quantity = 1
@@ -247,14 +247,14 @@ Create BoM from cost plan::
     True
     >>> len(plan2.bom.inputs)
     2
-    >>> sorted([(i.quantity, i.product.rec_name, i.uom.symbol)
+    >>> sorted([(i.quantity, i.product.rec_name, i.unit.symbol)
     ...         for i in plan2.bom.inputs])
     [(5.0, 'component 1', 'u'), (150.0, 'component 2', 'cm')]
     >>> len(plan2.bom.outputs)
     1
     >>> plan2.bom.outputs[0].product == product2
     True
-    >>> plan2.bom.outputs[0].uom == plan2.uom
+    >>> plan2.bom.outputs[0].unit == plan2.uom
     True
     >>> plan2.bom.outputs[0].quantity == plan2.quantity
     True
@@ -323,7 +323,7 @@ Create BoM from Cost Plan::
     True
     >>> len(plan3.bom.inputs)
     2
-    >>> sorted([(i.quantity, i.product.rec_name, i.uom.symbol)
+    >>> sorted([(i.quantity, i.product.rec_name, i.unit.symbol)
     ...         for i in plan3.bom.inputs])
     [(14.0, 'component 1', 'u'), (56.0, 'component 2', 'cm')]
     >>> len(plan3.bom.outputs)
