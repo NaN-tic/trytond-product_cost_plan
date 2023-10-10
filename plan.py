@@ -1,7 +1,8 @@
 # The COPYRIGHT file at the top level of this repository contains the full
 # copyright notices and license terms.
 from decimal import Decimal
-from trytond.model import ModelSQL, ModelView, DeactivableMixin, fields, tree
+# from sql import Null
+from trytond.model import Check, ModelSQL, ModelView, DeactivableMixin, fields, tree
 from trytond.pool import Pool
 from trytond.pyson import Eval, Bool, If
 from trytond.transaction import Transaction
@@ -9,6 +10,7 @@ from trytond.wizard import Wizard, StateView, StateAction, Button
 from trytond.i18n import gettext
 from trytond.exceptions import UserWarning
 from trytond.modules.product import price_digits, round_price
+from trytond.exceptions import UserError
 
 __all__ = ['PlanCostType', 'Plan', 'PlanBOM', 'PlanProductLine', 'PlanCost',
     'CreateBomStart', 'CreateBom']
@@ -51,16 +53,8 @@ class Plan(DeactivableMixin, ModelSQL, ModelView):
     boms = fields.One2Many('product.cost.plan.bom_line', 'plan', 'BOMs')
     products = fields.One2Many('product.cost.plan.product_line', 'plan',
         'Products')
-    products_tree = fields.Function(
-        fields.One2Many('product.cost.plan.product_line', 'plan', 'Products',
-            domain=[
-                ('parent', '=', None),
-                ],
-            states={
-                'readonly': ~Bool(Eval('costs', [0])),
-                },
-            depends=['costs']),
-        'get_products_tree', setter='set_products_tree')
+    all_products = fields.Function(fields.One2Many(
+        'product.cost.plan.product_line', None, 'All Products'), 'get_all_products')
     products_cost = fields.Function(fields.Numeric('Products Cost',
             digits=price_digits),
         'get_products_cost')
@@ -163,14 +157,19 @@ class Plan(DeactivableMixin, ModelSQL, ModelView):
                         }))
         return boms
 
-    def get_products_tree(self, name):
-        return [x.id for x in self.products if not x.parent]
+    def get_all_products(self, name):
+        # return all lines in product cost plan (parent and children)
+        product_lines = []
 
-    @classmethod
-    def set_products_tree(cls, lines, name, value):
-        cls.write(lines, {
-                'products': value,
-                })
+        def _get_children(line):
+            product_lines.append(line)
+            for child in line.children:
+                _get_children(child)
+
+        for line in self.products:
+            _get_children(line)
+
+        return [x.id for x in product_lines]
 
     def get_products_cost(self, name):
         if not self.quantity:
@@ -445,7 +444,6 @@ class Plan(DeactivableMixin, ModelSQL, ModelView):
         else:
             default = default.copy()
         default['products'] = None
-        default['products_tree'] = None
         default['bom'] = None
 
         new_plans = []
@@ -456,11 +454,25 @@ class Plan(DeactivableMixin, ModelSQL, ModelView):
     def _copy_plan(self, default):
         ProductLine = Pool().get('product.cost.plan.product_line')
 
+        product_lines = []
+
+        def _get_children(line):
+            product_lines.append(line)
+            for child in line.children:
+                _get_children(child)
+
         new_plan, = super(Plan, self).copy([self], default=default)
-        ProductLine.copy(self.products_tree, default={
+        lines = ProductLine.copy(self.products, default={
                 'plan': new_plan.id,
-                'children': None,
                 })
+
+        # sure product.cost_plan.product_line that has parent, set null the plan
+        for line in lines:
+            for child in line.children:
+                _get_children(child)
+
+        ProductLine.write(product_lines, {'plan': None})
+
         return new_plan
 
     @classmethod
@@ -495,8 +507,7 @@ class PlanProductLine(ModelSQL, ModelView, tree(separator='/')):
     parent = fields.Many2One('product.cost.plan.product_line', 'Parent')
     children = fields.One2Many('product.cost.plan.product_line', 'parent',
         'Children')
-    plan = fields.Many2One('product.cost.plan', 'Plan', required=False,
-        ondelete='CASCADE')
+    plan = fields.Many2One('product.cost.plan', 'Plan', ondelete='CASCADE')
     product = fields.Many2One('product.product', 'Product', domain=[
         ('type', '!=', 'service'),
         If(Bool(Eval('children')),
@@ -533,6 +544,12 @@ class PlanProductLine(ModelSQL, ModelView, tree(separator='/')):
     def __setup__(cls):
         super(PlanProductLine, cls).__setup__()
         cls._order.insert(0, ('sequence', 'ASC'))
+        # t = cls.__table__()
+        # cls._sql_constraints += [
+        #     ('check_plan_parent', Check(t, (
+        #         ( (t.parent != Null) & (t.plan == Null) ) | ( (t.parent == Null) & (t.plan != Null) ) )),
+        #         'product_cost_plan.msg_product_line_plan_parent'),
+        #     ]
 
     @staticmethod
     def order_sequence(tables):
@@ -562,15 +579,14 @@ class PlanProductLine(ModelSQL, ModelView, tree(separator='/')):
             self.uom = None
             self.product_cost_price = None
 
-    @fields.depends('children', '_parent_plan.uom', 'product', 'uom', 'plan')
+    @fields.depends('children', 'product', 'plan', '_parent_plan.uom')
     def on_change_with_uom_category(self, name=None):
-        if self.children:
-            # If product line has children, it must be have computable
-            # quantities of plan product
-            if self.plan and self.plan.uom:
-                return self.plan.uom.category.id
-        if self.product:
+        if self.children and self.children[0].uom:
+            return self.children[0].uom.category.id
+        elif self.product:
             return self.product.default_uom.category.id
+        elif self.plan and self.plan.uom:
+            return self.plan.uom.category.id
 
     @fields.depends('uom')
     def on_change_with_uom_digits(self, name=None):
@@ -666,6 +682,14 @@ class PlanProductLine(ModelSQL, ModelView, tree(separator='/')):
             cls.copy(line.children, default=new_default)
         return new_lines
 
+    @classmethod
+    def validate(cls, lines):
+        super().validate(lines)
+        for line in lines:
+            if ((line.parent and line.plan) or (not line.parent and not line.plan)):
+                raise UserError(gettext(
+                    'product_cost_plan.msg_product_line_plan_parent',
+                        line=line.rec_name))
 
 STATES = {
     'readonly': Eval('system', False),

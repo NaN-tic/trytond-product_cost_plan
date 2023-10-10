@@ -20,7 +20,7 @@
     <button name="compute" colspan="2"/>
     <notebook colspan="6">
         <page string="Products" id="products">
-            <field name="products_tree" colspan="4"/>
+            <field name="products" colspan="4"/>
             <label name="products_cost"/>
             <field name="products_cost"/>
         </page>

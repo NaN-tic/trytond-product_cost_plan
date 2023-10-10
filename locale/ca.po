@@ -6,6 +6,10 @@ msgctxt "field:product.cost.plan,active:"
 msgid "Active"
 msgstr "Actiu"
 
+msgctxt "field:product.cost.plan,all_products:"
+msgid "All Products"
+msgstr "Tots els productes"
+
 msgctxt "field:product.cost.plan,bom:"
 msgid "BOM"
 msgstr "Llista de materials"
@@ -65,10 +69,6 @@ msgstr "Productes"
 msgctxt "field:product.cost.plan,products_cost:"
 msgid "Products Cost"
 msgstr "Cost dels materials"
-
-msgctxt "field:product.cost.plan,products_tree:"
-msgid "Products"
-msgstr "Productes"
 
 msgctxt "field:product.cost.plan,quantity:"
 msgid "Quantity"
