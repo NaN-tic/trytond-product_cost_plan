@@ -97,7 +97,7 @@ Create Components::
 
     >>> template1 = ProductTemplate()
     >>> template1.name = 'component 1'
-    >>> template1.default_uom = unit
+    >>> template1.default_uom = meter
     >>> template1.producible = True
     >>> template1.type = 'goods'
     >>> template1.list_price = Decimal(5)
@@ -139,7 +139,7 @@ Create Bill of Material::
     >>> input1 =  bom.inputs.new()
     >>> input1.product = component1
     >>> input1.quantity = 5
-    >>> input2 =  bom.inputs.new()
+    >>> input2 = bom.inputs.new()
     >>> input2.product = component2
     >>> input2.quantity = 150
     >>> input2.uom = centimeter
@@ -249,7 +249,7 @@ Create BoM from cost plan::
     2
     >>> sorted([(i.quantity, i.product.rec_name, i.uom.symbol)
     ...         for i in plan2.bom.inputs])
-    [(5.0, 'component 1', 'u'), (150.0, 'component 2', 'cm')]
+    [(5.0, 'component 1', 'm'), (150.0, 'component 2', 'cm')]
     >>> len(plan2.bom.outputs)
     1
     >>> plan2.bom.outputs[0].product == product2
@@ -273,15 +273,14 @@ Create plan from scratch::
     0
     >>> len(plan3.costs)
     1
-    >>> product_line = plan3.products_tree.new()
+    >>> product_line = plan3.products.new()
     >>> product_line.product = component1
     >>> product_line.cost_price
     Decimal('2.0000')
     >>> product_line.quantity = 14
     >>> product_line.uom.symbol
-    'u'
+    'm'
     >>> product_line2 = product_line.children.new()
-    >>> product_line2.plan = plan3
     >>> product_line2.product = component2
     >>> product_line2.cost_price
     Decimal('5.0000')
@@ -295,7 +294,7 @@ Create plan from scratch::
     >>> product_line2.uom.symbol
     'cm'
     >>> plan3.save()
-    >>> product_line, = plan3.products_tree
+    >>> product_line, = plan3.products
     >>> product_line.unit_cost
     Decimal('14.0000')
     >>> product_line.total_cost
@@ -325,7 +324,7 @@ Create BoM from Cost Plan::
     2
     >>> sorted([(i.quantity, i.product.rec_name, i.uom.symbol)
     ...         for i in plan3.bom.inputs])
-    [(14.0, 'component 1', 'u'), (56.0, 'component 2', 'cm')]
+    [(14.0, 'component 1', 'm'), (56.0, 'component 2', 'cm')]
     >>> len(plan3.bom.outputs)
     1
     >>> plan3.bom.outputs[0].product == product3
