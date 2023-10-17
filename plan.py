@@ -544,12 +544,6 @@ class PlanProductLine(ModelSQL, ModelView, tree(separator='/')):
     def __setup__(cls):
         super(PlanProductLine, cls).__setup__()
         cls._order.insert(0, ('sequence', 'ASC'))
-        # t = cls.__table__()
-        # cls._sql_constraints += [
-        #     ('check_plan_parent', Check(t, (
-        #         ( (t.parent != Null) & (t.plan == Null) ) | ( (t.parent == Null) & (t.plan != Null) ) )),
-        #         'product_cost_plan.msg_product_line_plan_parent'),
-        #     ]
 
     @staticmethod
     def order_sequence(tables):
