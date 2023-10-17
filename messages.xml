@@ -18,5 +18,8 @@ this repository contains the full copyright notices and license terms. -->
         <record model="ir.message" id="delete_system_cos">
             <field name="text">You can not delete cost "%(cost)s" from plan "%(plan)s" because it's managed by system.</field>
         </record>
+        <record model="ir.message" id="msg_product_line_plan_parent">
+            <field name="text">The line "%(line)s" can only set plan or parent, not both options.</field>
+        </record>
     </data>
 </tryton>
