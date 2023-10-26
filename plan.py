@@ -443,38 +443,29 @@ class Plan(DeactivableMixin, ModelSQL, ModelView):
             default = {}
         else:
             default = default.copy()
-        default['products'] = None
-        default['bom'] = None
+        default.setdefault('bom', None)
 
-        new_plans = []
-        for plan in plans:
-            new_plans.append(plan._copy_plan(default))
+        with Transaction().set_context(skip_validate_plan_parent=True):
+            new_plans = super().copy(plans, default=default)
+
+        # sure product.cost_plan.product_line that has parent, set null the plan
+        cls._set_lines_plan_none(new_plans)
+
         return new_plans
 
-    def _copy_plan(self, default):
+    @classmethod
+    def _set_lines_plan_none(cls, plans):
         ProductLine = Pool().get('product.cost.plan.product_line')
 
         product_lines = []
 
-        def _get_children(line):
-            product_lines.append(line)
-            for child in line.children:
-                _get_children(child)
+        for plan in plans:
+            for line in plan.all_products:
+                if line.parent:
+                    product_lines.append(line)
 
-        new_plan, = super(Plan, self).copy([self], default=default)
-        with Transaction().set_context(skip_validate_plan_parent=True):
-            lines = ProductLine.copy(self.products, default={
-                    'plan': new_plan.id,
-                    })
-
-        # sure product.cost_plan.product_line that has parent, set null the plan
-        for line in lines:
-            for child in line.children:
-                _get_children(child)
-
+        # set plan to None
         ProductLine.write(product_lines, {'plan': None})
-
-        return new_plan
 
     @classmethod
     def delete(cls, plans):
