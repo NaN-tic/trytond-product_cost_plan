@@ -462,9 +462,10 @@ class Plan(DeactivableMixin, ModelSQL, ModelView):
                 _get_children(child)
 
         new_plan, = super(Plan, self).copy([self], default=default)
-        lines = ProductLine.copy(self.products, default={
-                'plan': new_plan.id,
-                })
+        with Transaction().set_context(skip_validate_plan_parent=True):
+            lines = ProductLine.copy(self.products, default={
+                    'plan': new_plan.id,
+                    })
 
         # sure product.cost_plan.product_line that has parent, set null the plan
         for line in lines:
@@ -678,7 +679,15 @@ class PlanProductLine(ModelSQL, ModelView, tree(separator='/')):
 
     @classmethod
     def validate(cls, lines):
+        context = Transaction().context
+
         super().validate(lines)
+
+        if not context.get('skip_validate_plan_parent', False):
+            cls._validate_plan_parent(lines)
+
+    @classmethod
+    def _validate_plan_parent(cls, lines):
         for line in lines:
             if ((line.parent and line.plan) or (not line.parent and not line.plan)):
                 raise UserError(gettext(
