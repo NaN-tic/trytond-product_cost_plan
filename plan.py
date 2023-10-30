@@ -2,7 +2,7 @@
 # copyright notices and license terms.
 from decimal import Decimal
 # from sql import Null
-from trytond.model import Check, ModelSQL, ModelView, DeactivableMixin, fields, tree
+from trytond.model import ModelSQL, ModelView, DeactivableMixin, fields, tree
 from trytond.pool import Pool
 from trytond.pyson import Eval, Bool, If
 from trytond.transaction import Transaction
@@ -631,8 +631,6 @@ class PlanProductLine(ModelSQL, ModelView, tree(separator='/')):
 
     @classmethod
     def validate(cls, lines):
-        context = Transaction().context
-
         super().validate(lines)
         cls._validate_plan_parent(lines)
 
