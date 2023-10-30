@@ -445,27 +445,7 @@ class Plan(DeactivableMixin, ModelSQL, ModelView):
             default = default.copy()
         default.setdefault('bom', None)
 
-        with Transaction().set_context(skip_validate_plan_parent=True):
-            new_plans = super().copy(plans, default=default)
-
-        # sure product.cost_plan.product_line that has parent, set null the plan
-        cls._set_lines_plan_none(new_plans)
-
-        return new_plans
-
-    @classmethod
-    def _set_lines_plan_none(cls, plans):
-        ProductLine = Pool().get('product.cost.plan.product_line')
-
-        product_lines = []
-
-        for plan in plans:
-            for line in plan.all_products:
-                if line.parent:
-                    product_lines.append(line)
-
-        # set plan to None
-        ProductLine.write(product_lines, {'plan': None})
+        return super().copy(plans, default=default)
 
     @classmethod
     def delete(cls, plans):
@@ -650,32 +630,11 @@ class PlanProductLine(ModelSQL, ModelView, tree(separator='/')):
         return round_price(total_cost or 0)
 
     @classmethod
-    def copy(cls, lines, default=None):
-        if default is None:
-            default = {}
-        else:
-            default = default.copy()
-        default['children'] = None
-
-        new_lines = []
-        for line in lines:
-            new_line, = super(PlanProductLine, cls).copy([line],
-                default=default)
-            new_lines.append(new_line)
-
-            new_default = default.copy()
-            new_default['parent'] = new_line.id
-            cls.copy(line.children, default=new_default)
-        return new_lines
-
-    @classmethod
     def validate(cls, lines):
         context = Transaction().context
 
         super().validate(lines)
-
-        if not context.get('skip_validate_plan_parent', False):
-            cls._validate_plan_parent(lines)
+        cls._validate_plan_parent(lines)
 
     @classmethod
     def _validate_plan_parent(cls, lines):
