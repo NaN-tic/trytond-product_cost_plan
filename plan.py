@@ -2,7 +2,7 @@
 # copyright notices and license terms.
 from decimal import Decimal
 # from sql import Null
-from trytond.model import Check, ModelSQL, ModelView, DeactivableMixin, fields, tree
+from trytond.model import ModelSQL, ModelView, DeactivableMixin, fields, tree
 from trytond.pool import Pool
 from trytond.pyson import Eval, Bool, If
 from trytond.transaction import Transaction
@@ -443,37 +443,9 @@ class Plan(DeactivableMixin, ModelSQL, ModelView):
             default = {}
         else:
             default = default.copy()
-        default['products'] = None
-        default['bom'] = None
+        default.setdefault('bom', None)
 
-        new_plans = []
-        for plan in plans:
-            new_plans.append(plan._copy_plan(default))
-        return new_plans
-
-    def _copy_plan(self, default):
-        ProductLine = Pool().get('product.cost.plan.product_line')
-
-        product_lines = []
-
-        def _get_children(line):
-            product_lines.append(line)
-            for child in line.children:
-                _get_children(child)
-
-        new_plan, = super(Plan, self).copy([self], default=default)
-        lines = ProductLine.copy(self.products, default={
-                'plan': new_plan.id,
-                })
-
-        # sure product.cost_plan.product_line that has parent, set null the plan
-        for line in lines:
-            for child in line.children:
-                _get_children(child)
-
-        ProductLine.write(product_lines, {'plan': None})
-
-        return new_plan
+        return super().copy(plans, default=default)
 
     @classmethod
     def delete(cls, plans):
@@ -658,27 +630,12 @@ class PlanProductLine(ModelSQL, ModelView, tree(separator='/')):
         return round_price(total_cost or 0)
 
     @classmethod
-    def copy(cls, lines, default=None):
-        if default is None:
-            default = {}
-        else:
-            default = default.copy()
-        default['children'] = None
-
-        new_lines = []
-        for line in lines:
-            new_line, = super(PlanProductLine, cls).copy([line],
-                default=default)
-            new_lines.append(new_line)
-
-            new_default = default.copy()
-            new_default['parent'] = new_line.id
-            cls.copy(line.children, default=new_default)
-        return new_lines
-
-    @classmethod
     def validate(cls, lines):
         super().validate(lines)
+        cls._validate_plan_parent(lines)
+
+    @classmethod
+    def _validate_plan_parent(cls, lines):
         for line in lines:
             if ((line.parent and line.plan) or (not line.parent and not line.plan)):
                 raise UserError(gettext(
