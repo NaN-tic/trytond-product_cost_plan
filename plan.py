@@ -449,8 +449,21 @@ class Plan(DeactivableMixin, ModelSQL, ModelView):
 
     @classmethod
     def delete(cls, plans):
+        pool = Pool()
+        CostLine = pool.get('product.cost.plan.cost')
+        Line = pool.get('product.cost.plan.product_line')
+
+        to_delete = []
+        to_delete2 = []
+        for plan in plans:
+            to_delete += plan.costs
+            to_delete2 += [line for line in plan.all_products
+                if line.plan is None]
         with Transaction().set_context(reset_costs=True):
-            super(Plan, cls).delete(plans)
+            CostLine.delete(to_delete)
+            Line.delete(to_delete2)
+
+        super(Plan, cls).delete(plans)
 
 
 class PlanBOM(ModelSQL, ModelView):
