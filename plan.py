@@ -449,12 +449,20 @@ class Plan(DeactivableMixin, ModelSQL, ModelView):
 
     @classmethod
     def delete(cls, plans):
-        CostLine = Pool().get('product.cost.plan.cost')
+        pool = Pool()
+        CostLine = pool.get('product.cost.plan.cost')
+        Line = pool.get('product.cost.plan.product_line')
+
         to_delete = []
+        to_delete2 = []
         for plan in plans:
             to_delete += plan.costs
+            to_delete2 += [line for line in plan.all_products
+                if line.plan is None]
         with Transaction().set_context(reset_costs=True):
             CostLine.delete(to_delete)
+            Line.delete(to_delete2)
+
         super(Plan, cls).delete(plans)
 
 
@@ -547,8 +555,10 @@ class PlanProductLine(ModelSQL, ModelView, tree(separator='/')):
 
     @fields.depends('children', 'product', 'plan', '_parent_plan.uom')
     def on_change_with_uom_category(self, name=None):
-        if self.children and self.children[0].uom:
-            return self.children[0].uom.category.id
+        if self.children:
+            uoms = set([child.uom.category for child in self.children])
+            if len(uoms) == 1:
+                return list(uoms)[0].id
         elif self.product:
             return self.product.default_uom.category.id
         elif self.plan and self.plan.uom:
