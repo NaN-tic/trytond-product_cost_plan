@@ -558,7 +558,7 @@ class PlanProductLine(ModelSQL, ModelView, tree(separator='/')):
         if self.children:
             uoms = set([child.uom.category for child in self.children])
             if len(uoms) == 1:
-                return uoms[0].id
+                return list(uoms)[0].id
         elif self.product:
             return self.product.default_uom.category.id
         elif self.plan and self.plan.uom:
