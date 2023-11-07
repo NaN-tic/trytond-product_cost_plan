@@ -556,7 +556,8 @@ class PlanProductLine(ModelSQL, ModelView, tree(separator='/')):
     @fields.depends('children', 'product', 'plan', '_parent_plan.uom')
     def on_change_with_uom_category(self, name=None):
         if self.children:
-            uoms = set([child.uom.category for child in self.children])
+            uoms = set([child.uom.category for child in self.children
+                    if child.uom])
             if len(uoms) == 1:
                 return list(uoms)[0].id
         elif self.product:
