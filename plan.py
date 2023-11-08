@@ -490,19 +490,18 @@ class PlanProductLine(ModelSQL, ModelView, tree(separator='/')):
     plan = fields.Many2One('product.cost.plan', 'Plan', ondelete='CASCADE')
     product = fields.Many2One('product.product', 'Product', domain=[
         ('type', '!=', 'service'),
-        If(Bool(Eval('children')),
-            ('default_uom.category', '=', Eval('uom_category')),
-            ()),
-        ], depends=['children', 'uom_category'])
+        ])
     quantity = fields.Float('Quantity', required=True,
         digits=(16, Eval('uom_digits', 2)), depends=['uom_digits'])
-    uom_category = fields.Function(fields.Many2One('product.uom.category',
-        'UoM Category'), 'on_change_with_uom_category')
-    uom = fields.Many2One('product.uom', 'UoM', required=True, domain=[
-        If(Bool(Eval('children')) | Bool(Eval('product')),
-            ('category', '=', Eval('uom_category')),
-            ()),
-        ], depends=['children', 'product', 'uom_category'])
+    product_uom_category = fields.Function(
+        fields.Many2One('product.uom.category', 'Product Uom Category'),
+        'on_change_with_product_uom_category')
+    uom = fields.Many2One('product.uom', 'UoM', required=True,
+        domain=[
+            If(Bool(Eval('product_uom_category')),
+                ('category', '=', Eval('product_uom_category')),
+                ('category', '!=', -1)),
+        ], depends=['product_uom_category'])
     uom_digits = fields.Function(fields.Integer('UoM Digits'),
         'on_change_with_uom_digits')
     party_stock = fields.Boolean('Party Stock',
@@ -553,17 +552,10 @@ class PlanProductLine(ModelSQL, ModelView, tree(separator='/')):
             self.uom = None
             self.product_cost_price = None
 
-    @fields.depends('children', 'product', 'plan', '_parent_plan.uom')
-    def on_change_with_uom_category(self, name=None):
-        if self.children:
-            uoms = set([child.uom.category for child in self.children
-                    if child.uom])
-            if len(uoms) == 1:
-                return list(uoms)[0].id
-        elif self.product:
-            return self.product.default_uom.category.id
-        elif self.plan and self.plan.uom:
-            return self.plan.uom.category.id
+    @fields.depends('product')
+    def on_change_with_product_uom_category(self, name=None):
+        if self.product:
+            return self.product.default_uom_category.id
 
     @fields.depends('uom')
     def on_change_with_uom_digits(self, name=None):
