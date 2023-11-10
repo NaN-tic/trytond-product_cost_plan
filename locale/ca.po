@@ -170,9 +170,9 @@ msgctxt "field:product.cost.plan.product_line,uom:"
 msgid "UoM"
 msgstr "UdM"
 
-msgctxt "field:product.cost.plan.product_line,uom_category:"
-msgid "UoM Category"
-msgstr "Categoria d'UdM"
+msgctxt "field:product.cost.plan.product_line,product_uom_category:"
+msgid "Product UoM Category"
+msgstr "Categoria UdM del producte"
 
 msgctxt "field:product.cost.plan.product_line,uom_digits:"
 msgid "UoM Digits"
