@@ -35,7 +35,7 @@ class Plan(DeactivableMixin, ModelSQL, ModelView):
         fields.Many2One('product.uom.category', 'Product UoM Category'),
         'on_change_with_product_uom_category')
     quantity = fields.Float('Quantity', digits=(16, Eval('uom_digits', 2)),
-        required=True, depends=['uom_digits'])
+        required=True)
     uom = fields.Many2One('product.uom', 'UoM', required=True, domain=[
             If(Bool(Eval('product')),
                 ('category', '=', Eval('product_uom_category')),
@@ -43,13 +43,12 @@ class Plan(DeactivableMixin, ModelSQL, ModelView):
             ],
         states={
             'readonly': Bool(Eval('product')),
-            }, depends=['product', 'product_uom_category'])
+            })
     uom_digits = fields.Function(fields.Integer('UoM Digits'),
         'on_change_with_uom_digits')
-    bom = fields.Many2One('production.bom', 'BOM',
-        depends=['product'], domain=[
-            ('output_products', '=', Eval('product', 0)),
-            ])
+    bom = fields.Many2One('production.bom', 'BOM', domain=[
+        ('output_products', '=', Eval('product', 0)),
+        ])
     boms = fields.One2Many('product.cost.plan.bom_line', 'plan', 'BOMs')
     products = fields.One2Many('product.cost.plan.product_line', 'plan',
         'Products')
@@ -475,7 +474,7 @@ class PlanBOM(ModelSQL, ModelView):
     product = fields.Many2One('product.product', 'Product', required=True)
     bom = fields.Many2One('production.bom', 'BOM', domain=[
             ('output_products', '=', Eval('product', 0)),
-            ], depends=['product'])
+            ])
 
 
 class PlanProductLine(ModelSQL, ModelView, tree(separator='/')):
@@ -492,7 +491,7 @@ class PlanProductLine(ModelSQL, ModelView, tree(separator='/')):
         ('type', '!=', 'service'),
         ])
     quantity = fields.Float('Quantity', required=True,
-        digits=(16, Eval('uom_digits', 2)), depends=['uom_digits'])
+        digits=(16, Eval('uom_digits', 2)))
     product_uom_category = fields.Function(
         fields.Many2One('product.uom.category', 'Product Uom Category'),
         'on_change_with_product_uom_category')
@@ -501,7 +500,7 @@ class PlanProductLine(ModelSQL, ModelView, tree(separator='/')):
             If(Bool(Eval('product_uom_category')),
                 ('category', '=', Eval('product_uom_category')),
                 ('category', '!=', -1)),
-        ], depends=['product_uom_category'])
+        ])
     uom_digits = fields.Function(fields.Integer('UoM Digits'),
         'on_change_with_uom_digits')
     party_stock = fields.Boolean('Party Stock',
@@ -509,7 +508,7 @@ class PlanProductLine(ModelSQL, ModelView, tree(separator='/')):
     product_cost_price = fields.Numeric('Product Cost Price', digits=price_digits,
         states={
             'readonly': True,
-        }, depends=['product'])
+        })
     cost_price = fields.Numeric('Cost Price', required=True,
         digits=price_digits)
     unit_cost = fields.Function(fields.Numeric('Unit Cost', digits=price_digits,
@@ -648,7 +647,6 @@ class PlanProductLine(ModelSQL, ModelView, tree(separator='/')):
 STATES = {
     'readonly': Eval('system', False),
     }
-DEPENDS = ['system']
 
 
 class PlanCost(ModelSQL, ModelView):
@@ -660,11 +658,11 @@ class PlanCost(ModelSQL, ModelView):
     sequence = fields.Integer('Sequence')
     type = fields.Many2One('product.cost.plan.cost.type', 'Type', domain=[
             ('system', '=', Eval('system')),
-        ], required=True, states=STATES, depends=DEPENDS)
+        ], required=True, states=STATES)
     internal_cost = fields.Numeric('Cost (Internal Use)', digits=price_digits,
         readonly=True)
     cost = fields.Function(fields.Numeric('Cost', digits=price_digits,
-        required=True, states=STATES, depends=DEPENDS),
+        required=True, states=STATES),
         'get_cost', setter='set_cost')
     system = fields.Boolean('System Managed', readonly=True)
 

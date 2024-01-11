@@ -41,7 +41,7 @@ class ConfigurationProductcostPlan(ModelSQL, CompanyValueMixin):
             ('company', 'in', [Eval('company', -1), None]),
             ('sequence_type', '=', Id('product_cost_plan',
                     'sequence_type_product_cost_plan')),
-            ], depends=['company'])
+            ])
 
     @classmethod
     def default_product_cost_plan_sequence(cls):
