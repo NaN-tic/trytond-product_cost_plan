@@ -65,7 +65,7 @@
         </record>
 
         <record model="ir.model.access" id="access_product_cost_plan">
-            <field name="model" search="[('model', '=', 'product.cost.plan')]"/>
+            <field name="model">product.cost.plan</field>
             <field name="perm_read" eval="True"/>
             <field name="perm_write" eval="False"/>
             <field name="perm_create" eval="False"/>
@@ -73,7 +73,7 @@
         </record>
 
         <record model="ir.model.access" id="access_product_cost_plan_admin">
-            <field name="model" search="[('model', '=', 'product.cost.plan')]"/>
+            <field name="model">product.cost.plan</field>
             <field name="group" ref="group_product_cost_plan_admin"/>
             <field name="perm_read" eval="True"/>
             <field name="perm_write" eval="True"/>
@@ -84,7 +84,7 @@
         <record model="ir.model.button" id="plan_compute_button">
             <field name="name">compute</field>
             <field name="string">Initialize Cost Plan</field>
-            <field name="model" search="[('model', '=', 'product.cost.plan')]"/>
+            <field name="model">product.cost.plan</field>
         </record>
         <record model="ir.model.button-res.group" id="plan_compute_button_group_cost">
             <field name="button" ref="plan_compute_button"/>
@@ -93,7 +93,7 @@
 
         <record model="ir.model.button" id="plan_update_product_cost_price_button">
             <field name="name">update_product_cost_price</field>
-            <field name="model" search="[('model', '=', 'product.cost.plan')]"/>
+            <field name="model">product.cost.plan</field>
         </record>
         <record model="ir.model.button-res.group"
                 id="plan_update_product_cost_price_button_group_product_admin">
@@ -132,7 +132,7 @@
         </record>
 
         <record model="ir.model.access" id="access_product_cost_plan_bom_line">
-            <field name="model" search="[('model', '=', 'product.cost.plan.bom_line')]"/>
+            <field name="model">product.cost.plan.bom_line</field>
             <field name="perm_read" eval="True"/>
             <field name="perm_write" eval="False"/>
             <field name="perm_create" eval="False"/>
@@ -140,7 +140,7 @@
         </record>
 
         <record model="ir.model.access" id="access_product_cost_plan_bom_line_admin">
-            <field name="model" search="[('model', '=', 'product.cost.plan.bom_line')]"/>
+            <field name="model">product.cost.plan.bom_line</field>
             <field name="group" ref="group_product_cost_plan_admin"/>
             <field name="perm_read" eval="True"/>
             <field name="perm_write" eval="True"/>
@@ -183,8 +183,7 @@
 
         <record model="ir.model.access"
                 id="access_product_cost_plan_product_line">
-            <field name="model"
-                search="[('model', '=', 'product.cost.plan.product_line')]"/>
+            <field name="model">product.cost.plan.product_line</field>
             <field name="perm_read" eval="True"/>
             <field name="perm_write" eval="False"/>
             <field name="perm_create" eval="False"/>
@@ -193,8 +192,7 @@
 
         <record model="ir.model.access"
                 id="access_product_cost_plan_product_line_admin">
-            <field name="model"
-                search="[('model', '=', 'product.cost.plan.product_line')]"/>
+            <field name="model">product.cost.plan.product_line</field>
             <field name="group" ref="group_product_cost_plan_admin"/>
             <field name="perm_read" eval="True"/>
             <field name="perm_write" eval="True"/>
@@ -231,7 +229,7 @@
         </record>
 
         <record model="ir.model.access" id="access_product_cost_plan_cost">
-            <field name="model" search="[('model', '=', 'product.cost.plan.cost')]"/>
+            <field name="model">product.cost.plan.cost</field>
             <field name="perm_read" eval="True"/>
             <field name="perm_write" eval="False"/>
             <field name="perm_create" eval="False"/>
@@ -239,7 +237,7 @@
         </record>
 
         <record model="ir.model.access" id="access_product_cost_plan_cost_admin">
-            <field name="model" search="[('model', '=', 'product.cost.plan.cost')]"/>
+            <field name="model">product.cost.plan.cost</field>
             <field name="group" ref="group_product_cost_plan_admin"/>
             <field name="perm_read" eval="True"/>
             <field name="perm_write" eval="True"/>
@@ -279,8 +277,7 @@
         </record>
 
         <record model="ir.model.access" id="access_product_cost_plan_cost_type">
-            <field name="model"
-                search="[('model', '=', 'product.cost.plan.cost.type')]"/>
+            <field name="model">product.cost.plan.cost.type</field>
             <field name="perm_read" eval="True"/>
             <field name="perm_write" eval="False"/>
             <field name="perm_create" eval="False"/>
@@ -289,8 +286,7 @@
 
         <record model="ir.model.access"
                 id="access_product_cost_plan_cost_type_admin">
-            <field name="model"
-                search="[('model', '=', 'product.cost.plan.cost.type')]"/>
+            <field name="model">product.cost.plan.cost.type</field>
             <field name="group" ref="group_product_cost_plan_admin"/>
             <field name="perm_read" eval="True"/>
             <field name="perm_write" eval="True"/>
