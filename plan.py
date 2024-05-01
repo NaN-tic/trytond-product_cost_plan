@@ -94,7 +94,8 @@ class Plan(DeactivableMixin, ModelSQL, ModelView):
             ('product',) + tuple(clause[1:]),
             ]
 
-    @fields.depends('product', methods=['on_change_with_bom', 'find_boms'])
+    @fields.depends('product', 'bom', 'boms', 'uom',
+        methods=['on_change_with_bom', 'find_boms'])
     def on_change_product(self):
         self.bom = None
         if self.product:
