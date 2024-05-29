@@ -173,7 +173,7 @@ class Plan(DeactivableMixin, ModelSQL, ModelView):
 
     def get_products_cost(self, name):
         if not self.quantity:
-            return Decimal('0.0')
+            return Decimal(0)
         lines = Plan.get_all_inputs(self.products)
         cost = sum(p.get_total_cost(None, round=False) for p in lines)
         cost /= Decimal(str(self.quantity))
@@ -271,11 +271,11 @@ class Plan(DeactivableMixin, ModelSQL, ModelView):
 
         quantity = Input.compute_quantity(input_, factor)
         party_stock = getattr(input_, 'party_stock', False)
-        product_cost_price = Decimal('0.0')
-        cost_price = Decimal('0.0')
+        product_cost_price = Decimal(0)
+        cost_price = Decimal(0)
         cost_factor = Decimal(
             UoM.compute_qty(input_.product.default_uom, 1, input_.unit))
-        if cost_factor != Decimal('0.0'):
+        if cost_factor != Decimal(0):
             product_cost_price = Decimal(input_.product.cost_price / cost_factor)
             if not party_stock:
                 cost_price = product_cost_price
@@ -543,7 +543,7 @@ class PlanProductLine(ModelSQL, ModelView, tree(separator='/')):
                 self.uom = self.product.default_uom.id
                 self.product_cost_price = self.product.cost_price
                 if zero_cost_price:
-                    self.cost_price = Decimal('0.0')
+                    self.cost_price = Decimal(0)
                 else:
                     self.cost_price = self.product.cost_price
         else:
@@ -568,7 +568,7 @@ class PlanProductLine(ModelSQL, ModelView, tree(separator='/')):
         UoM = Pool().get('product.uom')
 
         if self.party_stock:
-            self.cost_price = Decimal('0.0')
+            self.cost_price = Decimal(0)
             return
         if not self.cost_price and self.product and self.uom:
             cost = UoM.compute_price(self.product.default_uom,
@@ -617,7 +617,7 @@ class PlanProductLine(ModelSQL, ModelView, tree(separator='/')):
 
     def get_total_cost(self, name, round=True):
         if not self.cost_price:
-            return Decimal('0.0')
+            return Decimal(0)
         # Quantity is the quantity of this line for all plan's quantity
         quantity = self.quantity
         line = self
@@ -625,7 +625,7 @@ class PlanProductLine(ModelSQL, ModelView, tree(separator='/')):
             quantity *= line.parent.quantity
             line = line.parent
         if not quantity:
-            return Decimal('0.0')
+            return Decimal(0)
 
         total_cost = Decimal(str(quantity)) * self.cost_price
         if not round:
