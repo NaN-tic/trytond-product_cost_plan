@@ -373,4 +373,4 @@ msgstr "Aceptar"
 
 msgctxt "wizard_button:product.cost.plan.create_bom,start,end:"
 msgid "Cancel"
-msgstr "Cancel·la"
+msgstr "Cancelar"
