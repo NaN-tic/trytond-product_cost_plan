@@ -52,8 +52,9 @@ class Plan(DeactivableMixin, ModelSQL, ModelView):
     boms = fields.One2Many('product.cost.plan.bom_line', 'plan', 'BOMs')
     products = fields.One2Many('product.cost.plan.product_line', 'plan',
         'Products')
-    all_products = fields.Function(fields.One2Many(
-        'product.cost.plan.product_line', None, 'All Products'), 'get_all_products')
+    all_products = fields.Function(fields.Many2Many(
+            'product.cost.plan.product_line', None, None, 'All Products'),
+        'get_all_products')
     products_cost = fields.Function(fields.Numeric('Products Cost',
             digits=price_digits),
         'get_products_cost')
