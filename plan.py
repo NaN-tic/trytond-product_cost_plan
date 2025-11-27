@@ -10,7 +10,7 @@ from trytond.wizard import Wizard, StateView, StateAction, Button
 from trytond.i18n import gettext
 from trytond.exceptions import UserWarning
 from trytond.modules.product import price_digits, round_price
-from trytond.exceptions import UserError
+from trytond.model.exceptions import ValidationError
 
 __all__ = ['PlanCostType', 'Plan', 'PlanBOM', 'PlanProductLine', 'PlanCost',
     'CreateBomStart', 'CreateBom']
@@ -642,7 +642,7 @@ class PlanProductLine(ModelSQL, ModelView, tree(separator='/')):
     def _validate_plan_parent(cls, lines):
         for line in lines:
             if ((line.parent and line.plan) or (not line.parent and not line.plan)):
-                raise UserError(gettext(
+                raise ValidationError(gettext(
                     'product_cost_plan.msg_product_line_plan_parent',
                         line=line.rec_name))
 
