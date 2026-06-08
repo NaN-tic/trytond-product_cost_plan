@@ -1,0 +1,99 @@
+<?xml version="1.0" encoding="utf-8"?>
+<tryton>
+    <data depends="production_plan">
+        <record model="ir.ui.view" id="product_cost_plan_view_form_production_plan">
+            <field name="model">product.cost.plan</field>
+            <field name="type" eval="None"/>
+            <field name="inherit" ref="product_cost_plan.product_cost_plan_view_form"/>
+            <field name="arch" type="xml"><![CDATA[
+                <data>
+                    <xpath expr="/form/notebook/page[@id=&quot;products&quot;]" position="after">
+                        <page string="Operations" id="operations">
+                            <field name="operations" colspan="4"/>
+                            <label name="operations_cost"/>
+                            <field name="operations_cost"/>
+                        </page>
+                    </xpath>
+                </data>
+            ]]></field>
+        </record>
+
+        <record model="ir.ui.view" id="product_cost_plan_operation_line_view_form">
+            <field name="model">product.cost.plan.step_line</field>
+            <field name="type">form</field>
+            <field name="arch" type="xml"><![CDATA[
+                <form>
+                    <label name="plan"/>
+                    <field name="plan"/>
+                    <newline/>
+                    <label name="name"/>
+                    <field name="name"/>
+                    <label name="operation"/>
+                    <field name="operation"/>
+                    <label name="work_center_category"/>
+                    <field name="work_center_category"/>
+                    <label name="work_center"/>
+                    <field name="work_center"/>
+                    <label name="calculation"/>
+                    <field name="calculation"/>
+                    <label name="cost_method"/>
+                    <field name="cost_method"/>
+                    <label name="cost_price"/>
+                    <field name="cost_price"/>
+                    <newline/>
+                    <label name="time"/>
+                    <field name="time"/>
+                    <label name="quantity"/>
+                    <field name="quantity"/>
+                    <label name="unit_cost"/>
+                    <field name="unit_cost"/>
+                    <label name="total_cost"/>
+                    <field name="total_cost"/>
+                </form>
+            ]]></field>
+        </record>
+
+        <record model="ir.ui.view" id="product_cost_plan_operation_line_view_list">
+            <field name="model">product.cost.plan.step_line</field>
+            <field name="type">tree</field>
+            <field name="arch" type="xml"><![CDATA[
+                <tree editable="1">
+                    <field name="name"/>
+                    <field name="operation"/>
+                    <field name="work_center_category"/>
+                    <field name="work_center"/>
+                    <field name="calculation"/>
+                    <field name="cost_method"/>
+                    <field name="cost_price"/>
+                    <field name="time"/>
+                    <field name="quantity"/>
+                    <field name="unit_cost"/>
+                    <field name="total_cost"/>
+                </tree>
+            ]]></field>
+        </record>
+
+        <record model="ir.model.access" id="access_product_cost_plan_operation_line">
+            <field name="model">product.cost.plan.step_line</field>
+            <field name="perm_read" eval="True"/>
+            <field name="perm_write" eval="False"/>
+            <field name="perm_create" eval="False"/>
+            <field name="perm_delete" eval="False"/>
+        </record>
+
+        <record model="ir.model.access" id="access_product_cost_plan_operation_line_admin">
+            <field name="model">product.cost.plan.step_line</field>
+            <field name="group" ref="product_cost_plan.group_product_cost_plan_admin"/>
+            <field name="perm_read" eval="True"/>
+            <field name="perm_write" eval="True"/>
+            <field name="perm_create" eval="True"/>
+            <field name="perm_delete" eval="True"/>
+        </record>
+
+        <record model="product.cost.plan.cost.type" id="operations">
+            <field name="name">Operations</field>
+            <field name="system" eval="True"/>
+            <field name="plan_field_name">operations_cost</field>
+        </record>
+    </data>
+</tryton>
