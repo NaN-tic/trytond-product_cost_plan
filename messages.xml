@@ -21,5 +21,11 @@ this repository contains the full copyright notices and license terms. -->
         <record model="ir.message" id="msg_product_line_plan_parent">
             <field name="text">The line "%(line)s" can only set plan or parent, not both options.</field>
         </record>
+        <record model="ir.message" id="msg_operation_line_quantity_uom_required">
+            <field name="text">The operation line "%(line)s" requires a Quantity UoM for standard calculation.</field>
+        </record>
+        <record model="ir.message" id="msg_step_lines_missing_routing_information">
+            <field name="text">You have step lines with not enough information to create a production routing. Ensure that the fields "operation", "calculation" and "time" are filled.</field>
+        </record>
     </data>
 </tryton>

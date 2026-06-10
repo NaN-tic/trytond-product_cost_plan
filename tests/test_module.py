@@ -9,6 +9,7 @@ from trytond.tests.test_tryton import ModuleTestCase
 class ProductCostPlanTestCase(CompanyTestMixin, ModuleTestCase):
     'Test ProductCostPlan module'
     module = 'product_cost_plan'
+    extras = ['production_plan']
 
 
 del ModuleTestCase
