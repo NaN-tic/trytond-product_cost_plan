@@ -1,0 +1,12 @@
+<?xml version="1.0"?>
+<!-- The COPYRIGHT file at the top level of this repository contains the full
+     copyright notices and license terms. -->
+<data>
+    <xpath expr="/form/notebook/page[@id='products']" position="after">
+        <page string="Operations" id="operations">
+            <field name="operations" colspan="4"/>
+            <label name="operations_cost"/>
+            <field name="operations_cost"/>
+        </page>
+    </xpath>
+</data>
