@@ -1,0 +1,31 @@
+<?xml version="1.0"?>
+<!-- The COPYRIGHT file at the top level of this repository contains the full
+     copyright notices and license terms. -->
+<form>
+    <label name="plan"/>
+    <field name="plan"/>
+    <newline/>
+    <label name="name"/>
+    <field name="name"/>
+    <label name="operation"/>
+    <field name="operation"/>
+    <label name="work_center_category"/>
+    <field name="work_center_category"/>
+    <label name="work_center"/>
+    <field name="work_center"/>
+    <label name="calculation"/>
+    <field name="calculation"/>
+    <label name="cost_method"/>
+    <field name="cost_method"/>
+    <label name="cost_price"/>
+    <field name="cost_price"/>
+    <newline/>
+    <label name="time"/>
+    <field name="time"/>
+    <label name="quantity"/>
+    <field name="quantity"/>
+    <label name="unit_cost"/>
+    <field name="unit_cost"/>
+    <label name="total_cost"/>
+    <field name="total_cost"/>
+</form>

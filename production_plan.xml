@@ -1,0 +1,46 @@
+<?xml version="1.0" encoding="utf-8"?>
+<tryton>
+    <data depends="production_plan">
+        <record model="ir.ui.view" id="product_cost_plan_view_form_production_plan">
+            <field name="model">product.cost.plan</field>
+            <field name="type" eval="None"/>
+            <field name="inherit" ref="product_cost_plan.product_cost_plan_view_form"/>
+            <field name="name">cost_plan_form_production_plan</field>
+        </record>
+
+        <record model="ir.ui.view" id="product_cost_plan_operation_line_view_form">
+            <field name="model">product.cost.plan.step_line</field>
+            <field name="type">form</field>
+            <field name="name">cost_plan_step_line_form</field>
+        </record>
+
+        <record model="ir.ui.view" id="product_cost_plan_operation_line_view_list">
+            <field name="model">product.cost.plan.step_line</field>
+            <field name="type">tree</field>
+            <field name="name">cost_plan_step_line_list</field>
+        </record>
+
+        <record model="ir.model.access" id="access_product_cost_plan_operation_line">
+            <field name="model">product.cost.plan.step_line</field>
+            <field name="perm_read" eval="True"/>
+            <field name="perm_write" eval="False"/>
+            <field name="perm_create" eval="False"/>
+            <field name="perm_delete" eval="False"/>
+        </record>
+
+        <record model="ir.model.access" id="access_product_cost_plan_operation_line_admin">
+            <field name="model">product.cost.plan.step_line</field>
+            <field name="group" ref="product_cost_plan.group_product_cost_plan_admin"/>
+            <field name="perm_read" eval="True"/>
+            <field name="perm_write" eval="True"/>
+            <field name="perm_create" eval="True"/>
+            <field name="perm_delete" eval="True"/>
+        </record>
+
+        <record model="product.cost.plan.cost.type" id="operations">
+            <field name="name">Operations</field>
+            <field name="system" eval="True"/>
+            <field name="plan_field_name">operations_cost</field>
+        </record>
+    </data>
+</tryton>

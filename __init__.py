@@ -4,6 +4,7 @@
 from trytond.pool import Pool
 from . import plan
 from . import configuration
+from . import production_plan
 
 
 def register():
@@ -17,6 +18,11 @@ def register():
         configuration.ConfigurationProductcostPlan,
         plan.CreateBomStart,
         module='product_cost_plan', type_='model')
+    Pool.register(
+        production_plan.PlanOperationLine,
+        production_plan.Plan,
+        production_plan.ProductBom,
+        module='product_cost_plan', type_='model', depends=['production_plan'])
     Pool.register(
         plan.CreateBom,
         module='product_cost_plan', type_='wizard')

@@ -1,0 +1,16 @@
+<?xml version="1.0"?>
+<!-- The COPYRIGHT file at the top level of this repository contains the full
+     copyright notices and license terms. -->
+<tree editable="1">
+    <field name="name"/>
+    <field name="operation"/>
+    <field name="work_center_category"/>
+    <field name="work_center"/>
+    <field name="calculation"/>
+    <field name="cost_method"/>
+    <field name="cost_price"/>
+    <field name="time"/>
+    <field name="quantity"/>
+    <field name="unit_cost"/>
+    <field name="total_cost"/>
+</tree>
