@@ -42,7 +42,7 @@ class Plan(DeactivableMixin, ModelSQL, ModelView):
                 ('id', '!=', -1)),
             ],
         states={
-            'readonly': Bool(Eval('product')),
+            'editable': ~Bool(Eval('product')),
             })
     uom_digits = fields.Function(fields.Integer('UoM Digits'),
         'on_change_with_uom_digits')
@@ -429,14 +429,15 @@ class Plan(DeactivableMixin, ModelSQL, ModelView):
         return input_
 
     @classmethod
-    def create(cls, vlist):
-        Config = Pool().get('production.configuration')
+    def preprocess_values(cls, mode, values):
+        values = super().preprocess_values(mode, values)
+        if mode != 'create':
+            return values
 
-        vlist = [x.copy() for x in vlist]
+        Config = Pool().get('production.configuration')
         config = Config(1)
-        for values in vlist:
-            values['number'] = config.product_cost_plan_sequence.get()
-        return super(Plan, cls).create(vlist)
+        values['number'] = config.product_cost_plan_sequence.get()
+        return values
 
     @classmethod
     def copy(cls, plans, default=None):
@@ -444,6 +445,7 @@ class Plan(DeactivableMixin, ModelSQL, ModelView):
             default = {}
         else:
             default = default.copy()
+        default.setdefault('number', None)
         default.setdefault('bom', None)
 
         return super().copy(plans, default=default)
@@ -509,7 +511,7 @@ class PlanProductLine(ModelSQL, ModelView, tree(separator='/')):
         help='Use stock owned by party instead of company stock.')
     product_cost_price = fields.Numeric('Product Cost Price', digits=price_digits,
         states={
-            'readonly': True,
+            'editable': False,
         })
     cost_price = fields.Numeric('Cost Price', required=True,
         digits=price_digits)
@@ -647,7 +649,7 @@ class PlanProductLine(ModelSQL, ModelView, tree(separator='/')):
                         line=line.rec_name))
 
 STATES = {
-    'readonly': Eval('system', False),
+    'editable': ~Eval('system', False),
     }
 
 
@@ -662,11 +664,11 @@ class PlanCost(ModelSQL, ModelView):
             ('system', '=', Eval('system')),
         ], required=True, states=STATES)
     internal_cost = fields.Numeric('Cost (Internal Use)', digits=price_digits,
-        readonly=True)
+        states={'editable': False})
     cost = fields.Function(fields.Numeric('Cost', digits=price_digits,
         required=True, states=STATES),
         'get_cost', setter='set_cost')
-    system = fields.Boolean('System Managed', readonly=True)
+    system = fields.Boolean('System Managed', states={'editable': False})
 
     @classmethod
     def __setup__(cls):

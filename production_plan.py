@@ -28,7 +28,7 @@ class PlanOperationLine(ModelSQL, ModelView):
         depends=['work_center_category'])
     work_center_category = fields.Many2One('production.work.center.category',
         'Work Center Category', states={
-            'readonly': Bool(Eval('operation')) | Bool(Eval('work_center')),
+            'editable': ~(Bool(Eval('operation')) | Bool(Eval('work_center'))),
             }, depends=['operation', 'work_center'])
     work_center = fields.Many2One('production.work.center', 'Work Center',
         domain=[
