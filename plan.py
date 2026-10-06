@@ -277,7 +277,8 @@ class Plan(DeactivableMixin, ModelSQL, ModelView):
         cost_factor = Decimal(
             UoM.compute_qty(input_.product.default_uom, 1, input_.unit))
         if cost_factor != Decimal(0):
-            product_cost_price = Decimal(input_.product.cost_price / cost_factor)
+            product_cost_price = Decimal(
+                (input_.product.cost_price or Decimal(0)) / cost_factor)
             if not party_stock:
                 cost_price = product_cost_price
 
