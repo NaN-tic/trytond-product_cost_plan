@@ -101,6 +101,19 @@
             <field name="group" ref="product.group_product_admin"/>
         </record>
 
+        <!-- product.cost.plan.scale -->
+        <record model="ir.ui.view" id="product_cost_plan_scale_view_form">
+            <field name="model">product.cost.plan.scale</field>
+            <field name="type">form</field>
+            <field name="name">cost_plan_scale_form</field>
+        </record>
+
+        <record model="ir.ui.view" id="product_cost_plan_scale_view_list">
+            <field name="model">product.cost.plan.scale</field>
+            <field name="type">tree</field>
+            <field name="name">cost_plan_scale_list</field>
+        </record>
+
         <!-- product.cost.plan.bom_line -->
         <record model="ir.ui.view" id="product_cost_plan_bom_line_view_form">
             <field name="model">product.cost.plan.bom_line</field>
