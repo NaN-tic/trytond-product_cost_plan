@@ -2,13 +2,23 @@
 <!-- The COPYRIGHT file at the top level of this repository contains the full
      copyright notices and license terms. -->
 <form>
-    <label name="plan"/>
-    <field name="plan"/>
     <label name="quantity"/>
     <field name="quantity"/>
-    <newline/>
+    <label name="plan"/>
+    <field name="plan"/>
+
+    <label name="products_cost"/>
+    <field name="products_cost"/>
+    <label name="operations_cost"/>
+    <field name="operations_cost"/>
+
+    <label name="cost_price"/>
+    <field name="cost_price"/>
     <button name="update_product_cost_price"
-        string="Update Product's Cost Price" colspan="2"/>
+    string="Update Product's Cost Price" colspan="2"/>
+
+    <label name="list_price"/>
+    <field name="list_price"/>
     <button name="update_product_list_price"
         string="Update Product's List Price" colspan="2"/>
 </form>
