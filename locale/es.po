@@ -194,10 +194,6 @@ msgctxt "field:product.cost.plan.scale,cost_price:"
 msgid "Unit Cost Price"
 msgstr "Precio de coste unitario"
 
-msgctxt "field:product.cost.plan.scale,list_price:"
-msgid "Unit List Price"
-msgstr "Precio de venta unitario"
-
 msgctxt "field:product.cost.plan.scale,operations_cost:"
 msgid "Operations Cost"
 msgstr "Coste de las operaciones"
@@ -495,10 +491,6 @@ msgstr ""
 msgctxt "view:product.cost.plan.scale:"
 msgid "Update Product's Cost Price"
 msgstr "Actualizar precio de coste del producto"
-
-msgctxt "view:product.cost.plan.scale:"
-msgid "Update Product's List Price"
-msgstr "Actualizar precio de venta del producto"
 
 msgctxt "view:product.cost.plan.create_bom.start:"
 msgid "Create BOM"

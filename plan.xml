@@ -115,17 +115,6 @@
             <field name="group" ref="product.group_product_admin"/>
         </record>
 
-        <record model="ir.model.button"
-                id="plan_scale_update_product_list_price_button">
-            <field name="name">update_product_list_price</field>
-            <field name="model">product.cost.plan.scale</field>
-        </record>
-        <record model="ir.model.button-res.group"
-                id="plan_scale_update_product_list_price_button_group_product_admin">
-            <field name="button" ref="plan_scale_update_product_list_price_button"/>
-            <field name="group" ref="product.group_product_admin"/>
-        </record>
-
         <!-- product.cost.plan.bom_line -->
         <record model="ir.ui.view" id="product_cost_plan_bom_line_view_form">
             <field name="model">product.cost.plan.bom_line</field>
