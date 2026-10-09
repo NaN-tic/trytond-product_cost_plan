@@ -475,6 +475,7 @@ class PlanScale(ModelSQL, ModelView):
 
     plan = fields.Many2One('product.cost.plan', 'Plan', required=True,
         ondelete='CASCADE')
+    quantity = fields.Integer('Quantity')
 
 
 class PlanBOM(ModelSQL, ModelView):
