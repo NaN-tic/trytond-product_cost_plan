@@ -15,6 +15,8 @@ from trytond.model.exceptions import ValidationError
 __all__ = ['PlanCostType', 'Plan', 'PlanScale', 'PlanBOM', 'PlanProductLine',
     'PlanCost', 'CreateBomStart', 'CreateBom']
 
+QUANTITY_DIGITS = 'uom'
+
 
 class PlanCostType(ModelSQL, ModelView):
     'Plan Cost Type'
@@ -34,7 +36,7 @@ class Plan(DeactivableMixin, ModelSQL, ModelView):
     product_uom_category = fields.Function(
         fields.Many2One('product.uom.category', 'Product UoM Category'),
         'on_change_with_product_uom_category')
-    quantity = fields.Float('Quantity', digits=(16, Eval('uom_digits', 2)),
+    quantity = fields.Float('Quantity', digits=QUANTITY_DIGITS,
         required=True)
     uom = fields.Many2One('product.uom', 'UoM', required=True, domain=[
             If(Bool(Eval('product')),
@@ -475,9 +477,16 @@ class PlanScale(ModelSQL, ModelView):
 
     plan = fields.Many2One('product.cost.plan', 'Plan', required=True,
         ondelete='CASCADE')
-    quantity = fields.Integer('Quantity', domain=['OR',
+    quantity = fields.Float('Quantity', digits=QUANTITY_DIGITS,
+        domain=['OR',
             ('quantity', '=', None),
             ('quantity', '>', 0),
+            ])
+    uom = fields.Many2One('product.uom', 'UoM', required=True, domain=[
+            If(Bool(Eval('_parent_plan', {}).get('product')),
+                ('category', '=',
+                    Eval('_parent_plan', {}).get('product_uom_category', -1)),
+                ('id', '!=', -1)),
             ])
     products_cost = fields.Function(fields.Numeric('Products Cost',
             digits=price_digits),
@@ -504,23 +513,23 @@ class PlanScale(ModelSQL, ModelView):
                     },
                 })
 
-    @fields.depends('quantity', 'plan', '_parent_plan.quantity',
+    @fields.depends('quantity', 'uom', 'plan', '_parent_plan.quantity',
         '_parent_plan.products_cost')
     def on_change_with_products_cost(self, name=None):
         # TODO: Define the products cost calculation for this scale.
         return None
 
-    @fields.depends('quantity', 'plan', '_parent_plan.quantity')
+    @fields.depends('quantity', 'uom', 'plan', '_parent_plan.quantity')
     def on_change_with_operations_cost(self, name=None):
         # TODO: Calculate the operations cost for this scale.
         return None
 
-    @fields.depends('quantity', 'plan', '_parent_plan.quantity')
+    @fields.depends('quantity', 'uom', 'plan', '_parent_plan.quantity')
     def on_change_with_cost_price(self, name=None):
         # TODO: Calculate the unit cost price for this scale.
         return None
 
-    @fields.depends('quantity', 'plan', '_parent_plan.quantity')
+    @fields.depends('quantity', 'uom', 'plan', '_parent_plan.quantity')
     def on_change_with_list_price(self, name=None):
         # TODO: Calculate the list price for this scale.
         return None
