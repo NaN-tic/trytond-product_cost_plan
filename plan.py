@@ -176,19 +176,14 @@ class Plan(DeactivableMixin, ModelSQL, ModelView):
         return [x.id for x in product_lines]
 
     def get_products_cost(self, name):
-        if not self.quantity:
-            return Decimal(0)
-        lines = Plan.get_all_inputs(self.products)
-        cost = sum(p.get_total_cost(None, round=False) for p in lines)
-        cost /= Decimal(str(self.quantity))
-        return round_price(cost)
+        return Decimal(0)
 
     @fields.depends('product')
     def on_change_with_product_cost_price(self, name=None):
         return self.product.cost_price if self.product else None
 
     def get_cost_price(self, name):
-        return Decimal(sum(c.cost for c in self.costs if c.cost))
+        return Decimal(0)
 
     @classmethod
     def clean(cls, plans):
