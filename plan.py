@@ -475,7 +475,10 @@ class PlanScale(ModelSQL, ModelView):
 
     plan = fields.Many2One('product.cost.plan', 'Plan', required=True,
         ondelete='CASCADE')
-    quantity = fields.Integer('Quantity')
+    quantity = fields.Integer('Quantity', domain=['OR',
+            ('quantity', '=', None),
+            ('quantity', '>', 0),
+            ])
     products_cost = fields.Function(fields.Numeric('Products Cost',
             digits=price_digits),
         'on_change_with_products_cost')
