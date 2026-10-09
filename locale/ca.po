@@ -453,6 +453,14 @@ msgctxt "view:product.cost.plan.cost:"
 msgid "Plan Cost"
 msgstr "Pla de costos"
 
+msgctxt "view:product.cost.plan.scale:"
+msgid "Update Product's Cost Price"
+msgstr "Actualitza preu de cost del producte"
+
+msgctxt "view:product.cost.plan.scale:"
+msgid "Update Product's List Price"
+msgstr "Actualitza preu de venda del producte"
+
 msgctxt "view:product.cost.plan.create_bom.start:"
 msgid "Create BOM"
 msgstr "Crear Llista de materials"

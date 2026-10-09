@@ -6,4 +6,9 @@
     <field name="plan"/>
     <label name="quantity"/>
     <field name="quantity"/>
+    <newline/>
+    <button name="update_product_cost_price"
+        string="Update Product's Cost Price" colspan="2"/>
+    <button name="update_product_list_price"
+        string="Update Product's List Price" colspan="2"/>
 </form>

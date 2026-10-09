@@ -489,6 +489,18 @@ class PlanScale(ModelSQL, ModelView):
             digits=price_digits),
         'get_list_price')
 
+    @classmethod
+    def __setup__(cls):
+        super().__setup__()
+        cls._buttons.update({
+                'update_product_cost_price': {
+                    'icon': 'tryton-refresh',
+                    },
+                'update_product_list_price': {
+                    'icon': 'tryton-refresh',
+                    },
+                })
+
     def get_products_cost(self, name):
         # TODO: Calculate the products cost for this scale.
         return None
@@ -504,6 +516,16 @@ class PlanScale(ModelSQL, ModelView):
     def get_list_price(self, name):
         # TODO: Calculate the list price for this scale.
         return None
+
+    @classmethod
+    @ModelView.button
+    def update_product_cost_price(cls, scales):
+        pass
+
+    @classmethod
+    @ModelView.button
+    def update_product_list_price(cls, scales):
+        pass
 
 
 class PlanBOM(ModelSQL, ModelView):
