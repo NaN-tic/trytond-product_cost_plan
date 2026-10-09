@@ -91,16 +91,6 @@
             <field name="group" ref="group_product_cost_plan"/>
         </record>
 
-        <record model="ir.model.button" id="plan_update_product_cost_price_button">
-            <field name="name">update_product_cost_price</field>
-            <field name="model">product.cost.plan</field>
-        </record>
-        <record model="ir.model.button-res.group"
-                id="plan_update_product_cost_price_button_group_product_admin">
-            <field name="button" ref="plan_update_product_cost_price_button"/>
-            <field name="group" ref="product.group_product_admin"/>
-        </record>
-
         <!-- product.cost.plan.scale -->
         <record model="ir.ui.view" id="product_cost_plan_scale_view_form">
             <field name="model">product.cost.plan.scale</field>

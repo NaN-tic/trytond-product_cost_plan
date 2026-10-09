@@ -17,10 +17,12 @@
     <label name="cost_price"/>
     <field name="cost_price"/>
     <button name="update_product_cost_price"
-    string="Update Product's Cost Price" colspan="2"/>
+        string="Update Product's Cost Price" colspan="2"
+        confirm="It will modify the product's field loosing the current value. Are you sure?"/>
 
     <label name="list_price"/>
     <field name="list_price"/>
     <button name="update_product_list_price"
-        string="Update Product's List Price" colspan="2"/>
+        string="Update Product's List Price" colspan="2"
+        confirm="It will modify the product's field loosing the current value. Are you sure?"/>
 </form>

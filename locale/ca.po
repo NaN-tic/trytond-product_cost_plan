@@ -66,6 +66,10 @@ msgctxt "field:product.cost.plan,quantity:"
 msgid "Quantity"
 msgstr "Quantitat"
 
+msgctxt "field:product.cost.plan,scales:"
+msgid "Scales"
+msgstr "Escales"
+
 msgctxt "field:product.cost.plan,uom:"
 msgid "UoM"
 msgstr "UdM"
@@ -185,6 +189,34 @@ msgstr "UdM"
 msgctxt "field:product.cost.plan.product_line,uom_digits:"
 msgid "UoM Digits"
 msgstr "Digits UdM"
+
+msgctxt "field:product.cost.plan.scale,cost_price:"
+msgid "Unit Cost Price"
+msgstr "Preu de cost unitari"
+
+msgctxt "field:product.cost.plan.scale,list_price:"
+msgid "Unit List Price"
+msgstr "Preu de venda unitari"
+
+msgctxt "field:product.cost.plan.scale,operations_cost:"
+msgid "Operations Cost"
+msgstr "Cost de les operacions"
+
+msgctxt "field:product.cost.plan.scale,plan:"
+msgid "Plan"
+msgstr "Pla"
+
+msgctxt "field:product.cost.plan.scale,products_cost:"
+msgid "Products Cost"
+msgstr "Cost dels materials"
+
+msgctxt "field:product.cost.plan.scale,quantity:"
+msgid "Quantity"
+msgstr "Quantitat"
+
+msgctxt "field:product.cost.plan.scale,uom:"
+msgid "UoM"
+msgstr "UdM"
 
 msgctxt "field:product.cost.plan.step_line,calculation:"
 msgid "Calculation"
@@ -452,6 +484,12 @@ msgstr "Tipus de pla de cost"
 msgctxt "view:product.cost.plan.cost:"
 msgid "Plan Cost"
 msgstr "Pla de costos"
+
+msgctxt "view:product.cost.plan.scale:"
+msgid ""
+"It will modify the product's field loosing the current value. Are you sure?"
+msgstr ""
+"Això modificarà la fitxa del producte perdent el valor actual. N'està segur?"
 
 msgctxt "view:product.cost.plan.scale:"
 msgid "Update Product's Cost Price"
