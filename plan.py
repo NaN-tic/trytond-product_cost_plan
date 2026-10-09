@@ -59,6 +59,7 @@ class Plan(DeactivableMixin, ModelSQL, ModelView):
             digits=price_digits),
         'get_products_cost')
     costs = fields.One2Many('product.cost.plan.cost', 'plan', 'Costs')
+    scales = fields.One2Many('product.cost.plan.scale', 'plan', 'Scales')
     product_cost_price = fields.Function(fields.Numeric('Product Cost Price',
             digits=price_digits),
         'on_change_with_product_cost_price')
@@ -471,6 +472,9 @@ class Plan(DeactivableMixin, ModelSQL, ModelView):
 class PlanScale(ModelSQL, ModelView):
     'Product Cost Plan Scale'
     __name__ = 'product.cost.plan.scale'
+
+    plan = fields.Many2One('product.cost.plan', 'Plan', required=True,
+        ondelete='CASCADE')
 
 
 class PlanBOM(ModelSQL, ModelView):
