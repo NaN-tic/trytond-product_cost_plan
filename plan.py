@@ -478,16 +478,16 @@ class PlanScale(ModelSQL, ModelView):
     quantity = fields.Integer('Quantity')
     products_cost = fields.Function(fields.Numeric('Products Cost',
             digits=price_digits),
-        'get_products_cost')
+        'on_change_with_products_cost')
     operations_cost = fields.Function(fields.Numeric('Operations Cost',
             digits=price_digits),
-        'get_operations_cost')
+        'on_change_with_operations_cost')
     cost_price = fields.Function(fields.Numeric('Unit Cost Price',
             digits=price_digits),
-        'get_cost_price')
+        'on_change_with_cost_price')
     list_price = fields.Function(fields.Numeric('List Price',
             digits=price_digits),
-        'get_list_price')
+        'on_change_with_list_price')
 
     @classmethod
     def __setup__(cls):
@@ -501,19 +501,24 @@ class PlanScale(ModelSQL, ModelView):
                     },
                 })
 
-    def get_products_cost(self, name):
-        # TODO: Calculate the products cost for this scale.
+    @fields.depends('quantity', 'plan', '_parent_plan.quantity',
+        '_parent_plan.products_cost')
+    def on_change_with_products_cost(self, name=None):
+        # TODO: Define the products cost calculation for this scale.
         return None
 
-    def get_operations_cost(self, name):
+    @fields.depends('quantity', 'plan', '_parent_plan.quantity')
+    def on_change_with_operations_cost(self, name=None):
         # TODO: Calculate the operations cost for this scale.
         return None
 
-    def get_cost_price(self, name):
+    @fields.depends('quantity', 'plan', '_parent_plan.quantity')
+    def on_change_with_cost_price(self, name=None):
         # TODO: Calculate the unit cost price for this scale.
         return None
 
-    def get_list_price(self, name):
+    @fields.depends('quantity', 'plan', '_parent_plan.quantity')
+    def on_change_with_list_price(self, name=None):
         # TODO: Calculate the list price for this scale.
         return None
 
