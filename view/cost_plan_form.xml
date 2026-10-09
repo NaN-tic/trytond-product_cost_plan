@@ -18,14 +18,16 @@
     <label name="bom"/>
     <field name="bom"/>
     <button name="compute" colspan="2"/>
+    <newline/>
+    <label name="product_cost_price"/>
+    <field name="product_cost_price"/>
+    <newline/>
     <notebook colspan="6">
         <page string="Products" id="products">
             <field name="products" colspan="4"/>
-            <label name="products_cost"/>
-            <field name="products_cost"/>
         </page>
-        <page id="costs" string="Costs">
-            <field name="costs" colspan="4"/>
+        <page name="scales">
+            <field name="scales" colspan="4" mode="form,tree"/>
         </page>
         <page string="BOM Configuration" id="configuration">
             <field name="boms" colspan="4"/>
@@ -34,11 +36,4 @@
             <field name="notes" colspan="4"/>
         </page>
     </notebook>
-    <label name="cost_price"/>
-    <field name="cost_price"/>
-    <label name="product_cost_price"/>
-    <field name="product_cost_price"/>
-    <button name="update_product_cost_price"
-        string="Update Product's Cost Price" colspan="2"
-        confirm="It will modify the product's field loosing the current value. Are you sure?"/>
 </form>

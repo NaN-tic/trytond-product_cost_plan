@@ -1,0 +1,11 @@
+<?xml version="1.0"?>
+<!-- The COPYRIGHT file at the top level of this repository contains the full
+     copyright notices and license terms. -->
+<tree editable="1">
+    <field name="plan"/>
+    <field name="quantity"/>
+    <field name="uom"/>
+    <field name="products_cost"/>
+    <field name="operations_cost"/>
+    <field name="cost_price"/>
+</tree>

@@ -18,10 +18,6 @@ msgctxt "field:product.cost.plan,cost_price:"
 msgid "Unit Cost Price"
 msgstr "Precio de coste unitario"
 
-msgctxt "field:product.cost.plan,costs:"
-msgid "Costs"
-msgstr "Costes"
-
 msgctxt "field:product.cost.plan,name:"
 msgid "Name"
 msgstr "Nombre"
@@ -66,6 +62,10 @@ msgctxt "field:product.cost.plan,quantity:"
 msgid "Quantity"
 msgstr "Cantidad"
 
+msgctxt "field:product.cost.plan,scales:"
+msgid "Scales"
+msgstr "Escalas"
+
 msgctxt "field:product.cost.plan,uom:"
 msgid "UoM"
 msgstr "UdM"
@@ -94,9 +94,9 @@ msgctxt "field:product.cost.plan.cost,internal_cost:"
 msgid "Cost (Internal Use)"
 msgstr "Coste (uso interno)"
 
-msgctxt "field:product.cost.plan.cost,plan:"
-msgid "Plan"
-msgstr "Plan"
+msgctxt "field:product.cost.plan.cost,scale:"
+msgid "Scale"
+msgstr "Escala"
 
 msgctxt "field:product.cost.plan.cost,sequence:"
 msgid "Sequence"
@@ -185,6 +185,34 @@ msgstr "UdM"
 msgctxt "field:product.cost.plan.product_line,uom_digits:"
 msgid "UoM Digits"
 msgstr "Dígitos UdM"
+
+msgctxt "field:product.cost.plan.scale,cost_price:"
+msgid "Unit Cost Price"
+msgstr "Precio de coste unitario"
+
+msgctxt "field:product.cost.plan.scale,costs:"
+msgid "Costs"
+msgstr "Costes"
+
+msgctxt "field:product.cost.plan.scale,operations_cost:"
+msgid "Operations Cost"
+msgstr "Coste de las operaciones"
+
+msgctxt "field:product.cost.plan.scale,plan:"
+msgid "Plan"
+msgstr "Plan"
+
+msgctxt "field:product.cost.plan.scale,products_cost:"
+msgid "Products Cost"
+msgstr "Coste de los materiales"
+
+msgctxt "field:product.cost.plan.scale,quantity:"
+msgid "Quantity"
+msgstr "Cantidad"
+
+msgctxt "field:product.cost.plan.scale,uom:"
+msgid "UoM"
+msgstr "UdM"
 
 msgctxt "field:product.cost.plan.step_line,calculation:"
 msgid "Calculation"
@@ -453,6 +481,17 @@ msgctxt "view:product.cost.plan.cost:"
 msgid "Plan Cost"
 msgstr "Plan de costes"
 
+msgctxt "view:product.cost.plan.scale:"
+msgid ""
+"It will modify the product's field loosing the current value. Are you sure?"
+msgstr ""
+"Esto modificará la ficha del producto perdiendo el valor actual. ¿Está "
+"seguro?"
+
+msgctxt "view:product.cost.plan.scale:"
+msgid "Update Product's Cost Price"
+msgstr "Actualizar precio de coste del producto"
+
 msgctxt "view:product.cost.plan.create_bom.start:"
 msgid "Create BOM"
 msgstr "Crear Lista de material"
@@ -464,10 +503,6 @@ msgstr "Linea de producto Plan de coste del producto"
 msgctxt "view:product.cost.plan:"
 msgid "BOM Configuration"
 msgstr "Configuración lista de material"
-
-msgctxt "view:product.cost.plan:"
-msgid "Costs"
-msgstr "Costes"
 
 msgctxt "view:product.cost.plan:"
 msgid ""

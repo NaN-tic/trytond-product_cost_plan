@@ -1,0 +1,24 @@
+<?xml version="1.0"?>
+<!-- The COPYRIGHT file at the top level of this repository contains the full
+     copyright notices and license terms. -->
+<form>
+    <label name="plan"/>
+    <field name="plan" colspan="3"/>
+
+    <label name="quantity"/>
+    <field name="quantity"/>
+    <label name="uom"/>
+    <field name="uom"/>
+    <label name="products_cost"/>
+    <field name="products_cost"/>
+    <label name="operations_cost"/>
+    <field name="operations_cost"/>
+
+    <field name="costs" colspan="4"/>
+
+    <label name="cost_price"/>
+    <field name="cost_price"/>
+    <button name="update_product_cost_price"
+        string="Update Product's Cost Price" colspan="2"
+        confirm="It will modify the product's field loosing the current value. Are you sure?"/>
+</form>

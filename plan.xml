@@ -91,13 +91,27 @@
             <field name="group" ref="group_product_cost_plan"/>
         </record>
 
-        <record model="ir.model.button" id="plan_update_product_cost_price_button">
+        <!-- product.cost.plan.scale -->
+        <record model="ir.ui.view" id="product_cost_plan_scale_view_form">
+            <field name="model">product.cost.plan.scale</field>
+            <field name="type">form</field>
+            <field name="name">cost_plan_scale_form</field>
+        </record>
+
+        <record model="ir.ui.view" id="product_cost_plan_scale_view_list">
+            <field name="model">product.cost.plan.scale</field>
+            <field name="type">tree</field>
+            <field name="name">cost_plan_scale_list</field>
+        </record>
+
+        <record model="ir.model.button"
+                id="plan_scale_update_product_cost_price_button">
             <field name="name">update_product_cost_price</field>
-            <field name="model">product.cost.plan</field>
+            <field name="model">product.cost.plan.scale</field>
         </record>
         <record model="ir.model.button-res.group"
-                id="plan_update_product_cost_price_button_group_product_admin">
-            <field name="button" ref="plan_update_product_cost_price_button"/>
+                id="plan_scale_update_product_cost_price_button_group_product_admin">
+            <field name="button" ref="plan_scale_update_product_cost_price_button"/>
             <field name="group" ref="product.group_product_admin"/>
         </record>
 
