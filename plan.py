@@ -12,8 +12,8 @@ from trytond.exceptions import UserWarning
 from trytond.modules.product import price_digits, round_price
 from trytond.model.exceptions import ValidationError
 
-__all__ = ['PlanCostType', 'Plan', 'PlanBOM', 'PlanProductLine', 'PlanCost',
-    'CreateBomStart', 'CreateBom']
+__all__ = ['PlanCostType', 'Plan', 'PlanScale', 'PlanBOM', 'PlanProductLine',
+    'PlanCost', 'CreateBomStart', 'CreateBom']
 
 
 class PlanCostType(ModelSQL, ModelView):
@@ -466,6 +466,11 @@ class Plan(DeactivableMixin, ModelSQL, ModelView):
             Line.delete(to_delete2)
 
         super(Plan, cls).delete(plans)
+
+
+class PlanScale(ModelSQL, ModelView):
+    'Product Cost Plan Scale'
+    __name__ = 'product.cost.plan.scale'
 
 
 class PlanBOM(ModelSQL, ModelView):
