@@ -14,6 +14,8 @@
     <label name="operations_cost"/>
     <field name="operations_cost"/>
 
+    <field name="costs" colspan="4"/>
+
     <label name="cost_price"/>
     <field name="cost_price"/>
     <button name="update_product_cost_price"

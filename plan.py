@@ -60,7 +60,6 @@ class Plan(DeactivableMixin, ModelSQL, ModelView):
     products_cost = fields.Function(fields.Numeric('Products Cost',
             digits=price_digits),
         'get_products_cost')
-    costs = fields.One2Many('product.cost.plan.cost', 'plan', 'Costs')
     scales = fields.One2Many('product.cost.plan.scale', 'plan', 'Scales')
     product_cost_price = fields.Function(fields.Numeric('Product Cost Price',
             digits=price_digits),
@@ -186,7 +185,6 @@ class Plan(DeactivableMixin, ModelSQL, ModelView):
     def clean(cls, plans):
         pool = Pool()
         ProductLine = pool.get('product.cost.plan.product_line')
-        CostLine = pool.get('product.cost.plan.cost')
         Warning = Pool().get('res.user.warning')
 
         product_lines = ProductLine.search([
@@ -199,18 +197,12 @@ class Plan(DeactivableMixin, ModelSQL, ModelView):
                     gettext('product_cost_plan.product_lines_will_be_removed'))
             ProductLine.delete(product_lines)
 
-        with Transaction().set_context(reset_costs=True):
-            CostLine.delete(CostLine.search([
-                        ('plan', 'in', [p.id for p in plans]),
-                        ('system', '=', True),
-                        ]))
-
     @classmethod
     @ModelView.button
     def compute(cls, plans):
         pool = Pool()
         ProductLine = pool.get('product.cost.plan.product_line')
-        CostLine = pool.get('product.cost.plan.cost')
+        Scale = pool.get('product.cost.plan.scale')
 
         cls.clean(plans)
 
@@ -222,11 +214,7 @@ class Plan(DeactivableMixin, ModelSQL, ModelView):
         if to_create:
             ProductLine.create(to_create)
 
-        to_create = []
-        for plan in plans:
-            to_create.extend(plan.get_costs())
-        if to_create:
-            CostLine.create(to_create)
+        Scale.compute([scale for plan in plans for scale in plan.scales])
 
     def explode_bom(self, product, bom, quantity, uom):
         "Returns products for the especified products"
@@ -285,27 +273,6 @@ class Plan(DeactivableMixin, ModelSQL, ModelView):
             'party_stock': getattr(input_, 'party_stock', False),
             'product_cost_price': round_price(product_cost_price),
             'cost_price': round_price(cost_price),
-            }
-
-    def get_costs(self):
-        "Returns the cost lines to be created on compute"
-        pool = Pool()
-        CostType = pool.get('product.cost.plan.cost.type')
-
-        ret = []
-        system_cost_types = CostType.search([
-                ('system', '=', True),
-                ])
-        for cost_type in system_cost_types:
-            ret.append(self._get_cost_line(cost_type))
-        return ret
-
-    def _get_cost_line(self, cost_type):
-        return {
-            'plan': self.id,
-            'type': cost_type.id,
-            'system': cost_type.system,
-            'internal_cost': Decimal('0'),
             }
 
     def create_bom(self, name):
@@ -425,18 +392,17 @@ class Plan(DeactivableMixin, ModelSQL, ModelView):
     @classmethod
     def delete(cls, plans):
         pool = Pool()
-        CostLine = pool.get('product.cost.plan.cost')
+        Scale = pool.get('product.cost.plan.scale')
         Line = pool.get('product.cost.plan.product_line')
 
+        scales = []
         to_delete = []
-        to_delete2 = []
         for plan in plans:
-            to_delete += plan.costs
-            to_delete2 += [line for line in plan.all_products
+            scales.extend(plan.scales)
+            to_delete += [line for line in plan.all_products
                 if line.plan is None]
-        with Transaction().set_context(reset_costs=True):
-            CostLine.delete(to_delete)
-            Line.delete(to_delete2)
+        Scale.delete(scales)
+        Line.delete(to_delete)
 
         super(Plan, cls).delete(plans)
 
@@ -467,6 +433,7 @@ class PlanScale(ModelSQL, ModelView):
     cost_price = fields.Function(fields.Numeric('Unit Cost Price',
             digits=price_digits),
         'on_change_with_cost_price')
+    costs = fields.One2Many('product.cost.plan.cost', 'scale', 'Costs')
 
     @classmethod
     def __setup__(cls):
@@ -492,6 +459,72 @@ class PlanScale(ModelSQL, ModelView):
     def on_change_with_cost_price(self, name=None):
         # TODO: Calculate the unit cost price for this scale.
         return None
+
+    def get_costs(self):
+        "Returns the missing system cost lines for this scale"
+        pool = Pool()
+        CostType = pool.get('product.cost.plan.cost.type')
+
+        existing_types = {cost.type.id for cost in self.costs if cost.system}
+        system_cost_types = CostType.search([
+                ('system', '=', True),
+                ])
+        return [self._get_cost_line(cost_type)
+            for cost_type in system_cost_types
+            if cost_type.id not in existing_types]
+
+    def _get_cost_line(self, cost_type):
+        return {
+            'scale': self.id,
+            'type': cost_type.id,
+            'system': cost_type.system,
+            'internal_cost': Decimal('0'),
+            }
+
+    @classmethod
+    def clean(cls, scales):
+        pool = Pool()
+        CostLine = pool.get('product.cost.plan.cost')
+
+        with Transaction().set_context(reset_costs=True):
+            CostLine.delete(CostLine.search([
+                        ('scale', 'in', [scale.id for scale in scales]),
+                        ('system', '=', True),
+                        ]))
+
+    @classmethod
+    def compute(cls, scales):
+        pool = Pool()
+        CostLine = pool.get('product.cost.plan.cost')
+
+        cls.clean(scales)
+        to_create = []
+        for scale in scales:
+            to_create.extend(scale.get_costs())
+        if to_create:
+            CostLine.create(to_create)
+
+    @classmethod
+    def create(cls, vlist):
+        pool = Pool()
+        CostLine = pool.get('product.cost.plan.cost')
+
+        scales = super().create(vlist)
+        to_create = []
+        for scale in scales:
+            to_create.extend(scale.get_costs())
+        if to_create:
+            CostLine.create(to_create)
+        return scales
+
+    @classmethod
+    def delete(cls, scales):
+        pool = Pool()
+        CostLine = pool.get('product.cost.plan.cost')
+
+        with Transaction().set_context(reset_costs=True):
+            CostLine.delete([cost for scale in scales for cost in scale.costs])
+        super().delete(scales)
 
     @classmethod
     @ModelView.button
@@ -705,7 +738,7 @@ class PlanCost(ModelSQL, ModelView):
     'Plan Cost'
     __name__ = 'product.cost.plan.cost'
 
-    plan = fields.Many2One('product.cost.plan', 'Plan', required=True,
+    scale = fields.Many2One('product.cost.plan.scale', 'Scale', required=True,
         ondelete='CASCADE')
     sequence = fields.Integer('Sequence')
     type = fields.Many2One('product.cost.plan.cost.type', 'Type', domain=[
@@ -741,10 +774,10 @@ class PlanCost(ModelSQL, ModelView):
 
     def get_cost(self, name):
         if self.system:
-            cost = getattr(self.plan, self.type.plan_field_name)
+            cost = getattr(self.scale, self.type.plan_field_name)
         else:
             cost = self.internal_cost
-        return round_price(cost)
+        return round_price(cost or Decimal(0))
 
     @classmethod
     def set_cost(cls, records, name, value):
@@ -764,9 +797,9 @@ class PlanCost(ModelSQL, ModelView):
                     key = 'task_delete_system_cost.%d' % cost.id
                     if Warning.check(key):
                         raise UserWarning('delete_system_cost',
-                            gettext('product_cost_plan.delete_system_cost',
+                            gettext('product_cost_plan.delete_system_cos',
                                 cost=cost.rec_name,
-                                plan=cost.plan.rec_name))
+                                plan=cost.scale.plan.rec_name))
         super(PlanCost, cls).delete(costs)
 
 
