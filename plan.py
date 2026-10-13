@@ -459,7 +459,8 @@ class PlanScale(ModelSQL, ModelView):
         Plan = pool.get('product.cost.plan')
         Uom = pool.get('product.uom')
 
-        if (not self.plan or not self.quantity):
+        if (not self.quantity or not self.uom or not self.plan
+                or not self.plan.quantity or not self.plan.uom):
             return Decimal(0)
         if self.uom.category != self.plan.uom.category:
             return None
