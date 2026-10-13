@@ -473,10 +473,10 @@ class PlanScale(ModelSQL, ModelView):
             start=Decimal(0))
         return round_price(cost * factor)
 
-    @fields.depends('quantity', 'uom', 'plan', '_parent_plan.quantity')
+    @fields.depends('quantity', 'uom', 'plan', '_parent_plan.quantity',
+        '_parent_plan.uom')
     def on_change_with_operations_cost(self, name=None):
-        # TODO: Calculate the operations cost for this scale.
-        return None
+        return Decimal(0)
 
     @fields.depends('plan', 'costs')
     def on_change_with_cost_price(self, name=None):

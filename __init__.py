@@ -22,6 +22,7 @@ def register():
     Pool.register(
         production_plan.PlanOperationLine,
         production_plan.Plan,
+        production_plan.PlanScale,
         production_plan.ProductBom,
         module='product_cost_plan', type_='model', depends=['production_plan'])
     Pool.register(
