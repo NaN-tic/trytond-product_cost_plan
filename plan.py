@@ -78,6 +78,12 @@ class Plan(DeactivableMixin, ModelSQL, ModelView):
                     },
                 })
 
+    @staticmethod
+    def default_scales():
+        if Transaction().user == 0:
+            return []
+        return [{}]
+
     def get_rec_name(self, name):
         res = '[%s]' % self.number
         if self.name:
@@ -418,12 +424,14 @@ class PlanScale(ModelSQL, ModelView):
             ('quantity', '=', None),
             ('quantity', '>', 0),
             ])
-    uom = fields.Many2One('product.uom', 'UoM', required=True, domain=[
+    uom = fields.Many2One('product.uom', 'UoM', domain=[
             If(Bool(Eval('_parent_plan', {}).get('product')),
                 ('category', '=',
                     Eval('_parent_plan', {}).get('product_uom_category', -1)),
                 ('id', '!=', -1)),
-            ])
+            ], states={
+                'required': Bool(Eval('quantity')),
+                })
     products_cost = fields.Function(fields.Numeric('Products Cost',
             digits=price_digits),
         'on_change_with_products_cost')
