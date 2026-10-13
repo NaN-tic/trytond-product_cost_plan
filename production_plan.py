@@ -219,28 +219,13 @@ class Plan(metaclass=PoolMeta):
 class PlanScale(metaclass=PoolMeta):
     __name__ = 'product.cost.plan.scale'
 
-    @fields.depends('quantity', 'uom', 'plan', '_parent_plan.quantity',
-        '_parent_plan.uom', '_parent_plan.operations')
+    @fields.depends('plan', '_parent_plan.quantity', '_parent_plan.operations')
     def on_change_with_operations_cost(self, name=None):
-        pool = Pool()
-        Uom = pool.get('product.uom')
-
-        if (not self.quantity or not self.uom or not self.plan
-                or not self.plan.quantity or not self.plan.uom):
+        if not self.plan:
             return _ZERO
-        if self.uom.category != self.plan.uom.category:
-            return None
 
-        quantity = Uom.compute_qty(self.uom, self.quantity, self.plan.uom,
-            round=False)
-        factor = Decimal(str(quantity)) / Decimal(str(self.plan.quantity))
-
-        cost = _ZERO
-        for operation in self.plan.operations:
-            operation_cost = operation.get_total_cost(None, round=False)
-            if operation.calculation != 'fixed':
-                operation_cost *= factor
-            cost += operation_cost
+        cost = sum((operation.get_total_cost(None, round=False)
+                for operation in self.plan.operations), start=_ZERO)
         return round_price(cost)
 
 

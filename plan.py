@@ -432,15 +432,18 @@ class PlanScale(ModelSQL, ModelView):
             ], states={
                 'required': Bool(Eval('quantity')),
                 })
+    # TODO: Remove products_cost from here and put it in cost.plan
     products_cost = fields.Function(fields.Numeric('Products Cost',
             digits=price_digits),
         'on_change_with_products_cost')
+    # TODO: Remove operations_cost from here and put it in cost.plan
     operations_cost = fields.Function(fields.Numeric('Operations Cost',
             digits=price_digits),
         'on_change_with_operations_cost')
     cost_price = fields.Function(fields.Numeric('Unit Cost Price',
             digits=price_digits),
         'on_change_with_cost_price')
+    # TODO: Remove costs from here and put it in cost.plan
     costs = fields.One2Many('product.cost.plan.cost', 'scale', 'Costs')
 
     @classmethod
@@ -452,36 +455,30 @@ class PlanScale(ModelSQL, ModelView):
                     },
                 })
 
-    @fields.depends('quantity', 'uom', 'plan', '_parent_plan.quantity',
-        '_parent_plan.uom', '_parent_plan.products')
+    @fields.depends('plan', '_parent_plan.products')
     def on_change_with_products_cost(self, name=None):
         pool = Pool()
         Plan = pool.get('product.cost.plan')
-        Uom = pool.get('product.uom')
 
-        if (not self.quantity or not self.uom or not self.plan
-                or not self.plan.quantity or not self.plan.uom):
+        if not self.plan:
             return Decimal(0)
-        if self.uom.category != self.plan.uom.category:
-            return None
-
-        quantity = Uom.compute_qty(self.uom, self.quantity, self.plan.uom,
-            round=False)
-        factor = Decimal(str(quantity)) / Decimal(str(self.plan.quantity))
 
         lines = Plan.get_all_inputs(self.plan.products)
         cost = sum((line.get_total_cost(None, round=False) for line in lines),
             start=Decimal(0))
-        return round_price(cost * factor)
+        return round_price(cost)
 
-    @fields.depends('quantity', 'uom', 'plan', '_parent_plan.quantity',
-        '_parent_plan.uom')
+    @fields.depends('plan')
     def on_change_with_operations_cost(self, name=None):
         return Decimal(0)
 
     @fields.depends('plan', 'costs')
     def on_change_with_cost_price(self, name=None):
-        return Decimal(sum(c.cost for c in self.costs if c.cost))
+        res = Decimal(0)
+
+        # ((Coste de fabricación por piezas + (Coste de preparación y programación + Útiles) / (Cantidad escala * Cantidad plan)) * (1 + Margen de seguridad técnica) + Compras + Operaciones externas) * (1 + Margen comercial)
+
+        return res
 
     def get_costs(self):
         "Returns the missing system cost lines for this scale"
