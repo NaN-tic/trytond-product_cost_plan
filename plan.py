@@ -425,7 +425,7 @@ class PlanScale(ModelSQL, ModelView):
             ('quantity', '>', 0),
             ])
     uom = fields.Many2One('product.uom', 'UoM', domain=[
-            If(Bool(Eval('_parent_plan', {}).get('product')),
+            If(Bool(Eval('_parent_plan', {}).get('uom')),
                 ('category', '=',
                     Eval('_parent_plan', {}).get('product_uom_category', -1)),
                 ('id', '!=', -1)),
@@ -453,20 +453,34 @@ class PlanScale(ModelSQL, ModelView):
                 })
 
     @fields.depends('quantity', 'uom', 'plan', '_parent_plan.quantity',
-        '_parent_plan.products_cost')
+        '_parent_plan.uom', '_parent_plan.products')
     def on_change_with_products_cost(self, name=None):
-        # TODO: Define the products cost calculation for this scale.
-        return None
+        pool = Pool()
+        Plan = pool.get('product.cost.plan')
+        Uom = pool.get('product.uom')
+
+        if (not self.plan or not self.quantity):
+            return Decimal(0)
+        if self.uom.category != self.plan.uom.category:
+            return None
+
+        quantity = Uom.compute_qty(self.uom, self.quantity, self.plan.uom,
+            round=False)
+        factor = Decimal(str(quantity)) / Decimal(str(self.plan.quantity))
+
+        lines = Plan.get_all_inputs(self.plan.products)
+        cost = sum((line.get_total_cost(None, round=False) for line in lines),
+            start=Decimal(0))
+        return round_price(cost * factor)
 
     @fields.depends('quantity', 'uom', 'plan', '_parent_plan.quantity')
     def on_change_with_operations_cost(self, name=None):
         # TODO: Calculate the operations cost for this scale.
         return None
 
-    @fields.depends('quantity', 'uom', 'plan', '_parent_plan.quantity')
+    @fields.depends('plan', 'costs')
     def on_change_with_cost_price(self, name=None):
-        # TODO: Calculate the unit cost price for this scale.
-        return None
+        return Decimal(sum(c.cost for c in self.costs if c.cost))
 
     def get_costs(self):
         "Returns the missing system cost lines for this scale"
