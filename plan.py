@@ -86,6 +86,12 @@ class Plan(DeactivableMixin, ModelSQL, ModelView):
                     },
                 })
 
+    @staticmethod
+    def default_scales():
+        if Transaction().user == 0:
+            return []
+        return [{}]
+
     def get_rec_name(self, name):
         res = '[%s]' % self.number
         if self.name:
