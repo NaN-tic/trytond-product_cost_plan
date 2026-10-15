@@ -12,8 +12,10 @@ from trytond.exceptions import UserWarning
 from trytond.modules.product import price_digits, round_price
 from trytond.model.exceptions import ValidationError
 
-__all__ = ['PlanCostType', 'Plan', 'PlanBOM', 'PlanProductLine', 'PlanCost',
-    'CreateBomStart', 'CreateBom']
+__all__ = ['PlanCostType', 'Plan', 'PlanScale', 'PlanBOM', 'PlanProductLine',
+    'PlanCost', 'CreateBomStart', 'CreateBom']
+
+UOM_DIGITS = (16, Eval('uom_digits', 2))
 
 
 class PlanCostType(ModelSQL, ModelView):
@@ -34,7 +36,7 @@ class Plan(DeactivableMixin, ModelSQL, ModelView):
     product_uom_category = fields.Function(
         fields.Many2One('product.uom.category', 'Product UoM Category'),
         'on_change_with_product_uom_category')
-    quantity = fields.Float('Quantity', digits=(16, Eval('uom_digits', 2)),
+    quantity = fields.Float('Quantity', digits=UOM_DIGITS,
         required=True)
     uom = fields.Many2One('product.uom', 'UoM', required=True, domain=[
             If(Bool(Eval('product')),
@@ -59,6 +61,7 @@ class Plan(DeactivableMixin, ModelSQL, ModelView):
             digits=price_digits),
         'get_products_cost')
     costs = fields.One2Many('product.cost.plan.cost', 'plan', 'Costs')
+    scales = fields.One2Many('product.cost.plan.scale', 'plan', 'Scales')
     product_cost_price = fields.Function(fields.Numeric('Product Cost Price',
             digits=price_digits),
         'on_change_with_product_cost_price')
@@ -468,6 +471,29 @@ class Plan(DeactivableMixin, ModelSQL, ModelView):
         super(Plan, cls).delete(plans)
 
 
+class PlanScale(ModelSQL, ModelView):
+    'Product Cost Plan Scale'
+    __name__ = 'product.cost.plan.scale'
+
+    plan = fields.Many2One('product.cost.plan', 'Plan', required=True,
+        ondelete='CASCADE')
+    quantity = fields.Float('Quantity', digits=UOM_DIGITS,
+        required=True)
+    uom = fields.Many2One('product.uom', 'UoM', required=True, domain=[
+            If(Bool(Eval('_parent_plan', {}).get('product_uom_category')),
+                ('category', '=',
+                    Eval('_parent_plan', {}).get('product_uom_category')),
+                ('category', '!=', -1)),
+            ])
+    #
+    uom_digits = fields.Function(fields.Integer('UoM Digits'),
+        'on_change_with_uom_digits')
+
+    @fields.depends('uom')
+    def on_change_with_uom_digits(self, name=None):
+        return self.uom.digits if self.uom else 2
+
+
 class PlanBOM(ModelSQL, ModelView):
     'Product Cost Plan BOM'
     __name__ = 'product.cost.plan.bom_line'
@@ -494,7 +520,7 @@ class PlanProductLine(ModelSQL, ModelView, tree(separator='/')):
         ('type', '!=', 'service'),
         ])
     quantity = fields.Float('Quantity', required=True,
-        digits=(16, Eval('uom_digits', 2)))
+        digits=UOM_DIGITS)
     product_uom_category = fields.Function(
         fields.Many2One('product.uom.category', 'Product Uom Category'),
         'on_change_with_product_uom_category')

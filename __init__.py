@@ -10,6 +10,7 @@ from . import production_plan
 def register():
     Pool.register(
         plan.Plan,
+        plan.PlanScale,
         plan.PlanBOM,
         plan.PlanProductLine,
         plan.PlanCostType,
