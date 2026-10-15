@@ -78,9 +78,6 @@ class Plan(DeactivableMixin, ModelSQL, ModelView):
                 'compute': {
                     'icon': 'tryton-spreadsheet',
                     },
-                'update_product_cost_price': {
-                    'icon': 'tryton-refresh',
-                    },
                 })
 
     @staticmethod
@@ -320,28 +317,6 @@ class Plan(DeactivableMixin, ModelSQL, ModelView):
             'internal_cost': Decimal('0'),
             }
 
-    @classmethod
-    @ModelView.button
-    def update_product_cost_price(cls, plans):
-        for plan in plans:
-            if not plan.product:
-                continue
-            plan._update_product_cost_price()
-            plan.product.save()
-            plan.product.template.save()
-
-    def _update_product_cost_price(self):
-        pool = Pool()
-        Uom = pool.get('product.uom')
-
-        assert self.product
-        cost_price = Uom.compute_price(self.uom, self.cost_price,
-            self.product.default_uom)
-        if hasattr(self.product.__class__, 'cost_price'):
-            self.product.cost_price = round_price(cost_price)
-        else:
-            self.product.template.cost_price = round_price(cost_price)
-
     def create_bom(self, name):
         pool = Pool()
         BOM = pool.get('production.bom')
@@ -499,6 +474,15 @@ class PlanScale(ModelSQL, ModelView):
     uom_digits = fields.Function(fields.Integer('UoM Digits'),
         'on_change_with_uom_digits')
 
+    @classmethod
+    def __setup__(cls):
+        super(PlanScale, cls).__setup__()
+        cls._buttons.update({
+                'update_product_cost_price': {
+                    'icon': 'tryton-refresh',
+                    },
+                })
+
     @fields.depends('uom')
     def on_change_with_uom_digits(self, name=None):
         return self.uom.digits if self.uom else 2
@@ -512,6 +496,29 @@ class PlanScale(ModelSQL, ModelView):
         if not self.plan:
             return Decimal(0)
         return Decimal(sum(c.cost for c in self.plan.costs if c.cost))
+
+    @classmethod
+    @ModelView.button
+    def update_product_cost_price(cls, scales):
+        for scale in scales:
+            if not scale.plan or not scale.plan.product:
+                continue
+            scale._update_product_cost_price()
+            scale.plan.product.save()
+            scale.plan.product.template.save()
+
+    def _update_product_cost_price(self):
+        pool = Pool()
+        Uom = pool.get('product.uom')
+
+        product = self.plan.product
+        assert product
+        cost_price = Uom.compute_price(self.uom, self.cost_price,
+            product.default_uom)
+        if hasattr(product.__class__, 'cost_price'):
+            product.cost_price = round_price(cost_price)
+        else:
+            product.template.cost_price = round_price(cost_price)
 
 
 class PlanBOM(ModelSQL, ModelView):
