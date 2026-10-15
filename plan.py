@@ -36,6 +36,10 @@ class Plan(DeactivableMixin, ModelSQL, ModelView):
     product_uom_category = fields.Function(
         fields.Many2One('product.uom.category', 'Product UoM Category'),
         'on_change_with_product_uom_category')
+    # Quantity and UoM produced from the quantities listed in products
+    # (e.g. 1 metal bar in products yields 4 units here).
+    # WARNING: When using scales, a scale quantity that is not a multiple of
+    # the plan quantity (in the same UoM) may cause calculation errors.
     quantity = fields.Float('Quantity', digits=UOM_DIGITS,
         required=True)
     uom = fields.Many2One('product.uom', 'UoM', required=True, domain=[
