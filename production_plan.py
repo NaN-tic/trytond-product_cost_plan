@@ -220,6 +220,19 @@ class Plan(metaclass=PoolMeta):
             }
 
 
+class PlanScale(metaclass=PoolMeta):
+    __name__ = 'product.cost.plan.scale'
+
+    operations_cost = fields.Function(fields.Numeric('Operations Cost',
+            digits=price_digits),
+        'on_change_with_operations_cost')
+
+    @fields.depends('uom', 'quantity')
+    def on_change_with_operations_cost(self, name=None):
+        # TODO: calculate the operations cost for the scale.
+        return None
+
+
 class ProductBom(metaclass=PoolMeta):
     __name__ = 'product.product-production.bom'
 

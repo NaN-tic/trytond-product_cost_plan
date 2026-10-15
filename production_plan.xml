@@ -8,6 +8,20 @@
             <field name="name">cost_plan_form_production_plan</field>
         </record>
 
+        <record model="ir.ui.view" id="product_cost_plan_scale_view_form_production_plan">
+            <field name="model">product.cost.plan.scale</field>
+            <field name="type" eval="None"/>
+            <field name="inherit" ref="product_cost_plan.product_cost_plan_scale_view_form"/>
+            <field name="name">cost_plan_scale_form_production_plan</field>
+        </record>
+
+        <record model="ir.ui.view" id="product_cost_plan_scale_view_list_production_plan">
+            <field name="model">product.cost.plan.scale</field>
+            <field name="type" eval="None"/>
+            <field name="inherit" ref="product_cost_plan.product_cost_plan_scale_view_list"/>
+            <field name="name">cost_plan_scale_list_production_plan</field>
+        </record>
+
         <record model="ir.ui.view" id="product_cost_plan_operation_line_view_form">
             <field name="model">product.cost.plan.step_line</field>
             <field name="type">form</field>

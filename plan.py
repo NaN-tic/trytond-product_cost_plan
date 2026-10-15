@@ -492,9 +492,6 @@ class PlanScale(ModelSQL, ModelView):
     products_cost = fields.Function(fields.Numeric('Products Cost',
             digits=price_digits),
         'on_change_with_products_cost')
-    operations_cost = fields.Function(fields.Numeric('Operations Cost',
-            digits=price_digits),
-        'on_change_with_operations_cost')
     #
     uom_digits = fields.Function(fields.Integer('UoM Digits'),
         'on_change_with_uom_digits')
@@ -507,11 +504,6 @@ class PlanScale(ModelSQL, ModelView):
     def on_change_with_products_cost(self, name=None):
         if self.plan:
             return self.plan.products_cost
-
-    @fields.depends('uom', 'quantity')
-    def on_change_with_operations_cost(self, name=None):
-        # TODO: calculate the operations cost for the scale.
-        return None
 
 
 class PlanBOM(ModelSQL, ModelView):
