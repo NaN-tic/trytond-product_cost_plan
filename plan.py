@@ -64,7 +64,7 @@ class Plan(DeactivableMixin, ModelSQL, ModelView):
     products_cost = fields.Function(fields.Numeric('Products Cost',
             digits=price_digits),
         'get_products_cost')
-    costs = fields.One2Many('product.cost.plan.cost', 'plan', 'Costs')
+    costs = fields.One2Many('product.cost.plan.cost', 'plan', 'Other Costs')
     scales = fields.One2Many('product.cost.plan.scale', 'plan', 'Scales')
     product_cost_price = fields.Function(fields.Numeric('Product Cost Price',
             digits=price_digits),
@@ -495,7 +495,9 @@ class PlanScale(ModelSQL, ModelView):
     def get_cost_price(self, name):
         if not self.plan:
             return Decimal(0)
-        return Decimal(sum(c.cost for c in self.plan.costs if c.cost))
+        cost = self.products_cost or Decimal(0)
+        cost += Decimal(sum(c.cost for c in self.plan.costs if c.cost))
+        return cost
 
     @classmethod
     @ModelView.button

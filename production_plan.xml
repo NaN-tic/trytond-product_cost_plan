@@ -51,10 +51,5 @@
             <field name="perm_delete" eval="True"/>
         </record>
 
-        <record model="product.cost.plan.cost.type" id="operations">
-            <field name="name">Operations</field>
-            <field name="system" eval="True"/>
-            <field name="plan_field_name">operations_cost</field>
-        </record>
     </data>
 </tryton>

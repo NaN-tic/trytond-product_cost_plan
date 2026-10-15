@@ -368,10 +368,5 @@
             sequence="1"
             name="Plan Cost Type"/>
 
-        <record model="product.cost.plan.cost.type" id="raw_materials">
-            <field name="name">Raw materials</field>
-            <field name="system" eval="True"/>
-            <field name="plan_field_name">products_cost</field>
-        </record>
     </data>
 </tryton>
