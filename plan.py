@@ -499,10 +499,10 @@ class PlanScale(ModelSQL, ModelView):
     def on_change_with_uom_digits(self, name=None):
         return self.uom.digits if self.uom else 2
 
-    @fields.depends('uom', 'quantity')
+    @fields.depends('plan')
     def on_change_with_products_cost(self, name=None):
-        # TODO: calculate the products cost for the scale.
-        return None
+        if self.plan:
+            return self.plan.products_cost
 
     @fields.depends('uom', 'quantity')
     def on_change_with_operations_cost(self, name=None):
