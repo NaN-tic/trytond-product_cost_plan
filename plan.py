@@ -485,6 +485,12 @@ class PlanScale(ModelSQL, ModelView):
                     Eval('_parent_plan', {}).get('product_uom_category')),
                 ('category', '!=', -1)),
             ])
+    products_cost = fields.Function(fields.Numeric('Products Cost',
+            digits=price_digits),
+        'on_change_with_products_cost')
+    operations_cost = fields.Function(fields.Numeric('Operations Cost',
+            digits=price_digits),
+        'on_change_with_operations_cost')
     #
     uom_digits = fields.Function(fields.Integer('UoM Digits'),
         'on_change_with_uom_digits')
@@ -492,6 +498,16 @@ class PlanScale(ModelSQL, ModelView):
     @fields.depends('uom')
     def on_change_with_uom_digits(self, name=None):
         return self.uom.digits if self.uom else 2
+
+    @fields.depends('uom', 'quantity')
+    def on_change_with_products_cost(self, name=None):
+        # TODO: calculate the products cost for the scale.
+        return None
+
+    @fields.depends('uom', 'quantity')
+    def on_change_with_operations_cost(self, name=None):
+        # TODO: calculate the operations cost for the scale.
+        return None
 
 
 class PlanBOM(ModelSQL, ModelView):

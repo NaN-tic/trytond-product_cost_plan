@@ -11,16 +11,16 @@
     <newline/>
     <label name="product"/>
     <field name="product"/>
-    <label name="quantity"/>
-    <field name="quantity"/>
-    <label name="uom"/>
-    <field name="uom"/>
     <label name="bom"/>
     <field name="bom"/>
     <button name="compute" colspan="2"/>
     <notebook colspan="6">
         <page string="Products" id="products">
             <field name="products" colspan="4"/>
+            <label name="quantity"/>
+            <field name="quantity"/>
+            <label name="uom"/>
+            <field name="uom"/>
             <label name="products_cost"/>
             <field name="products_cost"/>
         </page>

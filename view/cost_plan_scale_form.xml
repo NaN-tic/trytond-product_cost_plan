@@ -6,4 +6,8 @@
     <field name="quantity"/>
     <label name="uom"/>
     <field name="uom"/>
+    <label name="products_cost"/>
+    <field name="products_cost"/>
+    <label name="operations_cost"/>
+    <field name="operations_cost"/>
 </form>
