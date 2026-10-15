@@ -8,4 +8,6 @@
     <field name="uom"/>
     <label name="products_cost"/>
     <field name="products_cost"/>
+    <label name="cost_price"/>
+    <field name="cost_price"/>
 </form>

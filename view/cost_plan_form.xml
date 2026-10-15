@@ -37,8 +37,6 @@
             <field name="notes" colspan="4"/>
         </page>
     </notebook>
-    <label name="cost_price"/>
-    <field name="cost_price"/>
     <label name="product_cost_price"/>
     <field name="product_cost_price"/>
     <button name="update_product_cost_price"

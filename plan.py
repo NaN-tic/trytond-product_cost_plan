@@ -69,9 +69,6 @@ class Plan(DeactivableMixin, ModelSQL, ModelView):
     product_cost_price = fields.Function(fields.Numeric('Product Cost Price',
             digits=price_digits),
         'on_change_with_product_cost_price')
-    cost_price = fields.Function(fields.Numeric('Unit Cost Price',
-            digits=price_digits),
-        'get_cost_price')
     notes = fields.Text('Notes')
 
     @classmethod
@@ -196,9 +193,6 @@ class Plan(DeactivableMixin, ModelSQL, ModelView):
     @fields.depends('product')
     def on_change_with_product_cost_price(self, name=None):
         return self.product.cost_price if self.product else None
-
-    def get_cost_price(self, name):
-        return Decimal(sum(c.cost for c in self.costs if c.cost))
 
     @classmethod
     def clean(cls, plans):
@@ -498,6 +492,9 @@ class PlanScale(ModelSQL, ModelView):
     products_cost = fields.Function(fields.Numeric('Products Cost',
             digits=price_digits),
         'on_change_with_products_cost')
+    cost_price = fields.Function(fields.Numeric('Unit Cost Price',
+            digits=price_digits),
+        'get_cost_price')
     #
     uom_digits = fields.Function(fields.Integer('UoM Digits'),
         'on_change_with_uom_digits')
@@ -510,6 +507,11 @@ class PlanScale(ModelSQL, ModelView):
     def on_change_with_products_cost(self, name=None):
         if self.plan:
             return self.plan.products_cost
+
+    def get_cost_price(self, name):
+        if not self.plan:
+            return Decimal(0)
+        return Decimal(sum(c.cost for c in self.plan.costs if c.cost))
 
 
 class PlanBOM(ModelSQL, ModelView):
