@@ -159,9 +159,6 @@ class Plan(metaclass=PoolMeta):
 
     operations = fields.One2Many('product.cost.plan.step_line', 'plan',
         'Operations')
-    operations_cost = fields.Function(fields.Numeric('Operations Cost',
-            digits=price_digits),
-        'get_operations_cost')
 
     def create_bom(self, name):
         if self.operations:
@@ -170,13 +167,6 @@ class Plan(metaclass=PoolMeta):
         if self.operations:
             self._create_routing(name, bom)
         return bom
-
-    def get_operations_cost(self, name):
-        if not self.quantity:
-            return Decimal(0)
-        cost = sum(o.get_total_cost(None, round=False) for o in self.operations)
-        cost /= Decimal(str(self.quantity))
-        return round_price(cost)
 
     def _check_routing_step_lines(self):
         for step_line in self.operations:

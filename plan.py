@@ -736,7 +736,7 @@ class PlanCost(ModelSQL, ModelView):
 
     def get_cost(self, name):
         if self.system:
-            cost = getattr(self.plan, self.type.plan_field_name)
+            cost = getattr(self.plan, self.type.plan_field_name, Decimal('0'))
         else:
             cost = self.internal_cost
         return round_price(cost)
