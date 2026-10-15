@@ -2,8 +2,8 @@
 <!-- The COPYRIGHT file at the top level of this repository contains the full
      copyright notices and license terms. -->
 <form>
-    <label name="plan"/>
-    <field name="plan"/>
+    <label name="scale"/>
+    <field name="scale"/>
     <newline/>
     <label name="type"/>
     <field name="type"/>
