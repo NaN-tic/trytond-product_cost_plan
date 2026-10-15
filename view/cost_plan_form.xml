@@ -14,6 +14,8 @@
     <label name="bom"/>
     <field name="bom"/>
     <button name="compute" colspan="2"/>
+    <label name="product_cost_price"/>
+    <field name="product_cost_price"/>
     <notebook colspan="6">
         <page string="Products" id="products">
             <field name="products" colspan="4"/>
@@ -37,6 +39,4 @@
             <field name="notes" colspan="4"/>
         </page>
     </notebook>
-    <label name="product_cost_price"/>
-    <field name="product_cost_price"/>
 </form>
