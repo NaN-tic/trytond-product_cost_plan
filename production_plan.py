@@ -68,10 +68,6 @@ class PlanOperationLine(ModelSQL, ModelView):
             help="The cost of this operation for each unit of plan's "
             "product."),
         'get_unit_cost')
-    total_cost = fields.Function(fields.Numeric('Total Cost',
-            digits=price_digits,
-            help="The cost of this operation for total plan's quantity."),
-        'get_total_cost')
 
     @staticmethod
     def default_calculation():
@@ -117,15 +113,15 @@ class PlanOperationLine(ModelSQL, ModelView):
                 self.cost_price = self.work_center.cost_price
 
     def get_unit_cost(self, name=None):
-        unit_cost = self.get_total_cost(None, round=False)
+        unit_cost = self.get_total_cost(1, round=False)
         if unit_cost and self.plan and self.plan.quantity:
             unit_cost /= Decimal(str(self.plan.quantity))
         return round_price(unit_cost or _ZERO)
 
-    def get_total_cost(self, name=None, round=True):
+    def get_total_cost(self, expected_quantity, round=True):
         if not self.cost_price:
             return _ZERO
-        if not self.plan or not self.plan.quantity:
+        if not self.plan or not expected_quantity:
             return _ZERO
         if self.calculation == 'standard' and not self.quantity:
             return _ZERO
@@ -133,7 +129,7 @@ class PlanOperationLine(ModelSQL, ModelView):
         if self.calculation == 'standard':
             if not self.quantity:
                 return _ZERO
-            factor = Decimal(str(self.plan.quantity / self.quantity))
+            factor = Decimal(str(expected_quantity / self.quantity))
         else:
             factor = Decimal(1)
 
@@ -217,10 +213,14 @@ class PlanScale(metaclass=PoolMeta):
             digits=price_digits),
         'on_change_with_operations_cost')
 
-    @fields.depends('uom', 'quantity')
+    @fields.depends('plan', 'uom', 'quantity')
     def on_change_with_operations_cost(self, name=None):
-        # TODO: calculate the operations cost for the scale.
-        return None
+        if not self.quantity or not self.plan:
+            return Decimal(0)
+        cost = sum(x.get_total_cost(self.quantity, round=False)
+            for x in self.plan.operations)
+        cost /= Decimal(str(self.quantity))
+        return round_price(cost)
 
 
 class ProductBom(metaclass=PoolMeta):

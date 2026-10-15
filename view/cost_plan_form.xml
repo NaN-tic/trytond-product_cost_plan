@@ -28,7 +28,7 @@
             <field name="costs" colspan="4"/>
         </page>
         <page string="Scales" id="scales">
-            <field name="scales" colspan="4"/>
+            <field name="scales" colspan="4" mode="form,tree"/>
         </page>
         <page string="BOM Configuration" id="configuration">
             <field name="boms" colspan="4"/>
