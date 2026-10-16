@@ -230,51 +230,6 @@
             <field name="perm_delete" eval="True"/>
         </record>
 
-        <!-- product.cost.plan.cost -->
-        <record model="ir.ui.view" id="product_cost_plan_cost_view_form">
-            <field name="model">product.cost.plan.cost</field>
-            <field name="type">form</field>
-            <field name="name">plan_cost_form</field>
-        </record>
-
-        <record model="ir.ui.view" id="product_cost_plan_cost_view_list">
-            <field name="model">product.cost.plan.cost</field>
-            <field name="type">tree</field>
-            <field name="name">plan_cost_list</field>
-        </record>
-
-        <record model="ir.action.act_window" id="act_product_cost_plan_cost">
-            <field name="name">Plan Costs</field>
-            <field name="res_model">product.cost.plan.cost</field>
-        </record>
-        <record model="ir.action.act_window.view" id="act_product_cost_plan_cost_view1">
-            <field name="sequence" eval="10"/>
-            <field name="view" ref="product_cost_plan_cost_view_list"/>
-            <field name="act_window" ref="act_product_cost_plan_cost"/>
-        </record>
-        <record model="ir.action.act_window.view" id="act_product_cost_plan_cost_view2">
-            <field name="sequence" eval="20"/>
-            <field name="view" ref="product_cost_plan_cost_view_form"/>
-            <field name="act_window" ref="act_product_cost_plan_cost"/>
-        </record>
-
-        <record model="ir.model.access" id="access_product_cost_plan_cost">
-            <field name="model">product.cost.plan.cost</field>
-            <field name="perm_read" eval="True"/>
-            <field name="perm_write" eval="False"/>
-            <field name="perm_create" eval="False"/>
-            <field name="perm_delete" eval="False"/>
-        </record>
-
-        <record model="ir.model.access" id="access_product_cost_plan_cost_admin">
-            <field name="model">product.cost.plan.cost</field>
-            <field name="group" ref="group_product_cost_plan_admin"/>
-            <field name="perm_read" eval="True"/>
-            <field name="perm_write" eval="True"/>
-            <field name="perm_create" eval="True"/>
-            <field name="perm_delete" eval="True"/>
-        </record>
-
         <!-- product.cost.plan.cost.type -->
         <record model="ir.ui.view" id="product_cost_plan_cost_type_view_form">
             <field name="model">product.cost.plan.cost.type</field>

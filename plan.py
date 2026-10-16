@@ -13,7 +13,7 @@ from trytond.modules.product import price_digits, round_price
 from trytond.model.exceptions import ValidationError
 
 __all__ = ['PlanCostType', 'Plan', 'PlanScale', 'PlanBOM', 'PlanProductLine',
-    'PlanCost', 'CreateBomStart', 'CreateBom']
+    'CreateBomStart', 'CreateBom']
 
 UOM_DIGITS = (16, Eval('uom_digits', 2))
 
@@ -22,8 +22,6 @@ class PlanCostType(ModelSQL, ModelView):
     'Plan Cost Type'
     __name__ = 'product.cost.plan.cost.type'
     name = fields.Char('Name', required=True, translate=True)
-    system = fields.Boolean('System Managed', readonly=True)
-    plan_field_name = fields.Char('Plan Field Name', readonly=True)
 
 
 class Plan(DeactivableMixin, ModelSQL, ModelView):
@@ -64,7 +62,6 @@ class Plan(DeactivableMixin, ModelSQL, ModelView):
     products_cost = fields.Function(fields.Numeric('Products Cost',
             digits=price_digits),
         'get_products_cost')
-    costs = fields.One2Many('product.cost.plan.cost', 'plan', 'Other Costs')
     scales = fields.One2Many('product.cost.plan.scale', 'plan', 'Scales')
     product_cost_price = fields.Function(fields.Numeric('Product Cost Price',
             digits=price_digits),
@@ -195,7 +192,6 @@ class Plan(DeactivableMixin, ModelSQL, ModelView):
     def clean(cls, plans):
         pool = Pool()
         ProductLine = pool.get('product.cost.plan.product_line')
-        CostLine = pool.get('product.cost.plan.cost')
         Warning = Pool().get('res.user.warning')
 
         product_lines = ProductLine.search([
@@ -208,18 +204,11 @@ class Plan(DeactivableMixin, ModelSQL, ModelView):
                     gettext('product_cost_plan.product_lines_will_be_removed'))
             ProductLine.delete(product_lines)
 
-        with Transaction().set_context(reset_costs=True):
-            CostLine.delete(CostLine.search([
-                        ('plan', 'in', [p.id for p in plans]),
-                        ('system', '=', True),
-                        ]))
-
     @classmethod
     @ModelView.button
     def compute(cls, plans):
         pool = Pool()
         ProductLine = pool.get('product.cost.plan.product_line')
-        CostLine = pool.get('product.cost.plan.cost')
 
         cls.clean(plans)
 
@@ -230,12 +219,6 @@ class Plan(DeactivableMixin, ModelSQL, ModelView):
                         plan.quantity, plan.uom))
         if to_create:
             ProductLine.create(to_create)
-
-        to_create = []
-        for plan in plans:
-            to_create.extend(plan.get_costs())
-        if to_create:
-            CostLine.create(to_create)
 
     def explode_bom(self, product, bom, quantity, uom):
         "Returns products for the especified products"
@@ -294,27 +277,6 @@ class Plan(DeactivableMixin, ModelSQL, ModelView):
             'party_stock': getattr(input_, 'party_stock', False),
             'product_cost_price': round_price(product_cost_price),
             'cost_price': round_price(cost_price),
-            }
-
-    def get_costs(self):
-        "Returns the cost lines to be created on compute"
-        pool = Pool()
-        CostType = pool.get('product.cost.plan.cost.type')
-
-        ret = []
-        system_cost_types = CostType.search([
-                ('system', '=', True),
-                ])
-        for cost_type in system_cost_types:
-            ret.append(self._get_cost_line(cost_type))
-        return ret
-
-    def _get_cost_line(self, cost_type):
-        return {
-            'plan': self.id,
-            'type': cost_type.id,
-            'system': cost_type.system,
-            'internal_cost': Decimal('0'),
             }
 
     def create_bom(self, name):
@@ -434,18 +396,13 @@ class Plan(DeactivableMixin, ModelSQL, ModelView):
     @classmethod
     def delete(cls, plans):
         pool = Pool()
-        CostLine = pool.get('product.cost.plan.cost')
         Line = pool.get('product.cost.plan.product_line')
 
         to_delete = []
-        to_delete2 = []
         for plan in plans:
-            to_delete += plan.costs
-            to_delete2 += [line for line in plan.all_products
+            to_delete += [line for line in plan.all_products
                 if line.plan is None]
-        with Transaction().set_context(reset_costs=True):
-            CostLine.delete(to_delete)
-            Line.delete(to_delete2)
+        Line.delete(to_delete)
 
         super(Plan, cls).delete(plans)
 
@@ -495,9 +452,7 @@ class PlanScale(ModelSQL, ModelView):
     def get_cost_price(self, name):
         if not self.plan:
             return Decimal(0)
-        cost = self.products_cost or Decimal(0)
-        cost += Decimal(sum(c.cost for c in self.plan.costs if c.cost))
-        return cost
+        return self.products_cost or Decimal(0)
 
     @classmethod
     @ModelView.button
@@ -701,79 +656,6 @@ class PlanProductLine(ModelSQL, ModelView, tree(separator='/')):
                 raise ValidationError(gettext(
                     'product_cost_plan.msg_product_line_plan_parent',
                         line=line.rec_name))
-
-STATES = {
-    'readonly': Eval('system', False),
-    }
-
-
-class PlanCost(ModelSQL, ModelView):
-    'Plan Cost'
-    __name__ = 'product.cost.plan.cost'
-
-    plan = fields.Many2One('product.cost.plan', 'Plan', required=True,
-        ondelete='CASCADE')
-    sequence = fields.Integer('Sequence')
-    type = fields.Many2One('product.cost.plan.cost.type', 'Type', domain=[
-            ('system', '=', Eval('system')),
-        ], required=True, states=STATES)
-    internal_cost = fields.Numeric('Cost (Internal Use)', digits=price_digits,
-        readonly=True)
-    cost = fields.Function(fields.Numeric('Cost', digits=price_digits,
-        required=True, states=STATES),
-        'get_cost', setter='set_cost')
-    system = fields.Boolean('System Managed', readonly=True)
-
-    @classmethod
-    def __setup__(cls):
-        super(PlanCost, cls).__setup__()
-        cls._order.insert(0, ('sequence', 'ASC'))
-
-    @staticmethod
-    def order_sequence(tables):
-        table, _ = tables[None]
-        return [table.sequence == None, table.sequence]
-
-    def get_rec_name(self, name):
-        return self.type.rec_name
-
-    @classmethod
-    def search_rec_name(cls, name, clause):
-        return [('type.name',) + tuple(clause[1:])]
-
-    @staticmethod
-    def default_system():
-        return False
-
-    def get_cost(self, name):
-        if self.system:
-            cost = getattr(self.plan, self.type.plan_field_name, Decimal('0'))
-        else:
-            cost = self.internal_cost
-        return round_price(cost)
-
-    @classmethod
-    def set_cost(cls, records, name, value):
-        records_todo = [r for r in records if not r.system]
-        if records_todo:
-            cls.write(records_todo, {
-                    'internal_cost': value,
-                    })
-
-    @classmethod
-    def delete(cls, costs):
-        Warning = Pool().get('res.user.warning')
-
-        if not Transaction().context.get('reset_costs', False):
-            for cost in costs:
-                if cost.system:
-                    key = 'task_delete_system_cost.%d' % cost.id
-                    if Warning.check(key):
-                        raise UserWarning('delete_system_cost',
-                            gettext('product_cost_plan.delete_system_cost',
-                                cost=cost.rec_name,
-                                plan=cost.plan.rec_name))
-        super(PlanCost, cls).delete(costs)
 
 
 class CreateBomStart(ModelView):

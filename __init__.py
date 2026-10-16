@@ -14,7 +14,6 @@ def register():
         plan.PlanBOM,
         plan.PlanProductLine,
         plan.PlanCostType,
-        plan.PlanCost,
         configuration.Configuration,
         configuration.ConfigurationProductcostPlan,
         plan.CreateBomStart,
