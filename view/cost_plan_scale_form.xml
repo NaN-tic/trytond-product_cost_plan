@@ -10,6 +10,7 @@
     <field name="products_cost"/>
     <label name="additional_costs"/>
     <field name="additional_costs"/>
+    <newline/>
     <label name="cost_price"/>
     <field name="cost_price"/>
     <button name="update_product_cost_price"

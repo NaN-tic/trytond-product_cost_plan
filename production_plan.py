@@ -217,7 +217,7 @@ class PlanScale(metaclass=PoolMeta):
         cost = super().get_cost_price(name)
         return cost + self.operations_cost
 
-    @fields.depends('plan', 'uom', 'quantity')
+    @fields.depends('plan', '_parent_plan.operations', 'uom', 'quantity')
     def on_change_with_operations_cost(self, name=None):
         if not self.quantity or not self.plan:
             return Decimal(0)
