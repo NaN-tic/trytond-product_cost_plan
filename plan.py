@@ -445,10 +445,15 @@ class PlanScale(ModelSQL, ModelView):
     def on_change_with_uom_digits(self, name=None):
         return self.uom.digits if self.uom else 2
 
-    @fields.depends('plan', '_parent_plan.products_cost')
+    @fields.depends('plan', '_parent_plan.products_cost', '_parent_plan.uom',
+        'uom')
     def on_change_with_products_cost(self, name=None):
-        if self.plan:
-            return self.plan.products_cost
+        pool = Pool()
+        Uom = pool.get('product.uom')
+
+        if self.plan and self.plan.uom and self.uom:
+            return round_price(Uom.compute_price(self.plan.uom,
+                    self.plan.products_cost, self.uom))
         return Decimal(0)
 
     def get_cost_price(self, name=None):

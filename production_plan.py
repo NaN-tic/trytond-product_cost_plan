@@ -114,8 +114,6 @@ class PlanOperationLine(ModelSQL, ModelView):
 
     def get_unit_cost(self, name=None):
         unit_cost = self.get_total_cost(1, round=False)
-        if unit_cost and self.plan and self.plan.quantity:
-            unit_cost /= Decimal(str(self.plan.quantity))
         return round_price(unit_cost or _ZERO)
 
     def get_total_cost(self, expected_quantity, round=True):
