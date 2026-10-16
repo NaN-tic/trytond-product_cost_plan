@@ -53,6 +53,7 @@ class PlanOperationLine(ModelSQL, ModelView):
             'invisible': Eval('calculation') == 'fixed',
             }, depends=['calculation'])
     time = fields.TimeDelta('Time', required=True)
+    # TODO: What do we do with this field?
     quantity_digits = fields.Function(fields.Integer('Quantity Digits'),
         'on_change_with_quantity_digits')
     quantity = fields.Float('Quantity',
