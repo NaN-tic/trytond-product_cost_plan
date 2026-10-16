@@ -10,10 +10,11 @@ from . import production_plan
 def register():
     Pool.register(
         plan.Plan,
+        plan.PlanScale,
         plan.PlanBOM,
         plan.PlanProductLine,
-        plan.PlanCostType,
-        plan.PlanCost,
+        plan.PlanAdditionalCost,
+        plan.PlanAdditionalCostType,
         configuration.Configuration,
         configuration.ConfigurationProductcostPlan,
         plan.CreateBomStart,
@@ -21,6 +22,7 @@ def register():
     Pool.register(
         production_plan.PlanOperationLine,
         production_plan.Plan,
+        production_plan.PlanScale,
         production_plan.ProductBom,
         module='product_cost_plan', type_='model', depends=['production_plan'])
     Pool.register(
