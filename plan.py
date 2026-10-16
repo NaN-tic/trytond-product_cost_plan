@@ -18,12 +18,6 @@ __all__ = ['PlanCostType', 'Plan', 'PlanScale', 'PlanBOM', 'PlanProductLine',
 UOM_DIGITS = (16, Eval('uom_digits', 2))
 
 
-class PlanCostType(ModelSQL, ModelView):
-    'Plan Cost Type'
-    __name__ = 'product.cost.plan.cost.type'
-    name = fields.Char('Name', required=True, translate=True)
-
-
 class Plan(DeactivableMixin, ModelSQL, ModelView):
     'Product Cost Plan'
     __name__ = 'product.cost.plan'
@@ -476,6 +470,13 @@ class PlanScale(ModelSQL, ModelView):
             product.cost_price = round_price(cost_price)
         else:
             product.template.cost_price = round_price(cost_price)
+
+
+class PlanCostType(ModelSQL, ModelView):
+    'Plan Cost Type'
+    __name__ = 'product.cost.plan.cost.type'
+
+    name = fields.Char('Name', required=True, translate=True)
 
 
 class PlanBOM(ModelSQL, ModelView):
