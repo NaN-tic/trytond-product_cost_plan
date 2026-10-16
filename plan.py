@@ -12,8 +12,8 @@ from trytond.exceptions import UserWarning
 from trytond.modules.product import price_digits, round_price
 from trytond.model.exceptions import ValidationError
 
-__all__ = ['PlanCostType', 'Plan', 'PlanScale', 'PlanBOM', 'PlanProductLine',
-    'CreateBomStart', 'CreateBom']
+__all__ = ['PlanAdditionalCostType', 'PlanAdditionalCost', 'Plan', 'PlanScale',
+    'PlanBOM', 'PlanProductLine', 'CreateBomStart', 'CreateBom']
 
 UOM_DIGITS = (16, Eval('uom_digits', 2))
 
@@ -56,6 +56,8 @@ class Plan(DeactivableMixin, ModelSQL, ModelView):
     products_cost = fields.Function(fields.Numeric('Products Cost',
             digits=price_digits),
         'get_products_cost')
+    additional_costs = fields.One2Many('product.cost.plan.additional_cost',
+        'plan', 'Additional Costs')
     scales = fields.One2Many('product.cost.plan.scale', 'plan', 'Scales')
     product_cost_price = fields.Function(fields.Numeric('Product Cost Price',
             digits=price_digits),
@@ -443,10 +445,12 @@ class PlanScale(ModelSQL, ModelView):
         if self.plan:
             return self.plan.products_cost
 
-    def get_cost_price(self, name):
+    def get_cost_price(self, name=None):
         if not self.plan:
             return Decimal(0)
-        return self.products_cost or Decimal(0)
+        # TODO: Implement "Fixed" and "Standard" costs properly
+        additional_costs = sum(x.cost for x in self.plan.additional_costs) or Decimal(0)
+        return additional_costs + (self.products_cost or Decimal(0))
 
     @classmethod
     @ModelView.button
@@ -472,8 +476,30 @@ class PlanScale(ModelSQL, ModelView):
             product.template.cost_price = round_price(cost_price)
 
 
-class PlanCostType(ModelSQL, ModelView):
-    'Plan Cost Type'
+class PlanAdditionalCost(ModelSQL, ModelView):
+    'Plan Additional Cost'
+    __name__ = 'product.cost.plan.additional_cost'
+
+    plan = fields.Many2One('product.cost.plan', 'Plan', required=True,
+        ondelete='CASCADE')
+    cost_type = fields.Many2One('product.cost.plan.cost.type', 'Cost Type',
+        required=True)
+    calculation = fields.Selection([
+            ('standard', 'Standard'),
+            ('fixed', 'Fixed'),
+            ], 'Calculation', required=True)
+    cost = fields.Numeric('Cost', digits=price_digits)
+
+    @staticmethod
+    def default_calculation():
+        return 'standard'
+
+    def get_rec_name(self, name):
+        return self.cost_type.rec_name
+
+
+class PlanAdditionalCostType(ModelSQL, ModelView):
+    'Plan Additional Cost Type'
     __name__ = 'product.cost.plan.cost.type'
 
     name = fields.Char('Name', required=True, translate=True)

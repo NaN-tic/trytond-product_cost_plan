@@ -230,6 +230,36 @@
             <field name="perm_delete" eval="True"/>
         </record>
 
+        <!-- product.cost.plan.additional_cost -->
+        <record model="ir.ui.view" id="product_cost_plan_additional_cost_view_form">
+            <field name="model">product.cost.plan.additional_cost</field>
+            <field name="type">form</field>
+            <field name="name">plan_additional_cost_form</field>
+        </record>
+
+        <record model="ir.ui.view" id="product_cost_plan_additional_cost_view_list">
+            <field name="model">product.cost.plan.additional_cost</field>
+            <field name="type">tree</field>
+            <field name="name">plan_additional_cost_list</field>
+        </record>
+
+        <record model="ir.model.access" id="access_product_cost_plan_additional_cost">
+            <field name="model">product.cost.plan.additional_cost</field>
+            <field name="perm_read" eval="True"/>
+            <field name="perm_write" eval="False"/>
+            <field name="perm_create" eval="False"/>
+            <field name="perm_delete" eval="False"/>
+        </record>
+
+        <record model="ir.model.access" id="access_product_cost_plan_additional_cost_admin">
+            <field name="model">product.cost.plan.additional_cost</field>
+            <field name="group" ref="group_product_cost_plan_admin"/>
+            <field name="perm_read" eval="True"/>
+            <field name="perm_write" eval="True"/>
+            <field name="perm_create" eval="True"/>
+            <field name="perm_delete" eval="True"/>
+        </record>
+
         <!-- product.cost.plan.cost.type -->
         <record model="ir.ui.view" id="product_cost_plan_cost_type_view_form">
             <field name="model">product.cost.plan.cost.type</field>
@@ -244,7 +274,7 @@
         </record>
 
         <record model="ir.action.act_window" id="act_product_cost_plan_cost_type">
-            <field name="name">Plan Cost Type</field>
+            <field name="name">Plan Additional Cost Type</field>
             <field name="res_model">product.cost.plan.cost.type</field>
         </record>
 
@@ -321,7 +351,7 @@
             id="menu_product_cost_plan_cost_type"
             parent="product_cost_plan.menu_product_cost_plan"
             sequence="1"
-            name="Plan Cost Type"/>
+            name="Plan Additional Cost Type"/>
 
     </data>
 </tryton>

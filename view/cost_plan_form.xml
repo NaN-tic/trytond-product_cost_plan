@@ -26,6 +26,9 @@
             <label name="products_cost"/>
             <field name="products_cost"/>
         </page>
+        <page string="Additional Costs" id="additional_costs">
+            <field name="additional_costs" colspan="4"/>
+        </page>
         <page string="Scales" id="scales">
             <field name="scales" colspan="4" mode="form,tree"/>
         </page>
