@@ -5,5 +5,6 @@
     <field name="quantity"/>
     <field name="uom"/>
     <field name="products_cost"/>
+    <field name="additional_costs"/>
     <field name="cost_price"/>
 </tree>

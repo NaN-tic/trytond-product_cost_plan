@@ -3,7 +3,7 @@
      copyright notices and license terms. -->
 <tree editable="1">
     <field name="plan"/>
-    <field name="cost_type"/>
+    <field name="type"/>
     <field name="calculation"/>
     <field name="cost"/>
 </tree>

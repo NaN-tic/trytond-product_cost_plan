@@ -5,8 +5,8 @@
     <label name="plan"/>
     <field name="plan"/>
     <newline/>
-    <label name="cost_type"/>
-    <field name="cost_type"/>
+    <label name="type"/>
+    <field name="type"/>
     <label name="calculation"/>
     <field name="calculation"/>
     <label name="cost"/>

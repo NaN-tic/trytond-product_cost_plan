@@ -410,7 +410,9 @@ class PlanScale(ModelSQL, ModelView):
     plan = fields.Many2One('product.cost.plan', 'Plan', required=True,
         ondelete='CASCADE')
     quantity = fields.Float('Quantity', digits=UOM_DIGITS,
-        required=True)
+        required=True, domain=[
+            ('quantity', '>=', 0),
+            ])
     uom = fields.Many2One('product.uom', 'UoM', required=True, domain=[
             If(Bool(Eval('_parent_plan', {}).get('product_uom_category')),
                 ('category', '=',
@@ -420,6 +422,9 @@ class PlanScale(ModelSQL, ModelView):
     products_cost = fields.Function(fields.Numeric('Products Cost',
             digits=price_digits),
         'on_change_with_products_cost')
+    additional_costs = fields.Function(fields.Numeric('Additional Costs',
+            digits=price_digits),
+        'on_change_with_additional_costs')
     cost_price = fields.Function(fields.Numeric('Unit Cost Price',
             digits=price_digits),
         'get_cost_price')
@@ -444,13 +449,26 @@ class PlanScale(ModelSQL, ModelView):
     def on_change_with_products_cost(self, name=None):
         if self.plan:
             return self.plan.products_cost
+        return Decimal(0)
 
     def get_cost_price(self, name=None):
+        return self.products_cost + self.additional_costs
+
+    @fields.depends('plan', '_parent_plan.additional_costs', 'quantity')
+    def on_change_with_additional_costs(self, name=None):
         if not self.plan:
             return Decimal(0)
-        # TODO: Implement "Fixed" and "Standard" costs properly
-        additional_costs = sum(x.cost for x in self.plan.additional_costs) or Decimal(0)
-        return additional_costs + (self.products_cost or Decimal(0))
+
+        additional_costs = Decimal(0)
+        quantity_scale = Decimal(str(self.quantity or 0))
+
+        for x in self.plan.additional_costs:
+            if x.calculation == 'fixed':
+                additional_costs += x.cost
+            elif quantity_scale:
+                additional_costs += x.cost / quantity_scale
+
+        return additional_costs
 
     @classmethod
     @ModelView.button
@@ -482,20 +500,20 @@ class PlanAdditionalCost(ModelSQL, ModelView):
 
     plan = fields.Many2One('product.cost.plan', 'Plan', required=True,
         ondelete='CASCADE')
-    cost_type = fields.Many2One('product.cost.plan.cost.type', 'Cost Type',
+    type = fields.Many2One('product.cost.plan.cost.type', 'Type',
         required=True)
     calculation = fields.Selection([
             ('standard', 'Standard'),
             ('fixed', 'Fixed'),
-            ], 'Calculation', required=True)
-    cost = fields.Numeric('Cost', digits=price_digits)
+            ], 'Calculation')
+    cost = fields.Numeric('Cost', digits=price_digits, required=True)
 
     @staticmethod
     def default_calculation():
         return 'standard'
 
     def get_rec_name(self, name):
-        return self.cost_type.rec_name
+        return self.type.rec_name
 
 
 class PlanAdditionalCostType(ModelSQL, ModelView):

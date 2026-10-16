@@ -215,7 +215,7 @@ class PlanScale(metaclass=PoolMeta):
 
     def get_cost_price(self, name):
         cost = super().get_cost_price(name)
-        return cost + (self.operations_cost or _ZERO)
+        return cost + self.operations_cost
 
     @fields.depends('plan', 'uom', 'quantity')
     def on_change_with_operations_cost(self, name=None):
