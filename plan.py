@@ -445,7 +445,7 @@ class PlanScale(ModelSQL, ModelView):
     def on_change_with_uom_digits(self, name=None):
         return self.uom.digits if self.uom else 2
 
-    @fields.depends('plan')
+    @fields.depends('plan', '_parent_plan.products_cost')
     def on_change_with_products_cost(self, name=None):
         if self.plan:
             return self.plan.products_cost
