@@ -7,4 +7,5 @@
     <field name="products_cost"/>
     <field name="additional_costs"/>
     <field name="cost_price"/>
+    <field name="list_price"/>
 </tree>

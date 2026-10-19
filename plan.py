@@ -428,6 +428,9 @@ class PlanScale(ModelSQL, ModelView):
     cost_price = fields.Function(fields.Numeric('Unit Cost Price',
             digits=price_digits),
         'get_cost_price')
+    list_price = fields.Function(fields.Numeric('Unit List Price',
+            digits=price_digits),
+        'get_list_price')
     #
     uom_digits = fields.Function(fields.Integer('UoM Digits'),
         'on_change_with_uom_digits')
@@ -437,6 +440,9 @@ class PlanScale(ModelSQL, ModelView):
         super(PlanScale, cls).__setup__()
         cls._buttons.update({
                 'update_product_cost_price': {
+                    'icon': 'tryton-refresh',
+                    },
+                'update_product_list_price': {
                     'icon': 'tryton-refresh',
                     },
                 })
@@ -458,6 +464,9 @@ class PlanScale(ModelSQL, ModelView):
 
     def get_cost_price(self, name=None):
         return self.products_cost + self.additional_costs
+
+    def get_list_price(self, name=None):
+        return self.cost_price or Decimal(0)
 
     @fields.depends('plan', '_parent_plan.additional_costs', 'quantity')
     def on_change_with_additional_costs(self, name=None):
@@ -497,6 +506,29 @@ class PlanScale(ModelSQL, ModelView):
             product.cost_price = round_price(cost_price)
         else:
             product.template.cost_price = round_price(cost_price)
+
+    @classmethod
+    @ModelView.button
+    def update_product_list_price(cls, scales):
+        for scale in scales:
+            if not scale.plan or not scale.plan.product:
+                continue
+            scale._update_product_list_price()
+            scale.plan.product.save()
+            scale.plan.product.template.save()
+
+    def _update_product_list_price(self):
+        pool = Pool()
+        Uom = pool.get('product.uom')
+
+        product = self.plan.product
+        assert product
+        list_price = Uom.compute_price(self.uom, self.list_price,
+            product.default_uom)
+        if product.list_price is not None:
+            product.list_price = round_price(list_price)
+        else:
+            product.template.list_price = round_price(list_price)
 
 
 class PlanAdditionalCost(ModelSQL, ModelView):

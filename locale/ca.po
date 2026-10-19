@@ -186,6 +186,10 @@ msgctxt "field:product.cost.plan.product_line,uom_digits:"
 msgid "UoM Digits"
 msgstr "Digits UdM"
 
+msgctxt "field:product.cost.plan.scale,list_price:"
+msgid "Unit List Price"
+msgstr "Preu de venda unitari"
+
 msgctxt "field:product.cost.plan.step_line,calculation:"
 msgid "Calculation"
 msgstr "Càlcul"
@@ -460,6 +464,16 @@ msgstr "Crear Llista de materials"
 msgctxt "view:product.cost.plan.product_line:"
 msgid "Product Cost Plan Product Line"
 msgstr "Línia de producte de Pla de costos de producte"
+
+msgctxt "view:product.cost.plan.scale:"
+msgid ""
+"It will modify the product's field loosing the current value. Are you sure?"
+msgstr ""
+"Això modificarà la fitxa del producte perdent el valor actual. N'està segur?"
+
+msgctxt "view:product.cost.plan.scale:"
+msgid "Update Product's List Price"
+msgstr "Actualitza preu de venda del producte"
 
 msgctxt "view:product.cost.plan:"
 msgid "BOM Configuration"
