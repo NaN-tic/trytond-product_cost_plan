@@ -2,6 +2,10 @@
 msgid ""
 msgstr "Content-Type: text/plain; charset=utf-8\n"
 
+msgctxt "field:product.cost.plan,additional_costs:"
+msgid "Additional Costs"
+msgstr "Costes adicionales"
+
 msgctxt "field:product.cost.plan,all_products:"
 msgid "All Products"
 msgstr "Todos los productos"
@@ -13,14 +17,6 @@ msgstr "Lista de material"
 msgctxt "field:product.cost.plan,boms:"
 msgid "BOMs"
 msgstr "Listas de material"
-
-msgctxt "field:product.cost.plan,cost_price:"
-msgid "Unit Cost Price"
-msgstr "Precio de coste unitario"
-
-msgctxt "field:product.cost.plan,costs:"
-msgid "Costs"
-msgstr "Costes"
 
 msgctxt "field:product.cost.plan,name:"
 msgid "Name"
@@ -37,10 +33,6 @@ msgstr "Número"
 msgctxt "field:product.cost.plan,operations:"
 msgid "Operations"
 msgstr "Operaciones"
-
-msgctxt "field:product.cost.plan,operations_cost:"
-msgid "Operations Cost"
-msgstr "Coste de las operaciónes"
 
 msgctxt "field:product.cost.plan,product:"
 msgid "Product"
@@ -70,6 +62,10 @@ msgctxt "field:product.cost.plan,quantity:"
 msgid "Quantity"
 msgstr "Cantidad"
 
+msgctxt "field:product.cost.plan,scales:"
+msgid "Scales"
+msgstr "Escalas"
+
 msgctxt "field:product.cost.plan,uom:"
 msgid "UoM"
 msgstr "UdM"
@@ -77,6 +73,22 @@ msgstr "UdM"
 msgctxt "field:product.cost.plan,uom_digits:"
 msgid "UoM Digits"
 msgstr "Dígitos UdM"
+
+msgctxt "field:product.cost.plan.additional_cost,calculation:"
+msgid "Calculation"
+msgstr "Cálculo"
+
+msgctxt "field:product.cost.plan.additional_cost,cost:"
+msgid "Cost"
+msgstr "Coste"
+
+msgctxt "field:product.cost.plan.additional_cost,plan:"
+msgid "Plan"
+msgstr "Plan"
+
+msgctxt "field:product.cost.plan.additional_cost,type:"
+msgid "Type"
+msgstr "Tipo"
 
 msgctxt "field:product.cost.plan.bom_line,bom:"
 msgid "BOM"
@@ -90,41 +102,9 @@ msgctxt "field:product.cost.plan.bom_line,product:"
 msgid "Product"
 msgstr "Producto"
 
-msgctxt "field:product.cost.plan.cost,cost:"
-msgid "Cost"
-msgstr "Coste"
-
-msgctxt "field:product.cost.plan.cost,internal_cost:"
-msgid "Cost (Internal Use)"
-msgstr "Coste (uso interno)"
-
-msgctxt "field:product.cost.plan.cost,plan:"
-msgid "Plan"
-msgstr "Plan"
-
-msgctxt "field:product.cost.plan.cost,sequence:"
-msgid "Sequence"
-msgstr "Secuencia"
-
-msgctxt "field:product.cost.plan.cost,system:"
-msgid "System Managed"
-msgstr "Gestinado por el sistema"
-
-msgctxt "field:product.cost.plan.cost,type:"
-msgid "Type"
-msgstr "Tipo"
-
 msgctxt "field:product.cost.plan.cost.type,name:"
 msgid "Name"
 msgstr "Nombre"
-
-msgctxt "field:product.cost.plan.cost.type,plan_field_name:"
-msgid "Plan Field Name"
-msgstr "Nombre campo del plan"
-
-msgctxt "field:product.cost.plan.cost.type,system:"
-msgid "System Managed"
-msgstr "Gestinado por el sistema"
 
 msgctxt "field:product.cost.plan.create_bom.start,name:"
 msgid "Name"
@@ -190,9 +170,41 @@ msgctxt "field:product.cost.plan.product_line,uom_digits:"
 msgid "UoM Digits"
 msgstr "Dígitos UdM"
 
+msgctxt "field:product.cost.plan.scale,additional_costs:"
+msgid "Additional Costs"
+msgstr "Costes adicionales"
+
+msgctxt "field:product.cost.plan.scale,cost_price:"
+msgid "Unit Cost Price"
+msgstr "Precio de coste unitario"
+
 msgctxt "field:product.cost.plan.scale,list_price:"
 msgid "Unit List Price"
 msgstr "Precio de venta unitario"
+
+msgctxt "field:product.cost.plan.scale,operations_cost:"
+msgid "Operations Cost"
+msgstr "Coste de las operaciones"
+
+msgctxt "field:product.cost.plan.scale,plan:"
+msgid "Plan"
+msgstr "Plan"
+
+msgctxt "field:product.cost.plan.scale,products_cost:"
+msgid "Products Cost"
+msgstr "Coste de los productos"
+
+msgctxt "field:product.cost.plan.scale,quantity:"
+msgid "Quantity"
+msgstr "Cantidad"
+
+msgctxt "field:product.cost.plan.scale,uom:"
+msgid "UoM"
+msgstr "UdM"
+
+msgctxt "field:product.cost.plan.scale,uom_digits:"
+msgid "UoM Digits"
+msgstr "Dígitos UdM"
 
 msgctxt "field:product.cost.plan.step_line,calculation:"
 msgid "Calculation"
@@ -229,10 +241,6 @@ msgstr "Dígitos para la Cantidad"
 msgctxt "field:product.cost.plan.step_line,time:"
 msgid "Time"
 msgstr "Tiempo"
-
-msgctxt "field:product.cost.plan.step_line,total_cost:"
-msgid "Total Cost"
-msgstr "Coste total"
 
 msgctxt "field:product.cost.plan.step_line,unit_cost:"
 msgid "Unit Cost"
@@ -284,10 +292,6 @@ msgctxt "help:product.cost.plan.step_line,quantity:"
 msgid "Quantity of the plan product processed by the specified time."
 msgstr "Cantidad del producto del plan procesado en el tiempo especificado."
 
-msgctxt "help:product.cost.plan.step_line,total_cost:"
-msgid "The cost of this operation for total plan's quantity."
-msgstr "El coste de esta operación para la cantidad total del plan."
-
 msgctxt "help:product.cost.plan.step_line,unit_cost:"
 msgid "The cost of this operation for each unit of plan's product."
 msgstr "El coste de esta operación por cada unidad del producto del plan."
@@ -300,13 +304,9 @@ msgctxt "model:ir.action,name:act_product_cost_plan_bom_line"
 msgid "Product Cost Plan BOM"
 msgstr "LdM Plan de coste del producto"
 
-msgctxt "model:ir.action,name:act_product_cost_plan_cost"
-msgid "Plan Costs"
-msgstr "Plan de costes"
-
 msgctxt "model:ir.action,name:act_product_cost_plan_cost_type"
-msgid "Plan Cost Type"
-msgstr "Tipo de coste"
+msgid "Plan Additional Cost Type"
+msgstr "Tipo de coste adicional del plan"
 
 msgctxt "model:ir.action,name:act_product_cost_plan_product_line"
 msgid "Product Cost Plan Product Line"
@@ -320,14 +320,6 @@ msgctxt "model:ir.message,text:bom_already_exists"
 msgid "A bom already exists for cost plan \"%(cost_plan)s\"."
 msgstr ""
 "Ya existe una lista de materiales para el plan de costes \"%(cost_plan)s\"."
-
-msgctxt "model:ir.message,text:delete_system_cos"
-msgid ""
-"You can not delete cost \"%(cost)s\" from plan \"%(plan)s\" because it's "
-"managed by system."
-msgstr ""
-"No poden eliminar el coste \"%(cost)s\" del plan \"%(plan)s\" porque está "
-"gestionado por el sistema."
 
 msgctxt "model:ir.message,text:lacks_the_product"
 msgid "The Cost Plan \"%(cost_plan)s\" lacks the product."
@@ -382,28 +374,20 @@ msgid "Product Cost Plan"
 msgstr "Plan de coste del producto"
 
 msgctxt "model:ir.ui.menu,name:menu_product_cost_plan_cost_type"
-msgid "Plan Cost Type"
-msgstr "Tipo de coste"
+msgid "Plan Additional Cost Type"
+msgstr "Tipo de coste adicional del plan"
 
 msgctxt "model:product.cost.plan,string:"
 msgid "Product Cost Plan"
 msgstr "Plan de costos del producto"
 
+msgctxt "model:product.cost.plan.additional_cost,string:"
+msgid "Product Cost Plan Additional Cost"
+msgstr "Coste adicional del plan de costes del producto"
+
 msgctxt "model:product.cost.plan.bom_line,string:"
 msgid "Product Cost Plan Bom Line"
 msgstr "Plan de costos del producto - Línea LdM"
-
-msgctxt "model:product.cost.plan.cost,string:"
-msgid "Product Cost Plan Cost"
-msgstr "Plan de costos del producto - Costo"
-
-msgctxt "model:product.cost.plan.cost.type,name:operations"
-msgid "Operations"
-msgstr "Operaciones"
-
-msgctxt "model:product.cost.plan.cost.type,name:raw_materials"
-msgid "Raw materials"
-msgstr "Materias primas"
 
 msgctxt "model:product.cost.plan.cost.type,string:"
 msgid "Product Cost Plan Cost Type"
@@ -416,6 +400,10 @@ msgstr "Plan de costes del producto - Crear LdM Inicio"
 msgctxt "model:product.cost.plan.product_line,string:"
 msgid "Product Cost Plan Product Line"
 msgstr "Plan de costes del producto - Línea de productos"
+
+msgctxt "model:product.cost.plan.scale,string:"
+msgid "Product Cost Plan Scale"
+msgstr "Escala del plan de costes del producto"
 
 msgctxt "model:product.cost.plan.step_line,string:"
 msgid "Product Cost Plan Step Line"
@@ -432,6 +420,14 @@ msgstr "Plan de coste del producto"
 msgctxt "model:res.group,name:group_product_cost_plan_admin"
 msgid "Product Cost Plan Administration"
 msgstr "Administración Plan de coste del producto"
+
+msgctxt "selection:product.cost.plan.additional_cost,calculation:"
+msgid "Fixed"
+msgstr "Fijo"
+
+msgctxt "selection:product.cost.plan.additional_cost,calculation:"
+msgid "Standard"
+msgstr "Estándar"
 
 msgctxt "selection:product.cost.plan.step_line,calculation:"
 msgid "Fixed"
@@ -457,10 +453,6 @@ msgctxt "view:product.cost.plan.cost.type:"
 msgid "Plan Cost Type"
 msgstr "Tipo de coste"
 
-msgctxt "view:product.cost.plan.cost:"
-msgid "Plan Cost"
-msgstr "Plan de costes"
-
 msgctxt "view:product.cost.plan.create_bom.start:"
 msgid "Create BOM"
 msgstr "Crear Lista de material"
@@ -477,23 +469,20 @@ msgstr ""
 "seguro?"
 
 msgctxt "view:product.cost.plan.scale:"
+msgid "Update Product's Cost Price"
+msgstr "Actualizar precio de coste del producto"
+
+msgctxt "view:product.cost.plan.scale:"
 msgid "Update Product's List Price"
 msgstr "Actualizar precio de venta del producto"
 
 msgctxt "view:product.cost.plan:"
+msgid "Additional Costs"
+msgstr "Costes adicionales"
+
+msgctxt "view:product.cost.plan:"
 msgid "BOM Configuration"
 msgstr "Configuración lista de material"
-
-msgctxt "view:product.cost.plan:"
-msgid "Costs"
-msgstr "Costes"
-
-msgctxt "view:product.cost.plan:"
-msgid ""
-"It will modify the product's field loosing the current value. Are you sure?"
-msgstr ""
-"Esto modificará la ficha del producto perdiendo el valor actual. ¿Está "
-"seguro?"
 
 msgctxt "view:product.cost.plan:"
 msgid "Notes"
@@ -508,8 +497,8 @@ msgid "Products"
 msgstr "Productos"
 
 msgctxt "view:product.cost.plan:"
-msgid "Update Product's Cost Price"
-msgstr "Actualizar precio de coste del producto"
+msgid "Scales"
+msgstr "Escalas"
 
 msgctxt "wizard_button:product.cost.plan.create_bom,start,bom:"
 msgid "Ok"
