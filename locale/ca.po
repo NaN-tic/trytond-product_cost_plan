@@ -50,6 +50,10 @@ msgctxt "field:product.cost.plan,product_cost_price:"
 msgid "Product Cost Price"
 msgstr "Preu de cost del producte"
 
+msgctxt "field:product.cost.plan,product_list_price:"
+msgid "Product List Price"
+msgstr "Preu de venda del producte"
+
 msgctxt "field:product.cost.plan,product_uom_category:"
 msgid "Product UoM Category"
 msgstr "Categoria UdM del producte"

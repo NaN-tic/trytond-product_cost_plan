@@ -62,6 +62,9 @@ class Plan(DeactivableMixin, ModelSQL, ModelView):
     product_cost_price = fields.Function(fields.Numeric('Product Cost Price',
             digits=price_digits),
         'on_change_with_product_cost_price')
+    product_list_price = fields.Function(fields.Numeric('Product List Price',
+            digits=price_digits),
+        'on_change_with_product_list_price')
     notes = fields.Text('Notes')
 
     @classmethod
@@ -183,6 +186,10 @@ class Plan(DeactivableMixin, ModelSQL, ModelView):
     @fields.depends('product')
     def on_change_with_product_cost_price(self, name=None):
         return self.product.cost_price if self.product else None
+
+    @fields.depends('product')
+    def on_change_with_product_list_price(self, name=None):
+        return self.product.list_price_used if self.product else None
 
     @classmethod
     def clean(cls, plans):
