@@ -440,10 +440,10 @@ class PlanScale(ModelSQL, ModelView):
         'on_change_with_additional_costs')
     cost_price = fields.Function(fields.Numeric('Unit Cost Price',
             digits=price_digits),
-        'get_cost_price')
+        'on_change_with_cost_price')
     list_price = fields.Function(fields.Numeric('Unit List Price',
             digits=price_digits),
-        'get_list_price')
+        'on_change_with_list_price')
     #
     uom_digits = fields.Function(fields.Integer('UoM Digits'),
         'on_change_with_uom_digits')
@@ -475,11 +475,14 @@ class PlanScale(ModelSQL, ModelView):
                     self.plan.products_cost, self.uom))
         return Decimal(0)
 
-    def get_cost_price(self, name=None):
+    @fields.depends('products_cost', 'additional_costs')
+    def on_change_with_cost_price(self, name=None):
         return self.products_cost + self.additional_costs
 
-    def get_list_price(self, name=None):
-        list_price = self.cost_price or Decimal(0)
+    @fields.depends('plan', '_parent_plan.products_cost_margin',
+        'products_cost', 'additional_costs')
+    def on_change_with_list_price(self, name=None):
+        list_price = self.on_change_with_cost_price() or Decimal(0)
         if self.plan:
             margin = Decimal(str(self.plan.products_cost_margin or 0))
             list_price += round_price(self.products_cost * margin)

@@ -218,12 +218,15 @@ class PlanScale(metaclass=PoolMeta):
             digits=price_digits),
         'on_change_with_operations_cost')
 
-    def get_cost_price(self, name):
-        cost = super().get_cost_price(name)
+    @fields.depends('operations_cost')
+    def on_change_with_cost_price(self, name=None):
+        cost = super().on_change_with_cost_price(name)
         return cost + self.operations_cost
 
-    def get_list_price(self, name=None):
-        list_price = super().get_list_price(name)
+    @fields.depends('plan', '_parent_plan.operations_cost_margin',
+        'operations_cost')
+    def on_change_with_list_price(self, name=None):
+        list_price = super().on_change_with_list_price(name)
         if self.plan:
             margin = Decimal(str(self.plan.operations_cost_margin or 0))
             list_price += round_price(self.operations_cost * margin)
