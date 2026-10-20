@@ -32,6 +32,8 @@
             <field name="additional_costs" colspan="4"/>
         </page>
         <page string="Scales" id="scales">
+            <label name="products_cost_margin"/>
+            <field name="products_cost_margin" factor="100"/>
             <field name="scales" colspan="4" mode="form,tree"/>
         </page>
         <page string="BOM Configuration" id="configuration">

@@ -154,6 +154,12 @@ class Plan(metaclass=PoolMeta):
 
     operations = fields.One2Many('product.cost.plan.step_line', 'plan',
         'Operations')
+    operations_cost_margin = fields.Float('Operations Cost Margin %',
+        digits=price_digits, required=True)
+
+    @staticmethod
+    def default_operations_cost_margin():
+        return 0.0
 
     def create_bom(self, name):
         if self.operations:
@@ -215,6 +221,13 @@ class PlanScale(metaclass=PoolMeta):
     def get_cost_price(self, name):
         cost = super().get_cost_price(name)
         return cost + self.operations_cost
+
+    def get_list_price(self, name=None):
+        list_price = super().get_list_price(name)
+        if self.plan:
+            margin = Decimal(str(self.plan.operations_cost_margin or 0))
+            list_price += round_price(self.operations_cost * margin)
+        return list_price
 
     @fields.depends('plan', '_parent_plan.operations', 'uom', 'quantity')
     def on_change_with_operations_cost(self, name=None):

@@ -58,6 +58,8 @@ class Plan(DeactivableMixin, ModelSQL, ModelView):
         'get_products_cost')
     additional_costs = fields.One2Many('product.cost.plan.additional_cost',
         'plan', 'Additional Costs')
+    products_cost_margin = fields.Float('Products Cost Margin %',
+        digits=price_digits, required=True)
     scales = fields.One2Many('product.cost.plan.scale', 'plan', 'Scales')
     product_cost_price = fields.Function(fields.Numeric('Product Cost Price',
             digits=price_digits),
@@ -75,6 +77,10 @@ class Plan(DeactivableMixin, ModelSQL, ModelView):
                     'icon': 'tryton-spreadsheet',
                     },
                 })
+
+    @staticmethod
+    def default_products_cost_margin():
+        return 0.0
 
     @staticmethod
     def default_scales():
@@ -473,7 +479,11 @@ class PlanScale(ModelSQL, ModelView):
         return self.products_cost + self.additional_costs
 
     def get_list_price(self, name=None):
-        return self.cost_price or Decimal(0)
+        list_price = self.cost_price or Decimal(0)
+        if self.plan:
+            margin = Decimal(str(self.plan.products_cost_margin or 0))
+            list_price += round_price(self.products_cost * margin)
+        return list_price
 
     @fields.depends('plan', '_parent_plan.additional_costs', 'quantity')
     def on_change_with_additional_costs(self, name=None):
