@@ -435,9 +435,9 @@ class PlanScale(ModelSQL, ModelView):
     products_cost = fields.Function(fields.Numeric('Products Cost',
             digits=price_digits),
         'on_change_with_products_cost')
-    additional_costs = fields.Function(fields.Numeric('Additional Costs',
+    additional_cost = fields.Function(fields.Numeric('Additional Cost',
             digits=price_digits),
-        'on_change_with_additional_costs')
+        'on_change_with_additional_cost')
     cost_price = fields.Function(fields.Numeric('Unit Cost Price',
             digits=price_digits),
         'on_change_with_cost_price')
@@ -470,17 +470,18 @@ class PlanScale(ModelSQL, ModelView):
         pool = Pool()
         Uom = pool.get('product.uom')
 
-        if self.plan and self.plan.uom and self.uom:
+        if (self.plan and self.plan.products_cost
+                and self.plan.uom and self.uom):
             return round_price(Uom.compute_price(self.plan.uom,
                     self.plan.products_cost, self.uom))
         return Decimal(0)
 
-    @fields.depends('products_cost', 'additional_costs')
+    @fields.depends('products_cost', 'additional_cost')
     def on_change_with_cost_price(self, name=None):
-        return self.products_cost + self.additional_costs
+        return self.products_cost + self.additional_cost
 
     @fields.depends('plan', '_parent_plan.products_cost_margin',
-        'products_cost', 'additional_costs')
+        'products_cost', 'additional_cost')
     def on_change_with_list_price(self, name=None):
         list_price = self.on_change_with_cost_price() or Decimal(0)
         if self.plan:
@@ -489,20 +490,22 @@ class PlanScale(ModelSQL, ModelView):
         return list_price
 
     @fields.depends('plan', '_parent_plan.additional_costs', 'quantity')
-    def on_change_with_additional_costs(self, name=None):
+    def on_change_with_additional_cost(self, name=None):
         if not self.plan:
             return Decimal(0)
 
-        additional_costs = Decimal(0)
+        additional_cost = Decimal(0)
         quantity_scale = Decimal(str(self.quantity or 0))
 
         for x in self.plan.additional_costs:
+            if not x.cost:
+                continue
             if x.calculation == 'fixed':
-                additional_costs += x.cost
+                additional_cost += x.cost
             elif quantity_scale:
-                additional_costs += x.cost / quantity_scale
+                additional_cost += x.cost / quantity_scale
 
-        return additional_costs
+        return additional_cost
 
     @classmethod
     @ModelView.button

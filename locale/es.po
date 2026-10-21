@@ -178,9 +178,9 @@ msgctxt "field:product.cost.plan.product_line,uom_digits:"
 msgid "UoM Digits"
 msgstr "Dígitos UdM"
 
-msgctxt "field:product.cost.plan.scale,additional_costs:"
-msgid "Additional Costs"
-msgstr "Costes adicionales"
+msgctxt "field:product.cost.plan.scale,additional_cost:"
+msgid "Additional Cost"
+msgstr "Coste adicional"
 
 msgctxt "field:product.cost.plan.scale,cost_price:"
 msgid "Unit Cost Price"
