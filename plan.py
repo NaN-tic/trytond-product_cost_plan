@@ -86,7 +86,13 @@ class Plan(DeactivableMixin, ModelSQL, ModelView):
     def default_scales():
         if Transaction().user == 0:
             return []
-        return [{}]
+        # Default costs to zero to avoid adding None and Decimal in cost_price.
+        return [{
+            'products_cost': Decimal(0),
+            'additional_cost': Decimal(0),
+            'cost_price': Decimal(0),
+            'list_price': Decimal(0),
+        }]
 
     def get_rec_name(self, name):
         res = '[%s]' % self.number

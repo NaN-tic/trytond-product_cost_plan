@@ -161,6 +161,13 @@ class Plan(metaclass=PoolMeta):
     def default_operations_cost_margin():
         return 0.0
 
+    @classmethod
+    def default_scales(cls):
+        scales = super().default_scales()
+        for scale in scales:
+            scale['operations_cost'] = Decimal(0)
+        return scales
+
     def create_bom(self, name):
         if self.operations:
             self._check_routing_step_lines()
