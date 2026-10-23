@@ -4,6 +4,4 @@
 <form>
     <label name="name"/>
     <field name="name"/>
-    <label name="system"/>
-    <field name="system"/>
 </form>
