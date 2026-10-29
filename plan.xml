@@ -93,12 +93,52 @@
 
         <record model="ir.model.button" id="plan_update_product_cost_price_button">
             <field name="name">update_product_cost_price</field>
-            <field name="model">product.cost.plan</field>
+            <field name="model">product.cost.plan.scale</field>
         </record>
         <record model="ir.model.button-res.group"
                 id="plan_update_product_cost_price_button_group_product_admin">
             <field name="button" ref="plan_update_product_cost_price_button"/>
             <field name="group" ref="product.group_product_admin"/>
+        </record>
+
+        <record model="ir.model.button" id="plan_update_product_list_price_button">
+            <field name="name">update_product_list_price</field>
+            <field name="model">product.cost.plan.scale</field>
+        </record>
+        <record model="ir.model.button-res.group"
+                id="plan_update_product_list_price_button_group_product_admin">
+            <field name="button" ref="plan_update_product_list_price_button"/>
+            <field name="group" ref="product.group_product_admin"/>
+        </record>
+
+        <!-- product.cost.plan.scale -->
+        <record model="ir.ui.view" id="product_cost_plan_scale_view_form">
+            <field name="model">product.cost.plan.scale</field>
+            <field name="type">form</field>
+            <field name="name">cost_plan_scale_form</field>
+        </record>
+
+        <record model="ir.ui.view" id="product_cost_plan_scale_view_list">
+            <field name="model">product.cost.plan.scale</field>
+            <field name="type">tree</field>
+            <field name="name">cost_plan_scale_list</field>
+        </record>
+
+        <record model="ir.model.access" id="access_product_cost_plan_scale">
+            <field name="model">product.cost.plan.scale</field>
+            <field name="perm_read" eval="True"/>
+            <field name="perm_write" eval="False"/>
+            <field name="perm_create" eval="False"/>
+            <field name="perm_delete" eval="False"/>
+        </record>
+
+        <record model="ir.model.access" id="access_product_cost_plan_scale_admin">
+            <field name="model">product.cost.plan.scale</field>
+            <field name="group" ref="group_product_cost_plan_admin"/>
+            <field name="perm_read" eval="True"/>
+            <field name="perm_write" eval="True"/>
+            <field name="perm_create" eval="True"/>
+            <field name="perm_delete" eval="True"/>
         </record>
 
         <!-- product.cost.plan.bom_line -->
@@ -200,44 +240,29 @@
             <field name="perm_delete" eval="True"/>
         </record>
 
-        <!-- product.cost.plan.cost -->
-        <record model="ir.ui.view" id="product_cost_plan_cost_view_form">
-            <field name="model">product.cost.plan.cost</field>
+        <!-- product.cost.plan.additional_cost -->
+        <record model="ir.ui.view" id="product_cost_plan_additional_cost_view_form">
+            <field name="model">product.cost.plan.additional_cost</field>
             <field name="type">form</field>
-            <field name="name">plan_cost_form</field>
+            <field name="name">plan_additional_cost_form</field>
         </record>
 
-        <record model="ir.ui.view" id="product_cost_plan_cost_view_list">
-            <field name="model">product.cost.plan.cost</field>
+        <record model="ir.ui.view" id="product_cost_plan_additional_cost_view_list">
+            <field name="model">product.cost.plan.additional_cost</field>
             <field name="type">tree</field>
-            <field name="name">plan_cost_list</field>
+            <field name="name">plan_additional_cost_list</field>
         </record>
 
-        <record model="ir.action.act_window" id="act_product_cost_plan_cost">
-            <field name="name">Plan Costs</field>
-            <field name="res_model">product.cost.plan.cost</field>
-        </record>
-        <record model="ir.action.act_window.view" id="act_product_cost_plan_cost_view1">
-            <field name="sequence" eval="10"/>
-            <field name="view" ref="product_cost_plan_cost_view_list"/>
-            <field name="act_window" ref="act_product_cost_plan_cost"/>
-        </record>
-        <record model="ir.action.act_window.view" id="act_product_cost_plan_cost_view2">
-            <field name="sequence" eval="20"/>
-            <field name="view" ref="product_cost_plan_cost_view_form"/>
-            <field name="act_window" ref="act_product_cost_plan_cost"/>
-        </record>
-
-        <record model="ir.model.access" id="access_product_cost_plan_cost">
-            <field name="model">product.cost.plan.cost</field>
+        <record model="ir.model.access" id="access_product_cost_plan_additional_cost">
+            <field name="model">product.cost.plan.additional_cost</field>
             <field name="perm_read" eval="True"/>
             <field name="perm_write" eval="False"/>
             <field name="perm_create" eval="False"/>
             <field name="perm_delete" eval="False"/>
         </record>
 
-        <record model="ir.model.access" id="access_product_cost_plan_cost_admin">
-            <field name="model">product.cost.plan.cost</field>
+        <record model="ir.model.access" id="access_product_cost_plan_additional_cost_admin">
+            <field name="model">product.cost.plan.additional_cost</field>
             <field name="group" ref="group_product_cost_plan_admin"/>
             <field name="perm_read" eval="True"/>
             <field name="perm_write" eval="True"/>
@@ -259,7 +284,7 @@
         </record>
 
         <record model="ir.action.act_window" id="act_product_cost_plan_cost_type">
-            <field name="name">Plan Cost Type</field>
+            <field name="name">Plan Additional Cost Type</field>
             <field name="res_model">product.cost.plan.cost.type</field>
         </record>
 
@@ -336,12 +361,7 @@
             id="menu_product_cost_plan_cost_type"
             parent="product_cost_plan.menu_product_cost_plan"
             sequence="1"
-            name="Plan Cost Type"/>
+            name="Plan Additional Cost Type"/>
 
-        <record model="product.cost.plan.cost.type" id="raw_materials">
-            <field name="name">Raw materials</field>
-            <field name="system" eval="True"/>
-            <field name="plan_field_name">products_cost</field>
-        </record>
     </data>
 </tryton>

@@ -2,6 +2,10 @@
 msgid ""
 msgstr "Content-Type: text/plain; charset=utf-8\n"
 
+msgctxt "field:product.cost.plan,additional_costs:"
+msgid "Additional Costs"
+msgstr "Costos addicionals"
+
 msgctxt "field:product.cost.plan,all_products:"
 msgid "All Products"
 msgstr "Tots els productes"
@@ -13,14 +17,6 @@ msgstr "Llista de materials"
 msgctxt "field:product.cost.plan,boms:"
 msgid "BOMs"
 msgstr "Llistes de materials"
-
-msgctxt "field:product.cost.plan,cost_price:"
-msgid "Unit Cost Price"
-msgstr "Preu de cost unitari"
-
-msgctxt "field:product.cost.plan,costs:"
-msgid "Costs"
-msgstr "Costos"
 
 msgctxt "field:product.cost.plan,name:"
 msgid "Name"
@@ -38,9 +34,9 @@ msgctxt "field:product.cost.plan,operations:"
 msgid "Operations"
 msgstr "Operacions"
 
-msgctxt "field:product.cost.plan,operations_cost:"
-msgid "Operations Cost"
-msgstr "Cost de les operacions"
+msgctxt "field:product.cost.plan,operations_cost_margin:"
+msgid "Operations Cost Margin %"
+msgstr "Marge del cost de les operacions (%)"
 
 msgctxt "field:product.cost.plan,product:"
 msgid "Product"
@@ -49,6 +45,10 @@ msgstr "Producte"
 msgctxt "field:product.cost.plan,product_cost_price:"
 msgid "Product Cost Price"
 msgstr "Preu de cost del producte"
+
+msgctxt "field:product.cost.plan,product_list_price:"
+msgid "Product List Price"
+msgstr "Preu de venda del producte"
 
 msgctxt "field:product.cost.plan,product_uom_category:"
 msgid "Product UoM Category"
@@ -62,9 +62,17 @@ msgctxt "field:product.cost.plan,products_cost:"
 msgid "Products Cost"
 msgstr "Cost dels materials"
 
+msgctxt "field:product.cost.plan,products_cost_margin:"
+msgid "Products Cost Margin %"
+msgstr "Marge del cost dels materials (%)"
+
 msgctxt "field:product.cost.plan,quantity:"
 msgid "Quantity"
 msgstr "Quantitat"
+
+msgctxt "field:product.cost.plan,scales:"
+msgid "Scales"
+msgstr "Escales"
 
 msgctxt "field:product.cost.plan,uom:"
 msgid "UoM"
@@ -73,6 +81,22 @@ msgstr "UdM"
 msgctxt "field:product.cost.plan,uom_digits:"
 msgid "UoM Digits"
 msgstr "Digits UdM"
+
+msgctxt "field:product.cost.plan.additional_cost,calculation:"
+msgid "Calculation"
+msgstr "Càlcul"
+
+msgctxt "field:product.cost.plan.additional_cost,cost:"
+msgid "Cost"
+msgstr "Cost"
+
+msgctxt "field:product.cost.plan.additional_cost,plan:"
+msgid "Plan"
+msgstr "Pla"
+
+msgctxt "field:product.cost.plan.additional_cost,type:"
+msgid "Type"
+msgstr "Tipus"
 
 msgctxt "field:product.cost.plan.bom_line,bom:"
 msgid "BOM"
@@ -86,41 +110,9 @@ msgctxt "field:product.cost.plan.bom_line,product:"
 msgid "Product"
 msgstr "Producte"
 
-msgctxt "field:product.cost.plan.cost,cost:"
-msgid "Cost"
-msgstr "Cost"
-
-msgctxt "field:product.cost.plan.cost,internal_cost:"
-msgid "Cost (Internal Use)"
-msgstr "Cost (ús intern)"
-
-msgctxt "field:product.cost.plan.cost,plan:"
-msgid "Plan"
-msgstr "Pla"
-
-msgctxt "field:product.cost.plan.cost,sequence:"
-msgid "Sequence"
-msgstr "Seqüència"
-
-msgctxt "field:product.cost.plan.cost,system:"
-msgid "System Managed"
-msgstr "Gestionat pel sistema"
-
-msgctxt "field:product.cost.plan.cost,type:"
-msgid "Type"
-msgstr "Tipus"
-
 msgctxt "field:product.cost.plan.cost.type,name:"
 msgid "Name"
 msgstr "Nom"
-
-msgctxt "field:product.cost.plan.cost.type,plan_field_name:"
-msgid "Plan Field Name"
-msgstr "Nom camp del pla"
-
-msgctxt "field:product.cost.plan.cost.type,system:"
-msgid "System Managed"
-msgstr "Gestionat pel sistema"
 
 msgctxt "field:product.cost.plan.create_bom.start,name:"
 msgid "Name"
@@ -186,6 +178,42 @@ msgctxt "field:product.cost.plan.product_line,uom_digits:"
 msgid "UoM Digits"
 msgstr "Digits UdM"
 
+msgctxt "field:product.cost.plan.scale,additional_cost:"
+msgid "Additional Cost"
+msgstr "Cost addicional"
+
+msgctxt "field:product.cost.plan.scale,cost_price:"
+msgid "Unit Cost Price"
+msgstr "Preu de cost unitari"
+
+msgctxt "field:product.cost.plan.scale,list_price:"
+msgid "Unit List Price"
+msgstr "Preu de venda unitari"
+
+msgctxt "field:product.cost.plan.scale,operations_cost:"
+msgid "Operations Cost"
+msgstr "Cost d'operacions"
+
+msgctxt "field:product.cost.plan.scale,plan:"
+msgid "Plan"
+msgstr "Pla"
+
+msgctxt "field:product.cost.plan.scale,products_cost:"
+msgid "Products Cost"
+msgstr "Cost dels productes"
+
+msgctxt "field:product.cost.plan.scale,quantity:"
+msgid "Quantity"
+msgstr "Quantitat"
+
+msgctxt "field:product.cost.plan.scale,uom:"
+msgid "UoM"
+msgstr "UdM"
+
+msgctxt "field:product.cost.plan.scale,uom_digits:"
+msgid "UoM Digits"
+msgstr "Dígits UdM"
+
 msgctxt "field:product.cost.plan.step_line,calculation:"
 msgid "Calculation"
 msgstr "Càlcul"
@@ -221,10 +249,6 @@ msgstr "Dígits de la Quantitat"
 msgctxt "field:product.cost.plan.step_line,time:"
 msgid "Time"
 msgstr "Temps"
-
-msgctxt "field:product.cost.plan.step_line,total_cost:"
-msgid "Total Cost"
-msgstr "Cost total"
 
 msgctxt "field:product.cost.plan.step_line,unit_cost:"
 msgid "Unit Cost"
@@ -276,10 +300,6 @@ msgctxt "help:product.cost.plan.step_line,quantity:"
 msgid "Quantity of the plan product processed by the specified time."
 msgstr "Quantitat del producte del pla processat en el temps especificat."
 
-msgctxt "help:product.cost.plan.step_line,total_cost:"
-msgid "The cost of this operation for total plan's quantity."
-msgstr "El cost d'aquesta operació per la quantitat total del pla."
-
 msgctxt "help:product.cost.plan.step_line,unit_cost:"
 msgid "The cost of this operation for each unit of plan's product."
 msgstr "El cost d'aquesta operació per a cada unitat de producte del pla."
@@ -292,13 +312,9 @@ msgctxt "model:ir.action,name:act_product_cost_plan_bom_line"
 msgid "Product Cost Plan BOM"
 msgstr "LdM Pla de costos de producte"
 
-msgctxt "model:ir.action,name:act_product_cost_plan_cost"
-msgid "Plan Costs"
-msgstr "Pla de costos"
-
 msgctxt "model:ir.action,name:act_product_cost_plan_cost_type"
-msgid "Plan Cost Type"
-msgstr "Tipus de pla de cost"
+msgid "Plan Additional Cost Type"
+msgstr "Tipus de cost addicional del pla"
 
 msgctxt "model:ir.action,name:act_product_cost_plan_product_line"
 msgid "Product Cost Plan Product Line"
@@ -312,14 +328,6 @@ msgctxt "model:ir.message,text:bom_already_exists"
 msgid "A bom already exists for cost plan \"%(cost_plan)s\"."
 msgstr ""
 "Ja existeix una llista de materials per el pla de costos \"%(cost_plan)s\"."
-
-msgctxt "model:ir.message,text:delete_system_cos"
-msgid ""
-"You can not delete cost \"%(cost)s\" from plan \"%(plan)s\" because it's "
-"managed by system."
-msgstr ""
-"No pot eliminar el cost \"%(cost)s\" del pla \"%(plan)s\" perquè es "
-"administrat pel sistema."
 
 msgctxt "model:ir.message,text:lacks_the_product"
 msgid "The Cost Plan \"%(cost_plan)s\" lacks the product."
@@ -374,28 +382,20 @@ msgid "Product Cost Plan"
 msgstr "Pla de costos de producte"
 
 msgctxt "model:ir.ui.menu,name:menu_product_cost_plan_cost_type"
-msgid "Plan Cost Type"
-msgstr "Tipus de pla de cost"
+msgid "Plan Additional Cost Type"
+msgstr "Tipus de cost addicional del pla"
 
 msgctxt "model:product.cost.plan,string:"
 msgid "Product Cost Plan"
 msgstr "Pla de costos del producte"
 
+msgctxt "model:product.cost.plan.additional_cost,string:"
+msgid "Product Cost Plan Additional Cost"
+msgstr "Cost addicional del pla de costos del producte"
+
 msgctxt "model:product.cost.plan.bom_line,string:"
 msgid "Product Cost Plan Bom Line"
 msgstr "Línia de llista del pla de costos del producte"
-
-msgctxt "model:product.cost.plan.cost,string:"
-msgid "Product Cost Plan Cost"
-msgstr "Cost del pla de costos del producte"
-
-msgctxt "model:product.cost.plan.cost.type,name:operations"
-msgid "Operations"
-msgstr "Operacions"
-
-msgctxt "model:product.cost.plan.cost.type,name:raw_materials"
-msgid "Raw materials"
-msgstr "Materies primes"
 
 msgctxt "model:product.cost.plan.cost.type,string:"
 msgid "Product Cost Plan Cost Type"
@@ -408,6 +408,10 @@ msgstr "Pla de costos del producte Crear Bom Inici"
 msgctxt "model:product.cost.plan.product_line,string:"
 msgid "Product Cost Plan Product Line"
 msgstr "Pla de costos del producte Línia de productes"
+
+msgctxt "model:product.cost.plan.scale,string:"
+msgid "Product Cost Plan Scale"
+msgstr "Escala del pla de costos del producte"
 
 msgctxt "model:product.cost.plan.step_line,string:"
 msgid "Product Cost Plan Step Line"
@@ -424,6 +428,14 @@ msgstr "Pla de costos de producte"
 msgctxt "model:res.group,name:group_product_cost_plan_admin"
 msgid "Product Cost Plan Administration"
 msgstr "Administració Pla de costos de producte"
+
+msgctxt "selection:product.cost.plan.additional_cost,calculation:"
+msgid "Fixed"
+msgstr "Fix"
+
+msgctxt "selection:product.cost.plan.additional_cost,calculation:"
+msgid "Standard"
+msgstr "Estàndard"
 
 msgctxt "selection:product.cost.plan.step_line,calculation:"
 msgid "Fixed"
@@ -449,10 +461,6 @@ msgctxt "view:product.cost.plan.cost.type:"
 msgid "Plan Cost Type"
 msgstr "Tipus de pla de cost"
 
-msgctxt "view:product.cost.plan.cost:"
-msgid "Plan Cost"
-msgstr "Pla de costos"
-
 msgctxt "view:product.cost.plan.create_bom.start:"
 msgid "Create BOM"
 msgstr "Crear Llista de materials"
@@ -461,19 +469,27 @@ msgctxt "view:product.cost.plan.product_line:"
 msgid "Product Cost Plan Product Line"
 msgstr "Línia de producte de Pla de costos de producte"
 
-msgctxt "view:product.cost.plan:"
-msgid "BOM Configuration"
-msgstr "Configuració de llistes de materials"
-
-msgctxt "view:product.cost.plan:"
-msgid "Costs"
-msgstr "Costos"
-
-msgctxt "view:product.cost.plan:"
+msgctxt "view:product.cost.plan.scale:"
 msgid ""
 "It will modify the product's field loosing the current value. Are you sure?"
 msgstr ""
 "Això modificarà la fitxa del producte perdent el valor actual. N'està segur?"
+
+msgctxt "view:product.cost.plan.scale:"
+msgid "Update Product's Cost Price"
+msgstr "Actualitza el preu de cost del producte"
+
+msgctxt "view:product.cost.plan.scale:"
+msgid "Update Product's List Price"
+msgstr "Actualitza preu de venda del producte"
+
+msgctxt "view:product.cost.plan:"
+msgid "Additional Costs"
+msgstr "Costos addicionals"
+
+msgctxt "view:product.cost.plan:"
+msgid "BOM Configuration"
+msgstr "Configuració de llistes de materials"
 
 msgctxt "view:product.cost.plan:"
 msgid "Notes"
@@ -488,8 +504,8 @@ msgid "Products"
 msgstr "Productes"
 
 msgctxt "view:product.cost.plan:"
-msgid "Update Product's Cost Price"
-msgstr "Actualitza preu de cost del producte"
+msgid "Scales"
+msgstr "Escales"
 
 msgctxt "wizard_button:product.cost.plan.create_bom,start,bom:"
 msgid "Ok"
