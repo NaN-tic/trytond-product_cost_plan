@@ -223,29 +223,24 @@ class PlanScale(metaclass=PoolMeta):
 
     operations_cost = fields.Function(fields.Numeric('Operations Cost',
             digits=price_digits),
-        'on_change_with_operations_cost')
+        'get_operations_cost')
 
-    @fields.depends('operations_cost')
-    def on_change_with_cost_price(self, name=None):
-        cost = super().on_change_with_cost_price(name)
+    def get_cost_price(self, name=None):
+        cost = super().get_cost_price(name)
         return cost + self.operations_cost
 
-    @fields.depends(methods=['get_operations_cost_margin'])
-    def on_change_with_list_price(self, name=None):
-        list_price = super().on_change_with_list_price(name)
+    def get_list_price(self, name=None):
+        list_price = super().get_list_price(name)
         list_price += self.get_operations_cost_margin()
         return list_price
 
-    @fields.depends('plan', '_parent_plan.operations_cost_margin',
-        'operations_cost')
     def get_operations_cost_margin(self):
         if not self.plan:
             return Decimal(0)
         margin = Decimal(str(self.plan.operations_cost_margin or 0))
         return round_price(self.operations_cost * margin)
 
-    @fields.depends('plan', '_parent_plan.operations', 'uom', 'quantity')
-    def on_change_with_operations_cost(self, name=None):
+    def get_operations_cost(self, name=None):
         if not self.quantity or not self.plan:
             return Decimal(0)
         cost = sum(x.get_total_cost(self.quantity, round=False)
