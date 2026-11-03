@@ -492,17 +492,29 @@ class PlanScale(ModelSQL, ModelView):
     def on_change_with_cost_price(self, name=None):
         return self.products_cost + self.additional_cost
 
-    @fields.depends('plan', '_parent_plan.products_cost_margin',
-        '_parent_plan.additional_costs_margin', 'products_cost',
-        'additional_cost')
+    @fields.depends(methods=['on_change_with_cost_price',
+            'get_products_cost_margin', 'get_additional_cost_margin'])
     def on_change_with_list_price(self, name=None):
         list_price = self.on_change_with_cost_price() or Decimal(0)
-        if self.plan:
-            margin = Decimal(str(self.plan.products_cost_margin or 0))
-            list_price += round_price(self.products_cost * margin)
-            margin = Decimal(str(self.plan.additional_costs_margin or 0))
-            list_price += round_price(self.additional_cost * margin)
+        list_price += self.get_products_cost_margin()
+        list_price += self.get_additional_cost_margin()
         return list_price
+
+    @fields.depends('plan', '_parent_plan.products_cost_margin',
+        'products_cost')
+    def get_products_cost_margin(self):
+        if not self.plan:
+            return Decimal(0)
+        margin = Decimal(str(self.plan.products_cost_margin or 0))
+        return round_price(self.products_cost * margin)
+
+    @fields.depends('plan', '_parent_plan.additional_costs_margin',
+        'additional_cost')
+    def get_additional_cost_margin(self):
+        if not self.plan:
+            return Decimal(0)
+        margin = Decimal(str(self.plan.additional_costs_margin or 0))
+        return round_price(self.additional_cost * margin)
 
     @fields.depends('plan', '_parent_plan.additional_costs', 'quantity')
     def on_change_with_additional_cost(self, name=None):
