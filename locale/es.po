@@ -6,6 +6,10 @@ msgctxt "field:product.cost.plan,additional_costs:"
 msgid "Additional Costs"
 msgstr "Costes adicionales"
 
+msgctxt "field:product.cost.plan,additional_costs_margin:"
+msgid "Additional Costs Margin %"
+msgstr "Margen de los costes adicionales (%)"
+
 msgctxt "field:product.cost.plan,all_products:"
 msgid "All Products"
 msgstr "Todos los productos"

@@ -6,6 +6,10 @@ msgctxt "field:product.cost.plan,additional_costs:"
 msgid "Additional Costs"
 msgstr "Costos addicionals"
 
+msgctxt "field:product.cost.plan,additional_costs_margin:"
+msgid "Additional Costs Margin %"
+msgstr "Marge dels costos addicionals (%)"
+
 msgctxt "field:product.cost.plan,all_products:"
 msgid "All Products"
 msgstr "Tots els productes"

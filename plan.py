@@ -60,6 +60,8 @@ class Plan(DeactivableMixin, ModelSQL, ModelView):
         'plan', 'Additional Costs')
     products_cost_margin = fields.Float('Products Cost Margin %',
         digits=price_digits, required=True)
+    additional_costs_margin = fields.Float('Additional Costs Margin %',
+        digits=price_digits, required=True)
     scales = fields.One2Many('product.cost.plan.scale', 'plan', 'Scales')
     product_cost_price = fields.Function(fields.Numeric('Product Cost Price',
             digits=price_digits),
@@ -80,6 +82,10 @@ class Plan(DeactivableMixin, ModelSQL, ModelView):
 
     @staticmethod
     def default_products_cost_margin():
+        return 0.0
+
+    @staticmethod
+    def default_additional_costs_margin():
         return 0.0
 
     @staticmethod
@@ -487,12 +493,15 @@ class PlanScale(ModelSQL, ModelView):
         return self.products_cost + self.additional_cost
 
     @fields.depends('plan', '_parent_plan.products_cost_margin',
-        'products_cost', 'additional_cost')
+        '_parent_plan.additional_costs_margin', 'products_cost',
+        'additional_cost')
     def on_change_with_list_price(self, name=None):
         list_price = self.on_change_with_cost_price() or Decimal(0)
         if self.plan:
             margin = Decimal(str(self.plan.products_cost_margin or 0))
             list_price += round_price(self.products_cost * margin)
+            margin = Decimal(str(self.plan.additional_costs_margin or 0))
+            list_price += round_price(self.additional_cost * margin)
         return list_price
 
     @fields.depends('plan', '_parent_plan.additional_costs', 'quantity')
