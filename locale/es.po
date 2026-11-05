@@ -337,6 +337,10 @@ msgctxt "model:ir.message,text:lacks_the_product"
 msgid "The Cost Plan \"%(cost_plan)s\" lacks the product."
 msgstr "El plan de costes \"%(cost_plan)s\" carece de producto."
 
+msgctxt "model:ir.message,text:msg_additional_cost_type_unique"
+msgid "Each additional cost type can only appear once per cost plan."
+msgstr "Cada tipo de coste adicional solo puede aparecer una vez por plan de costes."
+
 msgctxt "model:ir.message,text:msg_operation_line_quantity_uom_required"
 msgid ""
 "The operation line \"%(line)s\" requires a Quantity UoM for standard "

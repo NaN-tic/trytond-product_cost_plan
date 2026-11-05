@@ -2,7 +2,8 @@
 # copyright notices and license terms.
 from decimal import Decimal
 # from sql import Null
-from trytond.model import ModelSQL, ModelView, DeactivableMixin, fields, tree
+from trytond.model import (
+    ModelSQL, ModelView, DeactivableMixin, Unique, fields, tree)
 from trytond.pool import Pool
 from trytond.pyson import Eval, Bool, If
 from trytond.transaction import Transaction
@@ -574,6 +575,15 @@ class PlanAdditionalCost(ModelSQL, ModelView):
             ('fixed', 'Fixed'),
             ], 'Calculation')
     cost = fields.Numeric('Cost', digits=price_digits, required=True)
+
+    @classmethod
+    def __setup__(cls):
+        super().__setup__()
+        table = cls.__table__()
+        cls._sql_constraints += [
+            ('plan_type_unique', Unique(table, table.plan, table.type),
+                'product_cost_plan.msg_additional_cost_type_unique'),
+            ]
 
     @staticmethod
     def default_calculation():

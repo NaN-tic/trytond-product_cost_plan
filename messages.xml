@@ -3,6 +3,9 @@
 this repository contains the full copyright notices and license terms. -->
 <tryton>
     <data grouped="1">
+        <record model="ir.message" id="msg_additional_cost_type_unique">
+            <field name="text">Each additional cost type can only appear once per cost plan.</field>
+        </record>
         <record model="ir.message" id="product_lines_will_be_removed">
             <field name="text">It will remove the existing Product Lines in this plan.</field>
         </record>
