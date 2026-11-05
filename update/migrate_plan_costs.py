@@ -1,4 +1,4 @@
-"""Migrate the removed product.cost.plan.cost model.
+"""Migrate the removed product.cost.plan.cost model and drop its table.
 
 Run once, after updating product_cost_plan and its active extensions::
 
@@ -10,9 +10,11 @@ without changes. The active extensions must no longer register
 product.cost.plan.cost (including product_cost_plan_margin).
 
 Manual costs retain their type and internal_cost, without applying a margin.
-The legacy records are preserved. Running this script again before cleaning
-up the legacy schema would duplicate the additional costs. All changes are
-committed together at the end.
+The legacy table is dropped only after migrating all records successfully.
+All changes are committed together at the end. Subsequent runs skip migration
+because the source table no longer exists. If an earlier version already
+migrated the data while preserving the source table, review the migrated data
+before running this script again.
 """
 
 from decimal import Decimal
@@ -26,6 +28,10 @@ from trytond.transaction import Transaction
 
 def migrate_costs():
     pool = Pool()
+    if any(name == 'product.cost.plan.cost'
+            for name, _ in pool.iterobject()):
+        raise RuntimeError(
+            'Update active extensions before removing product.cost.plan.cost.')
     Plan = pool.get('product.cost.plan')
     CostType = pool.get('product.cost.plan.cost.type')
     AdditionalCost = pool.get('product.cost.plan.additional_cost')
@@ -111,8 +117,11 @@ def migrate_costs():
     if additional_costs:
         AdditionalCost.create(additional_costs)
 
+    backend.TableHandler.drop_table(
+        'product.cost.plan.cost', legacy_cost._name)
     transaction.commit()
-    print('Migrated margins on %s plans; created %s fixed additional costs.'
+    print('Migrated margins on %s plans; created %s fixed additional costs; '
+        'dropped product_cost_plan_cost.'
         % (len(margins), len(additional_costs)))
 
 
