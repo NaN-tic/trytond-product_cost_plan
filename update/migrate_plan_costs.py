@@ -5,13 +5,14 @@ Run once, after updating product_cost_plan and its active extensions::
     trytond-console -c <config> -d <database> \
         --file update/migrate_plan_costs.py
 
-The old product_cost_plan_cost table and the system/plan_field_name columns
-of product_cost_plan_cost_type must still exist. The active extensions must
-no longer register product.cost.plan.cost (including product_cost_plan_margin).
+If a source table or required field no longer exists, the script exits
+without changes. The active extensions must no longer register
+product.cost.plan.cost (including product_cost_plan_margin).
 
 Manual costs retain their type and internal_cost, without applying a margin.
-The legacy records are preserved. Running this script again would duplicate
-the additional costs. All changes are committed together at the end.
+The legacy records are preserved. Running this script again before cleaning
+up the legacy schema would duplicate the additional costs. All changes are
+committed together at the end.
 """
 
 from decimal import Decimal
@@ -35,8 +36,22 @@ def migrate_costs():
     cost_type = CostType.__table__()
     plan = Plan.__table__()
 
-    if not backend.TableHandler.table_exist(legacy_cost._name):
-        raise RuntimeError('Legacy table product_cost_plan_cost is missing.')
+    for table, columns in (
+            (legacy_cost, ('id', 'plan', 'type', 'system', 'margin_percent',
+                    'internal_cost')),
+            (cost_type, ('id', 'plan_field_name')),
+            (plan, ('id',))):
+        if not backend.TableHandler.table_exist(table._name):
+            print('Skipping migration: table %s is missing.' % table._name)
+            return
+        # Inspect columns without creating or altering the legacy tables.
+        cursor.execute(*table.select(limit=0))
+        existing_columns = {column[0] for column in cursor.description}
+        for column in columns:
+            if column not in existing_columns:
+                print('Skipping migration: column %s.%s is missing.'
+                    % (table._name, column))
+                return
 
     cursor.execute(*legacy_cost.join(
             cost_type, type_='LEFT',
@@ -72,7 +87,9 @@ def migrate_costs():
                     'Unsupported system cost %s: %s.' % (cost_id, field_name))
             target_field = margin_fields[field_name]
             if target_field not in Plan._fields:
-                raise RuntimeError('Missing plan field: %s.' % target_field)
+                print('Skipping migration: plan field %s is missing.'
+                    % target_field)
+                return
             values = margins.setdefault(plan_id, {})
             margin = float(margin or 0)
             if target_field in values and values[target_field] != margin:
