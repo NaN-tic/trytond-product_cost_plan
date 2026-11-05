@@ -3,6 +3,9 @@
 this repository contains the full copyright notices and license terms. -->
 <tryton>
     <data grouped="1">
+        <record model="ir.message" id="msg_additional_cost_type_unique">
+            <field name="text">Each additional cost type can only appear once per cost plan.</field>
+        </record>
         <record model="ir.message" id="product_lines_will_be_removed">
             <field name="text">It will remove the existing Product Lines in this plan.</field>
         </record>
@@ -14,9 +17,6 @@ this repository contains the full copyright notices and license terms. -->
         </record>
         <record model="ir.message" id="product_already_has_bom">
             <field name="text">Product "%(product)s" already has a BOM assigned.</field>
-        </record>
-        <record model="ir.message" id="delete_system_cos">
-            <field name="text">You can not delete cost "%(cost)s" from plan "%(plan)s" because it's managed by system.</field>
         </record>
         <record model="ir.message" id="msg_product_line_plan_parent">
             <field name="text">The line "%(line)s" can only set plan or parent, not both options.</field>

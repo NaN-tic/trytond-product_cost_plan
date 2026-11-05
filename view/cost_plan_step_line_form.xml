@@ -26,6 +26,4 @@
     <field name="quantity"/>
     <label name="unit_cost"/>
     <field name="unit_cost"/>
-    <label name="total_cost"/>
-    <field name="total_cost"/>
 </form>

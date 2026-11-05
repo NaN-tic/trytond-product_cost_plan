@@ -5,8 +5,11 @@
     <xpath expr="/form/notebook/page[@id='products']" position="after">
         <page string="Operations" id="operations">
             <field name="operations" colspan="4"/>
-            <label name="operations_cost"/>
-            <field name="operations_cost"/>
         </page>
+    </xpath>
+    <xpath expr="/form/notebook/page[@id='scales']/field[@name='products_cost_margin']"
+        position="after">
+        <label name="operations_cost_margin"/>
+        <field name="operations_cost_margin" factor="100"/>
     </xpath>
 </data>

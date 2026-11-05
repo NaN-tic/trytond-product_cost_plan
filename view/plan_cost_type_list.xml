@@ -3,5 +3,4 @@
      copyright notices and license terms. -->
 <tree>
     <field name="name"/>
-    <field name="system"/>
 </tree>

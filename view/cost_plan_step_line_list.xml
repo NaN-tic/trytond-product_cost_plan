@@ -12,5 +12,4 @@
     <field name="time"/>
     <field name="quantity"/>
     <field name="unit_cost"/>
-    <field name="total_cost"/>
 </tree>

@@ -1,9 +1,14 @@
 <?xml version="1.0"?>
 <!-- The COPYRIGHT file at the top level of this repository contains the full
      copyright notices and license terms. -->
-<tree editable="1" sequence="sequence">
+<form>
+    <label name="plan"/>
     <field name="plan"/>
+    <newline/>
+    <label name="type"/>
     <field name="type"/>
+    <label name="calculation"/>
+    <field name="calculation"/>
+    <label name="cost"/>
     <field name="cost"/>
-    <field name="system"/>
-</tree>
+</form>
