@@ -1,4 +1,4 @@
-"""Remove obsolete columns from product_cost_plan_cost_type if they exist.
+"""Remove obsolete cost types and columns if they exist.
 
 Run after updating product_cost_plan and its active extensions::
 
@@ -15,6 +15,14 @@ from trytond.transaction import Transaction
 
 pool = Pool()
 CostType = pool.get('product.cost.plan.cost.type')
+
+with Transaction().set_context(language='en'):
+    cost_types = CostType.search([
+            ('name', 'in', ['Raw materials', 'Operations']),
+            ])
+    if cost_types:
+        CostType.delete(cost_types)
+
 table = CostType.__table_handler__()
 
 for column in ('system', 'plan_field_name', 'minimum_percent'):
