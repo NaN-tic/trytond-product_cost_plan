@@ -31,7 +31,7 @@
         <page string="Additional Costs" id="additional_costs">
             <field name="additional_costs" colspan="4"/>
         </page>
-        <page string="Scales" id="scales">
+        <page string="Scaling" id="scales">
             <label name="products_cost_margin"/>
             <field name="products_cost_margin" factor="100"/>
             <label name="additional_costs_margin"/>

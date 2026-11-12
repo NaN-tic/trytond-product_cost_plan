@@ -63,7 +63,7 @@ class Plan(DeactivableMixin, ModelSQL, ModelView):
         digits=price_digits, required=True)
     additional_costs_margin = fields.Float('Additional Costs Margin %',
         digits=price_digits, required=True)
-    scales = fields.One2Many('product.cost.plan.scale', 'plan', 'Scales')
+    scales = fields.One2Many('product.cost.plan.scale', 'plan', 'Scaling')
     product_cost_price = fields.Function(fields.Numeric('Product Cost Price',
             digits=price_digits),
         'on_change_with_product_cost_price')

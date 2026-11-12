@@ -75,8 +75,8 @@ msgid "Quantity"
 msgstr "Quantitat"
 
 msgctxt "field:product.cost.plan,scales:"
-msgid "Scales"
-msgstr "Escales"
+msgid "Scaling"
+msgstr "Escalat"
 
 msgctxt "field:product.cost.plan,uom:"
 msgid "UoM"
@@ -512,8 +512,8 @@ msgid "Products"
 msgstr "Productes"
 
 msgctxt "view:product.cost.plan:"
-msgid "Scales"
-msgstr "Escales"
+msgid "Scaling"
+msgstr "Escalat"
 
 msgctxt "wizard_button:product.cost.plan.create_bom,start,bom:"
 msgid "Ok"
